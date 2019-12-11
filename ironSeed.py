@@ -1,0 +1,56 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Nov 24 15:00:33 2019
+Game state machine.
+Handles the main render and tick loop.
+@author: Nuke Bloodaxe
+"""
+import pygame, sys, time, random, numpy, pygame.sndarray, intro_main
+import global_constants as g
+import helper_functions as h
+
+class IronSeed(object):
+    def __init__(self):
+        self.state = 3 # initilise with intro set.
+
+        self.creditText = ["1994 Channel 7, Destiny: Virtual",
+                          "Released Under GPL V3.0 in 2013 by Jeremy D Stanton of IronSeed.net",
+                          "2013 y-salnikov - Converted IronSeed to FreePascal and GNU/Linux",
+                          "2016 Nuke Bloodaxe - Pascal Code Tidying/Prep",
+                          "2020 Nuke Bloodaxe - Complete Python Refactor/Rewrite",
+                          "All rights reserved."]
+        self.versionText = ["Ironseed", g.version]
+        
+        # Set Window version and Display surface
+        self.displaySurface = pygame.display.set_mode(g.size)
+        pygame.display.set_caption(self.versionText[0]+' '+self.versionText[1])
+        
+        #initialise game objects
+        self.intro = intro_main.IronseedIntro()
+        
+        self.states = {1:"crewgen",
+                       2:"main",
+                       3:self.intro.update}
+        
+        
+    
+    def main_loop(self):
+        
+        #Display copyright credits on start.
+        self.displaySurface.fill(g.BLACK)
+        h.renderText(self.creditText,g.font,self.displaySurface,g.WHITE,g.offset)
+        pygame.display.update()
+            
+        # wait some seconds
+        pygame.time.wait(4000)
+        
+        # enter main state and logic loop.
+        while 1:
+            for evt in pygame.event.get():
+                if evt.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+            self.state = self.states[self.state](self.displaySurface)
+            #self.state(self.displaySurface)
+            pygame.display.update()
+        
