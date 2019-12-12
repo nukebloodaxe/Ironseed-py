@@ -28,9 +28,15 @@ class IronSeed(object):
         #initialise game objects
         self.intro = intro_main.IronseedIntro()
         
-        self.states = {1:"crewgen",
-                       2:"main",
-                       3:self.intro.update}
+        self.states = {1:"crewgen", # The crew + ship selection system.
+                       2:"main", # Main menu.
+                       3:self.intro.update, #Game Intro - quite useful for testing.
+                       4:"cargo", # ship cargo system, includes item assembly.
+                       5:"Planet", #Planet surveys and drone ops.
+                       6:"Communications", #Comms between ships/planets
+                       7:"Combat", #Normal and simulated combat.
+                       8:"crewcomm", #"talk" with crew members.
+                       9:"EGO"} #placeholder for ego-synth manipulation.
         
         
     

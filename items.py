@@ -18,6 +18,7 @@ class Item(object):
         self.levels = levels
 
 # This data should be added to a dictionary, by name, on load.
+#By tradition, the Iron Seed three items requirement is used.
 class createItem(Item):
     def __init__(self, name, cargoSize, worth, levels, part1, part2, part3):
         self.part1 = part1
@@ -25,9 +26,9 @@ class createItem(Item):
         self.part3 = part3
         Item.__init__(self,name,cargoSize,worth,levels)
 
-#Populate the item and item creation dictionaries.
+#Populate the item and item construction dictionaries.
 #we load from two different data files to do this, tab delimited.
-# Data Order: Name, cargosize, worth, part1, part2, part3, levels
+#Data Order: Name, cargosize, worth, part1, part2, part3, levels
 def loadItemData(file1,file2):
     itemFile = io.open("Data_Generators\Other\IronPy_items.tab", "r")
     itemString = itemFile.readline() #title line
@@ -71,6 +72,8 @@ def loadItemData(file1,file2):
                                                   decodedItem[1],
                                                   0,[0,0,0,0,0,0]]
             except:
+                #Usually indicates the file we are loading is incorrectly
+                #formatted.  If you are modding, double-check your tabs.
                 print("Absolutely fatal error on creating items")    
             
         S1 = itemFile.readline()
