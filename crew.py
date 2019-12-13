@@ -4,6 +4,8 @@ Created on Mon Nov 25 19:12:22 2019
 Crewmember Datastructure
 @author: Nuke Bloodaxe
 """
+#TODO: Levelup messaging system, and crew messages in general.
+
 import io, pygame, random, global_constants as g
 
 levelData ={0:0,1:1000,2:3000,3:7000,4:11000,5:18000,6:29000,7:47000,8:76000,
@@ -69,6 +71,24 @@ class CrewMember(object):
         if levelData[self.level+1] < self.experience:
             self.level += 1
             levelUp = True
+            
+            if self.mental < 99:
+                self.mental += 1
+            if self.emotion < 99:
+                self.emotion += 1
+            if self.physcial < 99:
+                self.physcial += 1
+                
+        return levelUp
+    
+    #Add experience and check to see if we leveled up.
+    def addXP(self, amount):
+        levelUp = False
+        if self.experience < 25000000:
+        
+            self.experience += amount
+            levelUp = self.checkLevel()
+            
         return levelUp
     
     #Resize the crew graphic according to the provided parameters.
@@ -145,6 +165,10 @@ class CrewMember(object):
             skillCheck = True
         return skillCheck, sanityReport
     
+    #Crewmember message, add colour parameter later.
+    def crewMessage(self, message):
+        return self.position + ': ' + message
+    
 #Crew module for main game, our selected crew members live here, along with
 #all crew game-tick related functions.
 class crew(object):
@@ -163,31 +187,105 @@ class crew(object):
         self.crew = [self.psychometry, self.engineering, self.science,
                      self.security, self.astrogation, self.medical]
     
-    #EGO sanity failure.
+    #EGO sanity failure.  Returns text output of insane EGO, or blank string
+    #if it's still holding it together.
     def sanityFailure(self, crewMember):
         sanityResult = ""
         if (crewMember.mental < 10) or (crewMember.emotion < 10) or (crewMember.physical < 10):
             sanityResult = crewMember.tempInsanity()
         d8Roll = random.random(8)
-        if (i == 1) and (crewMember.mental > 0):
+        if (d8Roll == 1) and (crewMember.mental > 0):
             crewMember.mental -= 1
-        elif (i == 2) and (crewMember.physical > 0):
+        elif (d8Roll == 2) and (crewMember.physical > 0):
             crewMember.physcial -= 1
-        elif (i == 4) and (crewMember.emotion > 0):
+        elif (d8Roll == 4) and (crewMember.emotion > 0):
             crewMember.emotion -= 1
                 
         return sanityResult
     
-    #Perform Sanity Test on ship crew, only need one person to have lost plot
-    # for whole crew to be checked.
-    def sanityTest(self, background, difficulty):
-        pass
+    #Perform Sanity Test on crewMember.  This is effectively a D8 roll
+    #with an added difficulty value.
+    def sanityTest(self, crewMember, difficulty):
+        sanityResult = False
+        sanity = crewMember.sanity
+        diff = difficulty
+        if crewMember.sanity <= 5:
+            sanity = 5
+        if diff <= 0:
+            diff = 1
+        if random.random(sanity+diff) < sanity:
+            sanityResult = True
+        
+        return sanityResult
     
-    #Test Crew Stress
+    #Stress test crewMember.  Failure increments game stress level.
+    #Note: this almost looks like a primative form of the modern game director.
+    def crewStress(self, crewMember, difficulty):
+        diff = difficulty - crewMember.performance
+        
+        if not self.sanityTest(crewMember,diff):
+            if g.gameStatus < 99:
+                g.gameStatus += 1
+    
+    def performanceTest(self, crewMember, difficulty):
+        perf = crewMember.performance
+        diff = difficulty
+        performanceResult = False
+        if perf <= 5:
+            perf = 5
+        if diff <= 0:
+            diff = 1
+        if random.random(perf+diff) < perf:
+            performanceResult = True
+        
+        return performanceResult
+
+
+    def performanceRange(self, crewMember, difficulty):
+        perf = crewMember.performance
+        diff = difficulty
+        if perf <= 5:
+            perf = 5
+        if diff <= 0:
+            diff = 1
+        
+        return random.random(perf) - random.random(diff)
+    
+    
+    def skillTest(self, crewMember, difficulty, learn):
+        skillResult = False
+        skill = crewMember.skill
+        diff = difficulty
+        if skill <= 5:
+            skill = 5
+        if diff <= 0:
+            diff = 1
+        if random.random(skill+diff) < skill:
+            skillResult = True
+            self.crewStress(crewMember, 0)
+        else:
+            self.crewStress(crewMember,abs(diff-skill))
+        if random(1000) < learn:
+            skillResult = crewMember.addXP(difficulty)
+        return skillResult
+    
+    def skillRange(self, crewMember, difficulty, learn):
+        skill = crewMember.skill
+        diff = difficulty
+        if skill <= 5:
+            skill = 5
+        if diff <= 0:
+            diff = 1
+        if random(1000) < learn:
+            crewMember.addXP(difficulty)
+        self.crewStress(crewMember,(100*diff)/skill)
+        return random.random(skill)-random.random(diff)
+    
     
     
     #Crew update tick function.
     def update(self):
+        
         pass
 
     

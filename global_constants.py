@@ -21,3 +21,6 @@ RED = (255,0,0)
 #fonts
 font = pygame.font.Font('Fonts\\NotoSansTC-Regular.otf', 12)
 offset = 20 # for this font.
+
+#game related constants; will be class integrated later.
+gameStatus = 0
