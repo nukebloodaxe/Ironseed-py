@@ -15,25 +15,26 @@ levelData ={0:0,1:1000,2:3000,3:7000,4:11000,5:18000,6:29000,7:47000,8:76000,
 CrewData = [] #All crew members from disk.
 
 #Insanity Index :)  Remember kids, don't do drugs.
-insanityIndex = {0:'Out of memory error on brain '+chr(n+64)+'.',
-                 1:'Brain '+chr(n+64)+' not a supported device.',
-                 2:'Read error on brain '+chr(n+64)+' incompatible media.',
-                 3:'CRC checksum error on brain '+chr(n+64)+'.',
-                 4:'Brain '+chr(n+64)+' has been upgraded to patch level 3.',
-                 5:'Segmentation error on brain '+chr(n+64)+'. Reboot?',
+# ^ was '+chr(n+64)+'
+insanityIndex = {0:'Out of memory error on brain ^.',
+                 1:'Brain ^ not a supported device.',
+                 2:'Read error on brain ^ incompatible media.',
+                 3:'CRC checksum error on brain ^.',
+                 4:'Brain ^ has been upgraded to patch level 3.',
+                 5:'Segmentation error on brain ^. Reboot?',
                  6:'Mentation error, corpse dumped.',
-                 7:'Network error on brain '+chr(n+64)+'. Abandom, Retry, Apologize?',
-                 8:'Brain '+chr(n+64)+' is not a system brain.',
+                 7:'Network error on brain ^. Abandom, Retry, Apologize?',
+                 8:'Brain ^ is not a system brain.',
                  9:'Runtime error in LIFE.BIN.',
                  10:'Runtime error 226 in LIFE.BIN exceeded 10.',
-                 11:'Divide by zero error in brain '+chr(n+64)+'.',
-                 12:'Write protection fault on core sector 02AF'+chr(n+64)+'.',
+                 11:'Divide by zero error in brain ^.',
+                 12:'Write protection fault on core sector 02AF^.',
                  13:'Runtime error 1 in program CHECKING.BIN.',
                  14:'Underflow error in CHECKING.EXE.',
                  15:'Overflow in TOWELETBOWEL.EXE. Flush stack?',
                  16:'Interrupt vector table restored.',
                  17:'Default settings.',
-                 18:'Power fluxuation detected on brain '+chr(n+64)+'.'}
+                 18:'Power fluxuation detected on brain ^.'}
 
 #Base crewmember class, all crew file data ultimately goes here.
 class CrewMember(object):
@@ -154,6 +155,7 @@ class CrewMember(object):
             #Check to see if we've lost the plot completely.
             if self.performance == 0:
                 sanityReport = self.sanityCheck()
+                #TODO
                 if self.skill > 0: self.skill -= 1
                 if self.physical > 1:
                     self.physical -= 2
@@ -171,7 +173,7 @@ class CrewMember(object):
     
 #Crew module for main game, our selected crew members live here, along with
 #all crew game-tick related functions.
-class crew(object):
+class Crew(object):
     #IronSeed has 6 roles, as given, this could be upped in Mods.
     def __init__(self, psychometry, engineering, science, security, astrogation, medical,):
         self.prime = 0 # Player Role, traditionally Role 0, name "PRIME".
@@ -186,6 +188,21 @@ class crew(object):
         # simpler for numerical random lookups.
         self.crew = [self.psychometry, self.engineering, self.science,
                      self.security, self.astrogation, self.medical]
+        self.crewMessages = [] # new internal feature, Messages from crew
+                                # members that need printing can be queued
+                                # for display later.
+    
+    # Add a message to the pending messages queue, these are printed onscreen
+    # later.
+    def addMessage(self, message):
+        self.crewMessages.append(message)
+    
+    #Get a message from the pending messages queue.  Returns an empty string
+    #when no messages are pending.
+    def getMessage(self):
+        if len(self.crewMessages) == 0:
+            return ""
+        return self.crewMessages.pop()
     
     #EGO sanity failure.  Returns text output of insane EGO, or blank string
     #if it's still holding it together.
@@ -266,7 +283,8 @@ class crew(object):
         else:
             self.crewStress(crewMember,abs(diff-skill))
         if random(1000) < learn:
-            skillResult = crewMember.addXP(difficulty)
+            if crewMember.addXP(difficulty):
+                self.addMessage(crewMember.crewMessage('Increased knowledge base.'))
         return skillResult
     
     def skillRange(self, crewMember, difficulty, learn):
@@ -277,7 +295,8 @@ class crew(object):
         if diff <= 0:
             diff = 1
         if random(1000) < learn:
-            crewMember.addXP(difficulty)
+            if crewMember.addXP(difficulty):
+                self.addMessage(crewMember.crewMessage('Increased knowledge base.'))
         self.crewStress(crewMember,(100*diff)/skill)
         return random.random(skill)-random.random(diff)
     

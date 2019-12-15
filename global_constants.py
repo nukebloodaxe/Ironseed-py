@@ -24,3 +24,7 @@ offset = 20 # for this font.
 
 #game related constants; will be class integrated later.
 gameStatus = 0
+
+eventFlags = [] # Having the events system as flags makes things much simpler.
+
+systemsVisited = []

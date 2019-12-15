@@ -15,7 +15,9 @@ class Item(object):
         self.name = name
         self.cargoSize = cargoSize
         self.worth = worth
-        self.levels = levels
+        self.levels = levels #These appear to be the level requirements
+                             #for each type of crew member. [6 crew, 6 levels.]
+        #[psychometry, engineering, science, security, astrogation, medical]
 
 # This data should be added to a dictionary, by name, on load.
 #By tradition, the Iron Seed three items requirement is used.
@@ -70,7 +72,7 @@ def loadItemData(file1,file2):
             try:
                 itemDictionary[decodedItem[0]] = [decodedItem[0],
                                                   decodedItem[1],
-                                                  0,[0,0,0,0,0,0]]
+                                                  0,[1,1,1,1,1,1]]
             except:
                 #Usually indicates the file we are loading is incorrectly
                 #formatted.  If you are modding, double-check your tabs.
