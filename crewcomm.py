@@ -19,18 +19,41 @@ CrewReplies = {} #crewmember{}->Key Respose Code->[responses]
 #Dictionary of replies, index by reponse code.  Contains lists.
 
 class crewComm(object):
-    def __init__(self,crew):
-        self.crewMembers = crew
+    def __init__(self, shipCrew):
+        self.crewMembers = shipCrew
         self.selectedCrew = 0 #nobody
-        
+        #Prepare background image
+        self.charCom = pygame.image.load("Graphics_Assets\\charcom.png")
+        self.charComScaled = pygame.transform.scale(self.charCom,(g.width,g.height))
+        self.musicState = False
         
     def update(self, displaySurface):
         return self.communicate(displaySurface)
+
+    #Compare the keyword against all event entries and check to see which
+    #flags have been tripped, return the reply entry matching the highest
+    #tripped flag number.
+    def checkKeywordEventFlags(self, keyword = ""):
+        
+        pass
+    
+    #Parse the string of text looking for keywords present in the crewKeywords
+    #Dictionary.  Returns a reply based on the best event flag for the text.
+    def textInterpret(self, text=""):
+        tokenisedText = text.split()
+        pass
     
     def communicate(self,displaySurface):
-        
+        displaySurface.blit(self.charComScaled,(0,0)) # Set background.
+        #Start main intro music
+        if self.musicState == False:
+            pygame.mixer.music.load("sound\\CREWCOMM.OGG")
+            pygame.mixer.music.play()
+            self.musicState = True
         return 6 # TODO, currently loops communication system for testing.
-    
+
+
+
 #load all crew comversation related data.
 #file location and prefix, Number of files(file number), extension.
 #Note: We have some advantages with the reposnse lines, as they are written

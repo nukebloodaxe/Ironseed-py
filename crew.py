@@ -203,15 +203,15 @@ class Crew(object):
                                 # for display later.
     
     # Add a message to the pending messages queue, these are printed onscreen
-    # later.
-    def addMessage(self, message):
-        self.crewMessages.append(message)
+    # later.  crewMember is the EGO Synth containment unit number.
+    def addMessage(self, message, crewMember):
+        self.crewMessages.append((message, crewMember))
     
     #Get a message from the pending messages queue.  Returns an empty string
     #when no messages are pending.
     def getMessage(self):
         if len(self.crewMessages) == 0:
-            return ""
+            return ("",-1) # No message.
         return self.crewMessages.pop()
     
     #EGO sanity failure.  Returns text output of insane EGO, or blank string
