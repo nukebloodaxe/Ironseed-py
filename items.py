@@ -80,6 +80,7 @@ def loadItemData(file1="Data_Generators\Other\IronPy_items.tab",
                                                   decodedItem[1],
                                                   0,[1,1,1,1,1,1]]
             except:
+                print("Tried Key:", decodedItem[0])
                 #Usually indicates the file we are loading is incorrectly
                 #formatted.  If you are modding, double-check your tabs.
                 print("Absolutely fatal error on creating items")    
@@ -98,7 +99,8 @@ def loadItemData(file1="Data_Generators\Other\IronPy_items.tab",
         except KeyError:
             print("Tried Key:", itemName)
             #Usually indicates the file we are loading is incorrectly
-            #formatted.  If you are modding, double-check your tabs.
+            #formatted.  If you are modding, double-check your item
+            #files, as you may have a spelling mistake in the key names.
             print("Absolutely fatal error on adding item description.")    
         
         # An Item Description has now been loaded.
