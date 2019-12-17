@@ -20,7 +20,7 @@ CrewReplies = {} #crewmember{}->Key Respose Code->[responses]
 
 class crewComm(object):
     def __init__(self,crew):
-        self.crew = crew
+        self.crewMembers = crew
         self.selectedCrew = 0 #nobody
         
         
@@ -48,6 +48,7 @@ def loadCrewCommunications(file="Data_Generators\Other\crewcon",count=6,extensio
         temp = [""]
         while temp[0] != "ENDF":
             commDataString = (commFile.readline().split('\n')[0]).split('\t') #Data Line
+            #print(commDataString) # for debug.
             keyWords = commDataString[4].split('*')
             for word in keyWords:
                 try:
