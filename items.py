@@ -18,6 +18,7 @@ class Item(object):
         self.levels = levels #These appear to be the level requirements
                              #for each type of crew member. [6 crew, 6 levels.]
         #[psychometry, engineering, science, security, astrogation, medical]
+        self.description #Item description.
 
 # This data should be added to a dictionary, by name, on load.
 #By tradition, the Iron Seed three items requirement is used.
@@ -31,17 +32,22 @@ class createItem(Item):
 #Populate the item and item construction dictionaries.
 #we load from two different data files to do this, tab delimited.
 #Data Order: Name, cargosize, worth, part1, part2, part3, levels
-def loadItemData(file1,file2):
-    itemFile = io.open("Data_Generators\Other\IronPy_items.tab", "r")
+def loadItemData(file1="Data_Generators\Other\IronPy_items.tab",
+                 file2="Data_Generators\Other\IronPy_itemdata.tab",
+                 file3="Data_Generators\Other\IronPy_iteminfo.tab"):
+    itemFile = io.open(file1, "r")
     itemString = itemFile.readline() #title line
     itemString = itemFile.readline() #spacer line
     itemString = itemFile.readline() #real data
-    constructFile = io.open("Data_Generators\Other\IronPy_itemdata.tab", "r")
+    constructFile = io.open(file2, "r")
     constString = constructFile.readline() #title line
     constString = constructFile.readline() #spacer line
     constString = constructFile.readline() #real data    
+    iteminfoFile = io.open(file3, "r")
+    iteminfoString = iteminfoFile.readline() # immediate real data
     S1 = itemString #used plenty, so must be short, is read string from file.
     S2 = constString #Used plenty, so must be short, is read string from file.
+    S3 = iteminfoString #Used plenty, so must be short, is read string from file.
     
     while S2 != "":
         decodedConst = S2.split('\t')
@@ -79,6 +85,25 @@ def loadItemData(file1,file2):
                 print("Absolutely fatal error on creating items")    
             
         S1 = itemFile.readline()
+    
+    while S3 != "ENDF":
+        itemName = S3.split('\n')[0]
+        S3 = iteminfoFile.readline().split('\n')[0]
+        itemDescription = []
+        while S3 != "EOD" and S3 != "ENDF":
+            itemDescription.append(S3)
+            S3 = iteminfoFile.readline().split('\n')[0]
+        try:
+            itemDictionary[itemName].append(itemDescription)
+        except KeyError:
+            print("Tried Key:", itemName)
+            #Usually indicates the file we are loading is incorrectly
+            #formatted.  If you are modding, double-check your tabs.
+            print("Absolutely fatal error on adding item description.")    
         
+        # An Item Description has now been loaded.
+        S3 = iteminfoFile.readline()
+    
     itemFile.close()
     constructFile.close()
+    iteminfoFile.close()

@@ -42,7 +42,7 @@ def loadCrewCommunications(file="Data_Generators\Other\crewcon",count=6,extensio
         commFile = io.open(file+str(index)+extension, "r")
         commDataString = []
         keyWords = []
-        commResponseString = []
+        #commResponseString = [""]
         CrewKeywords[index] = {}
         CrewReplies[index] = {}
         temp = [""]

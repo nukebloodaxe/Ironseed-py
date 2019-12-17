@@ -42,13 +42,13 @@ class CrewMember(object):
                  position="UNKNOWN", physical=0, mental=0, emotion=0, bio=[""],
                  image=0):
         self.name = name
-        self.experience = levelData[level]
-        self.level = level
+        self.experience = levelData[int(level)]
+        self.level = int(level)
         self.sex = sex #Freeform field; some are robots originally.
         self.position = position
-        self.physical = physical
-        self.mental = mental
-        self.emotion = emotion
+        self.physical = int(physical)
+        self.mental = int(mental)
+        self.emotion = int(emotion)
         self.bio = bio[:] # Historically 10 lines at 52 chars
         #I'm sure we can do better than just this...
         #Although the concept of an ego synth is a little limiting.
@@ -65,6 +65,16 @@ class CrewMember(object):
         self.performance = self.mental*0.6 + self.physical*0.4 - self.emotion*0.2
         self.skill = self.physical*0.6 + self.emotion*0.4 - self.mental*0.2
         
+    def printDebug(self):
+        print(self.name)
+        print(self.experience)
+        print(self.level)
+        print(self.sex)
+        print(self.position)
+        print(self.physical)
+        print(self.mental)
+        print(self.emotion)
+        print(self.bio)
         
     def checkLevel(self):
         if self.level == 20: return False
@@ -77,8 +87,8 @@ class CrewMember(object):
                 self.mental += 1
             if self.emotion < 99:
                 self.emotion += 1
-            if self.physcial < 99:
-                self.physcial += 1
+            if self.physical < 99:
+                self.physical += 1
                 
         return levelUp
     
@@ -314,13 +324,13 @@ def loadCrewData(file="Data_Generators\Other\IronPy_crew.tab"):
     crewFile = io.open(file, "r")
     crewName = ""
     crewDataString = []
-    crewBioString = [] #Character Bio
     temp = ""
     count = 1 # image file names start at 01 (e.g. image01.png)
     while temp != "ENDF":
         crewName = crewFile.readline().split('\n')[0] #name line
         crewDataString = (crewFile.readline().split('\n')[0]).split('\t') #Data Line line
         temp = crewFile.readline().split('\n')[0]
+        crewBioString = [] #Character Bio
         while temp != "END" and temp != "ENDF":
             crewBioString.append(temp)
             temp = crewFile.readline().split('\n')[0]

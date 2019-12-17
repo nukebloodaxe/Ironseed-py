@@ -10,7 +10,7 @@ Flail	3000
 Short Bow	800
 Long Bow	1500
 Ballista	2700
-Hvy.Ballista	3000
+Heavy Ballista	3000
 Arquebus	2300
 Tnglor Eggs	1500
 Needlers	1800
@@ -69,13 +69,16 @@ Neuro Null Array	3000
 Terminex Projection	3100
 Shift Distortion	3500
 Inertial Barrier	3500
-Multi Phase Inverter	2000
+MultiPhase Inverter	2000
 Temporal Anchor	1500
 Nothing	0
 Probot	470
 Minebot	1250
 Manufactory	3430
+Fabricator	5120
+Starminer	1750
 Fuel Nodules	6
+Stardiver	680
 Reinforce Hull	750
 Increase Thrust	20
 Add Cargo Space	15
@@ -84,7 +87,7 @@ Mind Enhancers	10
 Unknown Component	0
 Solonoid	3
 Data Board	4
-Cyberplasma	4
+Cyberplasm	4
 Disei Conduit	5
 Steoplast	3
 Flux Lens	2
@@ -102,7 +105,7 @@ Masking Pod	4
 Guidance Strut	3
 Strata Mount	5
 Ion Cache	3
-Thermo Plast	3
+ThermoPlast	3
 Unknown Material	1
 Protoplasm	1
 Polymers	1
@@ -127,7 +130,7 @@ Worthless Junk	1
 Protic Liquids	1
 Alkene	1
 Alkyne	1
-Volitile Compounds	1
+Volatile Compounds	1
 Ether	1
 Aldehydes/Ketone	1
 Carboxylic Acid	1
@@ -138,6 +141,6 @@ Salts	1
 Lensing Solid	1
 Heavy Element	1
 Transition Metal	1
-Halogens/NobleGas	1
+Halogens/Noble Gas	1
 Amino Acid	1
 Industrial Chemical	1
