@@ -6,7 +6,7 @@ Handles the main render and tick loop.
 @author: Nuke Bloodaxe
 """
 import pygame, sys, time, random, numpy, pygame.sndarray, intro_main
-import gameGenerator as gen
+import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
 import helper_functions as h

@@ -18,7 +18,7 @@ These really deserve their own class and file.
 
 #name, State, variation, Life/Technology level
 
-Systems = {}
+PlanetarySystems = {}
 
 Planets = {}
 
@@ -27,12 +27,12 @@ class Planet(object):
         self.name = name
         self.state = state
         self.grade = grade
-        self.outpost = 0
-        self.owned = 0
+        self.outpost = 0 #Extra feature, is this an outpost?
+        self.owned = 0 #Extra feature, the owner of the planet.
         
-class System(object):
+class PlanetarySystem(object):
     def __init__(self, systemName = "Buggy", planets = Planets):
-        self.systemName = name
+        self.systemName = systemName
         self.planets = planets
         
 
