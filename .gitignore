@@ -6,3 +6,5 @@ Graphics_Assets/main.pal
 __pycache__/helper_functions.cpython-37.pyc
 __pycache__/crew.cpython-37.pyc
 __pycache__/items.cpython-37.pyc
+__pycache__/planets.cpython-37.pyc
+__pycache__/ship.cpython-37.pyc

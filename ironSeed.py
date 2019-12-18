@@ -6,6 +6,8 @@ Handles the main render and tick loop.
 @author: Nuke Bloodaxe
 """
 import pygame, sys, time, random, numpy, pygame.sndarray, intro_main
+import gameGenerator as gen
+import crewcomm as crewC
 import global_constants as g
 import helper_functions as h
 
@@ -27,15 +29,17 @@ class IronSeed(object):
         
         #initialise game objects
         self.intro = intro_main.IronseedIntro()
+        self.generator = gen.Generator()
+        self.crewCom = crewC.crewComm #Needs work before it'll intialise.
         
-        self.states = {1:"crewgen", # The crew + ship selection system.
+        self.states = {1:self.generator.update, # The crew + ship selection system.
                        2:"main", # Main menu.
                        3:self.intro.update, #Game Intro - quite useful for testing.
                        4:"cargo", # ship cargo system, includes item assembly.
                        5:"Planet", #Planet surveys and drone ops.
                        6:"Communications", #Comms between ships/planets
                        7:"Combat", #Normal and simulated combat.
-                       8:"crewcomm", #"talk" with crew members.
+                       8:self.crewCom.update, #"talk" with crew members.
                        9:"EGO"} #placeholder for ego-synth manipulation.
         
         

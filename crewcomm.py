@@ -22,6 +22,7 @@ class crewComm(object):
     def __init__(self, shipCrew):
         self.crewMembers = shipCrew
         self.selectedCrew = 0 #nobody
+        self.state = 8
         #Prepare background image
         self.charCom = pygame.image.load("Graphics_Assets\\charcom.png")
         self.charComScaled = pygame.transform.scale(self.charCom,(g.width,g.height))
@@ -50,7 +51,7 @@ class crewComm(object):
             pygame.mixer.music.load("sound\\CREWCOMM.OGG")
             pygame.mixer.music.play()
             self.musicState = True
-        return 6 # TODO, currently loops communication system for testing.
+        return 8 # TODO, currently loops communication system for testing.
 
 
 

@@ -18,9 +18,9 @@ These really deserve their own class and file.
 
 #name, State, variation, Life/Technology level
 
-systems = {}
+Systems = {}
 
-planets = {}
+Planets = {}
 
 class Planet(object):
     def __init__(self, name="Bug", state=0, grade='A'):
@@ -31,20 +31,20 @@ class Planet(object):
         self.owned = 0
         
 class System(object):
-    def __init__(self, name = "Buggy", planets):
-        self.name = name
+    def __init__(self, systemName = "Buggy", planets = Planets):
+        self.systemName = name
         self.planets = planets
         
 
 def initialisePlanets(filename):
     #load planet files and populate planet structure
     #planet by name = (planet name, state, variation, tech level/life)
-    planets["mars"] = ("mars",4,'C',5)
+    Planets["mars"] = ("mars",4,'C',5)
     
 def transformCheckPlanet(planet):
-    name, state, grade, life = planets[planet]
+    name, state, grade, life = Planets[planet]
     # chance of transformation.
     
     #BIG ALGO HERE
-    planets[planet] = (name,state,grade)
+    Planets[planet] = (name,state,grade)
     
