@@ -14,7 +14,7 @@ import io, pygame, crew, ship, items, planets, random, global_constants as g
 
 class Generator(object):
     def __init__(self):
-        self.currentShip = ship.Ship()
+        self.currentShip = ship.Ship() #Should initialise to default start values.
         self.systemState = 1 #By default, the game Generator points at itself.
         self.generationStage = 1 # The stage of generation are we at.
         self.portraits = []

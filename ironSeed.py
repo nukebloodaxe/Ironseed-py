@@ -6,6 +6,7 @@ Handles the main render and tick loop.
 @author: Nuke Bloodaxe
 """
 import pygame, sys, time, random, numpy, pygame.sndarray, intro_main
+import ship, crew, items, weaponsAndShields
 import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
@@ -28,9 +29,15 @@ class IronSeed(object):
         pygame.display.set_caption(self.versionText[0]+' '+self.versionText[1])
         
         #initialise game objects
+        g.starDate = [2,3,3784,8,75] #M,D,Y,H,M.
+        #Populate Item dictionaries
+        items.loadItemData()
+        weaponsAndShields.loadWeaponsAndShields()
+        self.crew = crew.Crew()
+        self.ship = ship.Ship()
         self.intro = intro_main.IronseedIntro()
         self.generator = gen.Generator()
-        self.crewCom = crewC.crewComm #Needs work before it'll intialise.
+        self.crewCom = crewC.crewComm(self.crew) #Needs to have crew data set.
         
         self.states = {1:self.generator.update, # The crew + ship selection system.
                        2:"main", # Main menu.

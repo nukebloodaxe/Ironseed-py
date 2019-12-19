@@ -20,7 +20,7 @@ class IronseedIntro(object):
                            "2016 Nuke Bloodaxe - Code Tidying",
                            "2020 Nuke Bloodaxe - Complete Python Refactor/Rewrite",
                            "All rights reserved."]
-        self.versionText = ["Ironseed", g.version]
+        self.versionText = ["Ironseed", g.version] #Ridiculous version string required...
         self.introText1 = ["A","Destiny: Virtual", "Designed Game"]
         self.introText2 = ["Mars", "3784 A.D."]
         self.introText3 = ["Escaping the iron fist of a fanatic",
@@ -282,12 +282,12 @@ class IronseedIntro(object):
             self.count +=1
             pygame.time.wait(100)
             if finished:
-                self.resetCounts(12)        
+                self.resetCounts(12)
         
         #The Scavengers find the ironseed, and the Ironseed is destroyed,
         #crash landing onto a small moon.
-        # This scene features plenty of moving graphics, three overlays required
-        # for the monitors alone.
+        #This scene features plenty of moving graphics, three overlays required
+        #for the monitors alone.
         
         
         #temp quick kill.
