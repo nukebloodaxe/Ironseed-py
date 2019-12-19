@@ -6,14 +6,25 @@ Ship Datastructure
 """
 
 import io, pygame, crew, items, random, global_constants as g
+import weaponsAndShields
+
+class RepairTeam(object):
+    def __init__(self):
+        self.job = 0
+        self.timeLeft = 0
+        self.jobType = 0
+        self.extra = 0
 
 # The ship our crew are haunting...
+# At this level we use game start values.  On game load all of this is expected
+# to be overwritten with the conents of the save file.
 class Ship(object):
     def __init__(self):
         self.name = "De Bug"
-        self.guns = [0,0,0,0,0,0,0,0,0,0]
+        self.gunNodes = [0,0,0,0,0,0,0,0,0,0]
         self.gunMax = 0
-        self.cargo = []
+        self.armed = False
+        self.cargo = {}
         self.cargoMax = 0
         self.maxFuel = 0
         self.fuel = 0
@@ -23,11 +34,40 @@ class Ship(object):
         self.accelerationMax = 0
         self.hullDamage = 0
         self.hullMax = 0
+        self.shieldLevel = 0
+        self.shieldMax = 15
+        self.shieldOptions = [0,0,0]
         self.frontHull = 1
         self.centreHull = 1
         self.rearHull = 1
+        self.options = [1,20,1,1,2,1,0,1,64,0] #New Game start values.
         #self.Crew() # debating about storing this here...
-    
+        
+        #planetary System related variables: initialised to New Game values.
+        self.orbiting = 1
+        self.positionX = 166
+        self.positionY = 226
+        self.positionZ = 33
+        
+        #Engineering related variables
+        self.systemDamage = [25,15,2,3,16,55,22]#New game start values.
+        #Power Supply, Shield Control, Weapons Control, Engine,
+        #Life Support, Communications, Computer AI.
+        self.engineeringTeam = [RepairTeam(),RepairTeam(),RepairTeam()]
+        
+        #Prepare initial engineering job after new game start.
+        self.engineeringTeam[0].timeLeft = self.systemDamage[6]*70+random.randrange(1,30)
+        self.engineeringTeam[0].job = 6 # Area we are working on.
+        self.engineeringTeam[0].jobType = 0 #Repairing
+        
+        self.research = 0
+        
+        #populate Cargo with initial items.
+        self.cargo["Probot"] = ["Probot", 2]
+        self.cargo["Dirk"] = ["Dirk", 1]
+        self.cargo["Minebot"] = ["Minebot", 1]
+        self.cargo["Manufactory"] = ["Manufactory", 1]
+        
     #Setup the ship stats according to the selected ship type and variation.
     #Note: used during generation at the start of game.
     def initialiseShip(self, front, centre, rear):

@@ -28,3 +28,5 @@ gameStatus = 0
 eventFlags = [] # Having the events system as flags makes things much simpler.
 
 systemsVisited = []
+
+starDate = [2,3,3784,8,75] #M,D,Y,H,M
