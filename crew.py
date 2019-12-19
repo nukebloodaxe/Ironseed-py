@@ -114,9 +114,9 @@ class CrewMember(object):
     #The temporary insanity system is... odd.
     def tempInsanity(self):
         # there is a 1 in 6 change of this happening.
-        if int(random.random(5)) == 0:
+        if int(random.randint(0,5)) == 0:
             return "" # Nothing happens
-        return insanityIndex[random.random(19)]
+        return insanityIndex[random.randrange(0,19)]
     
     #Ego Synths are a bit "unstable", given they are lacking physical forms.
     #So, sanity checks are bad news all around, as the EGO is decaying.
@@ -136,7 +136,7 @@ class CrewMember(object):
         if self.physical < 99:
             self.physical += 1
         
-        if random.random(80 > self.sanity):
+        if random.randint(1,80) > self.sanity:
             return self.tempInsanity()
         
         return "" # Nothing special happens.
@@ -145,12 +145,12 @@ class CrewMember(object):
     #returns a boolean declaring skill check success or failure.
     #Failure causes Ego to decay, like a melting snowflake.
     def skillCheck(self):
-        skillSuccess = random.random(80)
+        skillSuccess = random.randint(1,80)
         skillCheck = False
         sanityReport = ""
         # You need to roll under the skill level, like D&D, to be successful.
         if skillSuccess > self.skill:
-            skillSuccess = random.random(80)
+            skillSuccess = random.randint(1,80)
             #now we roll to see how bad things get.
             if skillSuccess > self.performance:
                 if self.performance > 0: self.performance -= 1
@@ -185,23 +185,33 @@ class CrewMember(object):
 #all crew game-tick related functions.
 class Crew(object):
     #IronSeed has 6 roles, as given, this could be upped in Mods.
-    def __init__(self, psychometry, engineering, science, security, astrogation, medical,):
+    def __init__(self):
         self.prime = 0 # Player Role, traditionally Role 0, name "PRIME".
         #Note: Although IronSeed keeps this anonymous, no reason why we can't
         #have a player name here.
+        #These are placeholders.
+        self.psychometry = 1 # Role 1 
+        self.engineering = 2 # Role 2
+        self.science = 3 # Role 3
+        self.security = 4 # Role 4
+        self.astrogation = 5 # Role 5
+        self.medical = 6 # Role 6
+        #Placeholder, simpler for numerical random lookups.
+        self.crew = []
+        self.crewMessages = [] # new internal feature, Messages from crew
+                                # members that need printing can be queued
+                                # for display later.
+    #setup the internal objects to the actual crewmember objects we are using.
+    def setCrew(self, psychometry, engineering, science, security, astrogation, medical):
         self.psychometry = psychometry # Role 1 
         self.engineering = engineering # Role 2
         self.science = science # Role 3
         self.security = security # Role 4
         self.astrogation = astrogation # Role 5
         self.medical = medical # Role 6
-        # simpler for numerical random lookups.
         self.crew = [self.psychometry, self.engineering, self.science,
                      self.security, self.astrogation, self.medical]
-        self.crewMessages = [] # new internal feature, Messages from crew
-                                # members that need printing can be queued
-                                # for display later.
-    
+        
     # Add a message to the pending messages queue, these are printed onscreen
     # later.  crewMember is the EGO Synth containment unit number.
     def addMessage(self, message, crewMember):
@@ -220,7 +230,7 @@ class Crew(object):
         sanityResult = ""
         if (crewMember.mental < 10) or (crewMember.emotion < 10) or (crewMember.physical < 10):
             sanityResult = crewMember.tempInsanity()
-        d8Roll = random.random(8)
+        d8Roll = random.randint(1,8)
         if (d8Roll == 1) and (crewMember.mental > 0):
             crewMember.mental -= 1
         elif (d8Roll == 2) and (crewMember.physical > 0):
@@ -240,7 +250,7 @@ class Crew(object):
             sanity = 5
         if diff <= 0:
             diff = 1
-        if random.random(sanity+diff) < sanity:
+        if random.randint(1,sanity+diff) < sanity:
             sanityResult = True
         
         return sanityResult
@@ -262,7 +272,7 @@ class Crew(object):
             perf = 5
         if diff <= 0:
             diff = 1
-        if random.random(perf+diff) < perf:
+        if random.randint(1,perf+diff) < perf:
             performanceResult = True
         
         return performanceResult
@@ -276,7 +286,7 @@ class Crew(object):
         if diff <= 0:
             diff = 1
         
-        return random.random(perf) - random.random(diff)
+        return random.randint(1,perf) - random.randint(1,diff)
     
     
     def skillTest(self, crewMember, difficulty, learn):
@@ -287,12 +297,12 @@ class Crew(object):
             skill = 5
         if diff <= 0:
             diff = 1
-        if random.random(skill+diff) < skill:
+        if random.randint(1,skill+diff) < skill:
             skillResult = True
             self.crewStress(crewMember, 0)
         else:
             self.crewStress(crewMember,abs(diff-skill))
-        if random(1000) < learn:
+        if random.randint(1,1000) < learn:
             if crewMember.addXP(difficulty):
                 self.addMessage(crewMember.crewMessage('Increased knowledge base.'))
         return skillResult
@@ -304,11 +314,11 @@ class Crew(object):
             skill = 5
         if diff <= 0:
             diff = 1
-        if random(1000) < learn:
+        if random.randint(1,1000) < learn:
             if crewMember.addXP(difficulty):
                 self.addMessage(crewMember.crewMessage('Increased knowledge base.'))
         self.crewStress(crewMember,(100*diff)/skill)
-        return random.random(skill)-random.random(diff)
+        return random.randint(1,skill)-random.randint(1,diff)
     
     
     
