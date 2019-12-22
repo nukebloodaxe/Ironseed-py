@@ -32,6 +32,7 @@ class IronSeed(object):
         g.starDate = [2,3,3784,8,75] #M,D,Y,H,M.
         #Populate Item dictionaries
         items.loadItemData()
+        crew.loadCrewData()
         weaponsAndShields.loadWeaponsAndShields()
         self.crew = crew.Crew()
         self.ship = ship.Ship()
