@@ -8,9 +8,10 @@ Ship Datastructure
 import io, pygame, crew, items, random, global_constants as g
 import weaponsAndShields
 
+#The engineering repair teams, historically there are three.
 class RepairTeam(object):
     def __init__(self):
-        self.job = 0
+        self.job = 0 # system in damage array being worked on.
         self.timeLeft = 0
         self.jobType = 0
         self.extra = 0
@@ -34,6 +35,7 @@ class Ship(object):
         self.accelerationMax = 0
         self.hullDamage = 0
         self.hullMax = 0
+        self.fittedShield = ""
         self.shieldLevel = 0
         self.shieldMax = 15
         self.shieldOptions = [0,0,0]
@@ -67,7 +69,19 @@ class Ship(object):
         self.cargo["Dirk"] = ["Dirk", 1]
         self.cargo["Minebot"] = ["Minebot", 1]
         self.cargo["Manufactory"] = ["Manufactory", 1]
+    
+    #Apply damage to the ship, mitigating it with the shield first.
+    def receiveDamage(totalDamage, PsychiDamage, particleDamage,
+                      inertialDamage, energyDamage):
+        #First, find out how much damage the shield can absorb.
+        shield
+        pass
+    
+    #Apply power drain to battery
+    def dischargeBattery():
         
+        pass
+    
     #Setup the ship stats according to the selected ship type and variation.
     #Note: used during generation at the start of game.
     def initialiseShip(self, front, centre, rear):

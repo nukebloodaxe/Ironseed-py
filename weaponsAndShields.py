@@ -12,22 +12,22 @@ shields = {}
 
 class Weapon(object):
     def __init__(self, name, energyUse, totalDamage, PsychiDamage,
-                 particalDamage, inertialDamage, energyDamage, weaponRange):
+                 particleDamage, inertialDamage, energyDamage, weaponRange):
         #The different types of damage are in percentages.
         self.name = name
         self.energyUse = energyUse
         self.totalDamage = totalDamage
         self.psychiDamage = PsychiDamage
-        self.particalDamage = particalDamage
+        self.particleDamage = particleDamage
         self.inertialDamage = inertialDamage
         self.energyDamage = energyDamage
         self.weaponRange = weaponRange
 
 class Shield(Weapon):
     def __init__(self, name, energyUse, totalDamage, PsychiDamage,
-                 particalDamage, inertialDamage, energyDamage, weaponRange=0):
+                 particleDamage, inertialDamage, energyDamage, weaponRange=0):
         Weapon.__init__(self, name, energyUse, totalDamage, PsychiDamage,
-                        particalDamage, inertialDamage, energyDamage,
+                        particleDamage, inertialDamage, energyDamage,
                         weaponRange)
         
 def loadWeaponsAndShields(file="Data_Generators\Other\IronPy_WeaponsAndShields.tab"):
