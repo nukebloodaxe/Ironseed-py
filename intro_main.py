@@ -142,11 +142,15 @@ class IronseedIntro(object):
                            width, step):
         finished = False
         surface.blit(self.starFieldScaled,(0,0))
-        
+        lowerThird = int(3*(height/4))
+        centerWidth = int(3*(width/6))
         #Render planet here.
-        finished = True #W00T!
+        #finished = True #W00T!
         
-        h.renderText(text,g.font,surface,g.WHITE,g.offset,0,0,False)
+        h.renderText(text,g.font,surface,g.WHITE,
+                     g.offset,centerWidth,lowerThird,True)
+        if h.fadeIn(width, height, surface, step):
+            finished = True
         return finished
         
         
@@ -160,7 +164,7 @@ class IronseedIntro(object):
         if self.introStage == 0:
             pygame.mixer.music.load("sound\\INTRO1.OGG")
             pygame.mixer.music.play()
-            self.introStage = 1
+            self.introStage = 1 # normally 1, use other stages for debug.
 
         #start displaying screen of fuzzy static, make channel 7 logo
         #gradually appear.
@@ -214,7 +218,7 @@ class IronseedIntro(object):
                                               self.count)
             self.count +=1
             #print("centred: ", finished, "centredX: ", centredX, "centredY: ", centredY)        
-            pygame.time.wait(100)
+            pygame.time.wait(50)
             if finished:
                 self.resetCounts(5)
         
@@ -222,7 +226,7 @@ class IronseedIntro(object):
             finished = h.fadeInText(self.introText2, (g.width/2), (g.height/7),
                                     g.RED, displaySurface, self.count)
             self.count += 1
-            pygame.time.wait(200)
+            pygame.time.wait(100)
             if finished:
                 self.resetCounts(6)
         
