@@ -7,6 +7,9 @@ Global Constants, used everywhere.
 import pygame
 
 size = width, height = 640, 480 # screen dimensions
+#Planet texture constants.
+PlanetHeight = 120
+planetWidth = 240
 version = "IronPython 0.01 - FrigidSnake Alpha"
 
 # Initialise music system and pygame
