@@ -55,10 +55,10 @@ class Generator(object):
     #main generator game loop.
     def runGenerator(self, displaySurface):
         if self.generationStage == 1:
-            drawShip(displaySurface)
+            self.drawShip(displaySurface)
             
         if self.generationStage == 2:
-            drawCrew(displaySurface)
+            self.drawCrew(displaySurface)
             
         return self.systemState
     
