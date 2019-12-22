@@ -61,18 +61,18 @@ def fadeOut(width, height, surface, step):
     fade.fill(g.BLACK)
     fade.set_alpha(step*5)
     surface.blit(fade,(0,0))
-    if step >= 100:
+    if step >= 55:
         finished = True
     return finished
 
-#fade out a given surface.
+#fade in a given surface.
 def fadeIn(width, height, surface, step):
     finished = False
     fade = pygame.Surface(g.size)
     fade.fill(g.BLACK)
     fade.set_alpha(255-step*5)
     surface.blit(fade,(0,0))
-    if step >= 100:
+    if step >= 55:
         finished = True
     return finished
 
@@ -113,19 +113,20 @@ def makeFuzz(width, height, half=True):
     C = random.choice
     S = fuzzyScreen.set_at
     yrange = range(height)
-    for x in range(width):
-        for y in yrange:
-            if y%2 == 0 or not half:
+    xrange = range(width)
+    for y in yrange:
+        if y%2 == 0 or not half:
+            for x in xrange:
                 S((x,y),C(colours))
     return fuzzyScreen
 
 """TODO"""
 #Render a planet using an approximation of the old IronSeed Algorithm.
 #Note: I'm thinking high-quality pre-renders might be a better choice.
-def renderPlanet(width, height, planetType, surface, step=0,):
+def renderPlanet(width, height, planetType, surface, step=0):
     comboSurface = pygame.Surface(g.size)
     finished = False
-    comboSurface.set_alpha(step*10)
+    #comboSurface.set_alpha(step*10)
     safeSurface = pygame.PixelArray(surface)
     safeCombo = pygame.PixelArray(comboSurface)
     #we create the planet first, then blit the pixels onto the original
