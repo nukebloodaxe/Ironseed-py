@@ -1,146 +1,146 @@
 Item Information
-name (30chrs) cargo size
-Dirk	400
-Scimitar	700
-Broadsword	1200
-Claymore	2000
-Blackjack	1000
-Whip	1800
-Flail	3000
-Short Bow	800
-Long Bow	1500
-Ballista	2700
-Heavy Ballista	3000
-Arquebus	2300
-Tnglor Eggs	1500
-Needlers	1800
-Caltrops	2000
-Gyroid Cannons	1000
-Hive	2500
-Dopplegangers	700
-Grav-Pulse Launcher	5000
-Ochre Embryons	450
-Ego Neurosynth	200
-Id Psychosynth	500
-Syntax Immobilizers	1100
-Cyrexin Psychotrope	2500
-Foom Cannon	2000
-Light Raizor	500
-Dual Raizor	900
-Gatling Raizor	1500
-Electron Guerrloid	1000
-Neutron Guerrloid	1300
-Positron Guerrloid	1700
-Heavy Ion Guerrloid	2200
-Hydra Pulse Array	2800
-Null Pulse Cannon	3500
-Thynne Vortex	3200
-Sling of David	2700
-Death Weave	4200
-Dogath Buoy	600
-Disruptor Cannon	1800
-Imbreth Leech	300
-Guerrloid Grapple	2700
-Kyn-pox Ichor	900
-Corse Grenades	200
-Heavy Corse Grenade	800
-Doom Gate	5700
-Pyro Snare	2400
-Thaumaturge	4800
-Shade Ward	3200
-Catapulse Battery	1200
-Shadow Kiss	100
-Chain Flail	2100
-Philosopher's Stone	3600
-Wolf Wand	3000
-Purgature	2000
-Bolt Glyph	900
-Wrath of Shiva	4000
-Mobius Device	5500
-Unknown Shield	0
-Reflective Hull	5000
-Quarter Shields	700
-Binary Shield	1100
-Torus Shield	1600
-Helical Field	2100
-Stasis Generator	2500
-Null Stasis Array	2800
-Neuro Null Array	3000
-Terminex Projection	3100
-Shift Distortion	3500
-Inertial Barrier	3500
-MultiPhase Inverter	2000
-Temporal Anchor	1500
-Nothing	0
-Probot	470
-Minebot	1250
-Manufactory	3430
-Fabricator	5120
-Starminer	1750
-Fuel Nodules	6
-Stardiver	680
-Reinforce Hull	750
-Increase Thrust	20
-Add Cargo Space	15
-Install Gun Node	5000
-Mind Enhancers	10
-Unknown Component	0
-Solonoid	3
-Data Board	4
-Cyberplasm	4
-Disei Conduit	5
-Steoplast	3
-Flux Lens	2
-Metal Weave	5
-Pulse Loom	5
-Biosynth	3
-Plasma Inverter	2
-Grav-Coupler	4
-Torque Stanchion	2
-Vac-Feeder	2
-Mulroid	1
-Proto-Nutrient	1
-Duct Battery	3
-Masking Pod	4
-Guidance Strut	3
-Strata Mount	5
-Ion Cache	3
-ThermoPlast	3
-Unknown Material	1
-Protoplasm	1
-Polymers	1
-Crystals	1
-Oxidants	1
-Esper Seeds	1
-Heavy Ions	1
-Coolants	1
-Solvents	1
-Electrolytes	1
-Organics	1
-Alien Isotopes	1
-Conductants	1
-Magnetics	1
-Radioactives	1
-Liquid Gases	1
-Medicants	1
-Ceramics	1
-Alien Compounds	1
-Strange Particles	1
-Worthless Junk	1
-Protic Liquids	1
-Alkene	1
-Alkyne	1
-Volatile Compounds	1
-Ether	1
-Aldehydes/Ketone	1
-Carboxylic Acid	1
-Amine	1
-Strong Acid	1
-Base	1
-Salts	1
-Lensing Solid	1
-Heavy Element	1
-Transition Metal	1
-Halogens/Noble Gas	1
-Amino Acid	1
-Industrial Chemical	1
+name (30chrs) cargo size Type
+Dirk	400	WEAPON
+Scimitar	700	WEAPON
+Broadsword	1200	WEAPON
+Claymore	2000	WEAPON
+Blackjack	1000	WEAPON
+Whip	1800	WEAPON
+Flail	3000	WEAPON
+Short Bow	800	WEAPON
+Long Bow	1500	WEAPON
+Ballista	2700	WEAPON
+Heavy Ballista	3000	WEAPON
+Arquebus	2300	WEAPON
+Tnglor Eggs	1500	WEAPON
+Needlers	1800	WEAPON
+Caltrops	2000	WEAPON
+Gyroid Cannons	1000	WEAPON
+Hive	2500	WEAPON
+Dopplegangers	700	WEAPON
+Grav-Pulse Launcher	5000	WEAPON
+Ochre Embryons	450	WEAPON
+Ego Neurosynth	200	WEAPON
+Id Psychosynth	500	WEAPON
+Syntax Immobilizers	1100	WEAPON
+Cyrexin Psychotrope	2500	WEAPON
+Foom Cannon	2000	WEAPON
+Light Raizor	500	WEAPON
+Dual Raizor	900	WEAPON
+Gatling Raizor	1500	WEAPON
+Electron Guerrloid	1000	WEAPON
+Neutron Guerrloid	1300	WEAPON
+Positron Guerrloid	1700	WEAPON
+Heavy Ion Guerrloid	2200	WEAPON
+Hydra Pulse Array	2800	WEAPON
+Null Pulse Cannon	3500	WEAPON
+Thynne Vortex	3200	WEAPON
+Sling of David	2700	WEAPON
+Death Weave	4200	WEAPON
+Dogath Buoy	600	WEAPON
+Disruptor Cannon	1800	WEAPON
+Imbreth Leech	300	WEAPON
+Guerrloid Grapple	2700	WEAPON
+Kyn-pox Ichor	900	WEAPON
+Corse Grenades	200	WEAPON
+Heavy Corse Grenade	800	WEAPON
+Doom Gate	5700	WEAPON
+Pyro Snare	2400	WEAPON
+Thaumaturge	4800	WEAPON
+Shade Ward	3200	WEAPON
+Catapulse Battery	1200	WEAPON
+Shadow Kiss	100	WEAPON
+Chain Flail	2100	WEAPON
+Philosopher's Stone	3600	WEAPON
+Wolf Wand	3000	WEAPON
+Purgature	2000	WEAPON
+Bolt Glyph	900	WEAPON
+Wrath of Shiva	4000	WEAPON
+Mobius Device	5500	WEAPON
+Unknown Shield	0	SHIELD
+Reflective Hull	5000	SHIELD
+Quarter Shields	700	SHIELD
+Binary Shield	1100	SHIELD
+Torus Shield	1600	SHIELD
+Helical Field	2100	SHIELD
+Stasis Generator	2500	SHIELD
+Null Stasis Array	2800	SHIELD
+Neuro Null Array	3000	SHIELD
+Terminex Projection	3100	SHIELD
+Shift Distortion	3500	SHIELD
+Inertial Barrier	3500	SHIELD
+MultiPhase Inverter	2000	SHIELD
+Temporal Anchor	1500	SHIELD
+Nothing	0	DEVICES
+Probot	470	DEVICES
+Minebot	1250	DEVICES
+Manufactory	3430	DEVICES
+Fabricator	5120	DEVICES
+Starminer	1750	DEVICES
+Fuel Nodules	6	DEVICES
+Stardiver	680	DEVICES
+Reinforce Hull	750	DEVICES
+Increase Thrust	20	DEVICES
+Add Cargo Space	15	DEVICES
+Install Gun Node	5000	DEVICES
+Mind Enhancers	10	DEVICES
+Unknown Component	0	COMPONENT
+Solonoid	3	COMPONENT
+Data Board	4	COMPONENT
+Cyberplasm	4	COMPONENT
+Disei Conduit	5	COMPONENT
+Steoplast	3	COMPONENT
+Flux Lens	2	COMPONENT
+Metal Weave	5	COMPONENT
+Pulse Loom	5	COMPONENT
+Biosynth	3	COMPONENT
+Plasma Inverter	2	COMPONENT
+Grav-Coupler	4	COMPONENT
+Torque Stanchion	2	COMPONENT
+Vac-Feeder	2	COMPONENT
+Mulroid	1	COMPONENT
+Proto-Nutrient	1	COMPONENT
+Duct Battery	3	COMPONENT
+Masking Pod	4	COMPONENT
+Guidance Strut	3	COMPONENT
+Strata Mount	5	COMPONENT
+Ion Cache	3	COMPONENT
+ThermoPlast	3	COMPONENT
+Unknown Material	1	MATERIAL
+Protoplasm	1	MATERIAL
+Polymers	1	MATERIAL
+Crystals	1	MATERIAL
+Oxidants	1	MATERIAL
+Esper Seeds	1	MATERIAL
+Heavy Ions	1	MATERIAL
+Coolants	1	MATERIAL
+Solvents	1	MATERIAL
+Electrolytes	1	MATERIAL
+Organics	1	MATERIAL
+Alien Isotopes	1	MATERIAL
+Conductants	1	MATERIAL
+Magnetics	1	MATERIAL
+Radioactives	1	MATERIAL
+Liquid Gases	1	MATERIAL
+Medicants	1	MATERIAL
+Ceramics	1	MATERIAL
+Alien Compounds	1	MATERIAL
+Strange Particles	1	MATERIAL
+Worthless Junk	1	MATERIAL
+Protic Liquids	1	ELEMENT
+Alkene	1	ELEMENT
+Alkyne	1	ELEMENT
+Volatile Compounds	1	ELEMENT
+Ether	1	ELEMENT
+Aldehydes/Ketone	1	ELEMENT
+Carboxylic Acid	1	ELEMENT
+Amine	1	ELEMENT
+Strong Acid	1	ELEMENT
+Base	1	ELEMENT
+Salts	1	ELEMENT
+Lensing Solid	1	ELEMENT
+Heavy Element	1	ELEMENT
+Transition Metal	1	ELEMENT
+Halogens/Noble Gas	1	ELEMENT
+Amino Acid	1	ELEMENT
+Industrial Chemical	1	ELEMENT
