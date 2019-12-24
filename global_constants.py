@@ -8,7 +8,7 @@ import pygame
 
 size = width, height = 640, 480 # screen dimensions
 #Planet texture constants.
-PlanetHeight = 120
+planetHeight = 120
 planetWidth = 240
 version = "IronPython 0.01 - FrigidSnake Alpha"
 
@@ -25,6 +25,14 @@ RED = (255,0,0)
 font = pygame.font.Font('Fonts\\NotoSansTC-Regular.otf', 12)
 offset = 20 # for this font.
 
+# Totals for items
+totalElements = 17
+totalMaterials = 21
+totalComponents = 22
+totalDevices = 13
+totalShields = 14
+totalWeapons = 57
+
 #game related constants; will be class integrated later.
 gameStatus = 0
 
@@ -32,4 +40,4 @@ eventFlags = [] # Having the events system as flags makes things much simpler.
 
 systemsVisited = []
 
-starDate = [2,3,3784,8,75] #M,D,Y,H,M
+starDate = [2,3,3784,8,75] #M,D,Y,H,M, Default entry here is for new game.

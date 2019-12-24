@@ -4,7 +4,7 @@ Created on Mon Nov 25 19:32:51 2019
 Item Datastructures
 @author: Nuke Bloodaxe
 """
-import io
+import io, random, global_constants as g
 
 itemDictionary = {}
 itemConstructionDictionary = {}
@@ -33,6 +33,19 @@ class createItem(Item):
         self.part2 = part2
         self.part3 = part3
         Item.__init__(self,name,cargoSize,worth,levels)
+
+# Find a random item of a given "type" category at the limit in items.
+# Returns the item's name.
+def getRandomItem(itemType, limit):
+    rando = random.randint(1, limit)
+    foundTypeCount = 0
+    for item in itemDictionary:
+        if item[2] == itemType:
+            foundTypeCount += 1
+            if foundTypeCount == rando:
+                return item[0]
+
+# End of get random item functions.  These exist to make things easier.
 
 # Populate the item and item construction dictionaries.
 # we load from two different data files to do this, tab delimited.

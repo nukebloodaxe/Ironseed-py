@@ -6,7 +6,7 @@ Handles the main render and tick loop.
 @author: Nuke Bloodaxe
 """
 import pygame, sys, time, random, numpy, pygame.sndarray, intro_main
-import ship, crew, items, weaponsAndShields
+import ship, crew, items, planets, weaponsAndShields
 import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
@@ -32,6 +32,7 @@ class IronSeed(object):
         g.starDate = [2,3,3784,8,75] #M,D,Y,H,M.
         #Populate Item dictionaries
         items.loadItemData()
+        planets.loadScanData()
         crew.loadCrewData()
         weaponsAndShields.loadWeaponsAndShields()
         self.crew = crew.Crew()
