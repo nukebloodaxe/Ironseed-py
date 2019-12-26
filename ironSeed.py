@@ -38,7 +38,7 @@ class IronSeed(object):
         self.crew = crew.Crew()
         self.ship = ship.Ship()
         self.intro = intro_main.IronseedIntro()
-        self.generator = gen.Generator()
+        self.generator = gen.Generator() # Settings at new-game state.
         self.crewCom = crewC.crewComm(self.crew) #Needs to have crew data set.
         
         self.states = {1:self.generator.update, # The crew + ship selection system.

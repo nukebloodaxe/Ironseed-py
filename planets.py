@@ -29,12 +29,14 @@ PlanetarySystems = {} # Original code indicates these max out at 250.
 Planets = {} # Original code indicates these max out at 1000
 ScanData = [] # Holds the scan data definitions from scandata.tab.
 # ---> Planet state this way, planet grade down.
+SystemData = []
 
 class Planet(object):
-    def __init__(self, name="Bug", state=0, grade='A', orbit = 0):
-        self.name = name
-        self.state = state
-        self.grade = grade # Appears to be "mode" in original code.
+    def __init__(self):
+        self.name = "UNKNOWN"
+        self.index = 0 # Normally our planet number.
+        self.state = 0
+        self.grade = 0 # Appears to be "mode" in original code.
         self.size = 1
         self.water = 0
         self.age = 0
@@ -49,14 +51,92 @@ class Planet(object):
         self.visits = 0
         self.outpost = 0 # Extra feature, is this an outpost?
         self.owned = 0 # Extra feature, the owner of the planet.
-        self.orbit = orbit
         # Planet bitmap of terrain data.
         self.planetTerrain = [[0 for i in range(g.planetWidth)] for j in range(g.planetHeight)]
         
         # Planet texture related data
         self.planetTexture = pygame.Surface((g.planetHeight, g.planetWidth), 0)
-        self.createPlanet()
+        # self.createPlanet()
         # Note: if you see a system with a star called 'Bug', then you have a problem.
+    
+    # New game initialisation, this occurs during the generation phase.
+    # Results are ultimately saved to save game file for new game.
+    def generate(self, index):
+        
+        self.index = index
+        
+        if index == 1:
+            self.age = random.randint(0,7)
+            if self.age <=3:
+                self.grade = 1
+            elif self.age >= 4 and self.age <= 5:
+                self.grade = 2
+            else:
+                self.grade = 3
+            self.state = 7
+            return
+        
+        self.state = random.randint(0,7)
+        
+        if self.state == 0:
+            self.age = random.randint(0, 5)
+            if self.age <=3:
+                self.grade = 1
+            elif self.age >= 4 and self.age <= 5:
+                self.grade = 2
+            else:
+                self.grade = 3
+                
+        elif self.state == 1:
+            if self.age <=4:
+                self.grade = 1
+            elif self.age >= 8 and self.age <= 8:
+                self.grade = 2
+            else:
+                self.grade = 3
+        elif self.state == 2:
+            self.age = random.randint(0, 64000)*7812
+            if self.age <=200000000:
+                self.grade = 1
+            elif self.age <= 350000000 and self.age > 200000000:
+                self.grade = 2
+            else:
+                self.grade = 3
+        elif self.state == 3:
+            self.age = random.randint(0, 15001)*1000
+            if self.age <=150000000:
+                self.grade = 1
+            elif self.age <= 150005000 and self.age > 150000000:
+                self.grade = 2
+            else:
+                self.grade = 3
+        elif self.state == 4:
+            self.age = random.randint(0, 5000)
+            if self.age <=2000:
+                self.grade = 1
+            elif self.age <= 3000 and self.age > 2000:
+                self.grade = 2
+            else:
+                self.grade = 3
+        elif self.state == 5:
+            self.age = random.randint(0, 5000)
+            if self.age <=1500:
+                self.grade = 1
+            elif self.age <= 5500 and self.age > 1500:
+                self.grade = 2
+            else:
+                self.grade = 3
+        else: # State 6
+            self.age = random.randint(0, 100)*1000
+            if self.age >100000:
+                self.grade = 1
+            else:
+                if random.randint(0, 2) == 0:
+                    self.grade = 3
+                else:
+                    self.grade = 1
+            
+        self.age = random.randint(0, 2000)
     
     # Get the technology level of the planet.
     # Note: I'm not 100% sure how those values work.
@@ -446,31 +526,21 @@ class Planet(object):
     
         
 class PlanetarySystem(object):
-    def __init__(self,  planets, systemName = "Buggy"):
+    def __init__(self, systemName = "Buggy", positionX=0.0, positionY=0.0, positionZ=0.0):
         self.systemName = systemName
         #Visitation related info
-        self.dateMonth = 0
-        self.dateYear = 0
+        self.dateMonth = g.starDate[0]
+        self.dateYear = g.starDate[2]
         self.visits = 0
-        self.positionX = 0
-        self.positionY = 0
-        self.positionZ = 0
+        self.positionX = positionX
+        self.positionY = positionY
+        self.positionZ = positionZ
         
-        
-        self.planets = planets # Max 9 including star.
-        
-        self.orbits = [] #Add to list in orbit order.  0 should be star.
-        # The provided planets may be out of order, so we play it safe.
-        for count in range(len(planets)+1):
-            self.orbits.append(0)
-
-        for planet in planets:
-            self.orbits[planet.orbit] = planet
-            
+        self.planets = [] # Max 9 including star(at 0).
             
     # Get the tech level for a particular planet.
     def getTechLevel(self, orbit):
-        self.orbits[orbit].getTechLevel(self.systemName)
+        self.planets[orbit].getTechLevel(self.systemName)
         
     # Update the system, which is normally based on time passed since last visit.
     # Run once only for each visit!
@@ -481,16 +551,13 @@ class PlanetarySystem(object):
 
 # Note: Original code had name of planet based on orbit.
 # ALPHA, BETA, GAMMA, DELTA, EPISILON, ZETA, ETA, THETA
-def initialisePlanets(fileName):
+def initialisePlanets(fileName=""):
     # Load planet files and populate planet structure
     # Planet by name = (planet name, state, variation, tech level/life)
-    Planets["mars"] = ("mars",4,'C',5)
-
-
-#Note: Make sure you initialise the planets!
-def initialiseSystems(fileName="Data_Generators\Other\Ironpy_SystemData.tab"):
-
-    pass
+    Planets["mars"] = Planet()
+    for newPlanet in range(0,1001):
+        Planets[newPlanet]=Planet()
+        Planets[newPlanet].generate(newPlanet)
     
 def transformCheckPlanet(planet):
     name, state, grade, life = Planets[planet]
@@ -533,9 +600,28 @@ def renderPlanet(width, height, planetType, surface, step=0):
     return finished
 
 # Load in system data, which includes co-ordinates.
-def loadPlanetarySystems(planetarySystemsFile):
+# Planet quantities and orbits + types are determined via random generation.
+# This makes Ironseed somewhat roguelike, making no game the same twice.
+# Note: Might be interesting to see if we can implement the travelling salesman
+# Algo for working out shortest distance between systems on the starmap.
+def loadPlanetarySystems(planetarySystemsFile="Data_Generators\Other\IronPy_SystemData.tab"):
+    systemsFile = io.open(planetarySystemsFile, "r")
+    systemDataString = (systemsFile.readline().split('\n')[0]).split('\t') #Data Line line
+    while systemDataString[0] != "ENDF":
+        SystemData.append([systemDataString[0], float(systemDataString[1]),
+                           float(systemDataString[2]), float(systemDataString[3])])
+        #systemDataString = temp.split('\t')
+        # A scan entry line has now been loaded.
+        systemDataString = (systemsFile.readline().split('\n')[0]).split('\t') #Data Line line
+
+    # Populate the Planetary Systems Dictionary.
     
-    pass
+    for system in SystemData:
+        PlanetarySystems[system[0]] = PlanetarySystem(system[0], system[1],
+                                                      system[2], system[3])
+
+    systemsFile.close()
+
 
 # Add in planets to all systems.
 def populatePlanetarySystems():
@@ -545,13 +631,13 @@ def populatePlanetarySystems():
 # Load in scanData, used during planet scans.
 def loadScanData(scannerFile="Data_Generators\Other\IronPy_scandata.tab"):
     scanFile = io.open(scannerFile, "r")
-    scanDataString = []
-    temp = ""
-    while temp != "ENDF":
-        scanDataString = (scanFile.readline().split('\n')[0]).split('\t') #Data Line line
-        temp = scanFile.readline().split('\n')[0]
-        ScanData.append(scanDataString[:])
-        scanDataString = temp.split('\t')
+    scanDataString = (scanFile.readline().split('\n')[0]).split('\t') #Data Line line
+    while scanDataString[0] != "ENDF":
+        convertedLine = []
+        for value in scanDataString:
+            convertedLine.append(int(value))
+        ScanData.append(convertedLine[:])
         # A scan entry line has now been loaded.
+        scanDataString = (scanFile.readline().split('\n')[0]).split('\t') #Data Line line
 
     scanFile.close()

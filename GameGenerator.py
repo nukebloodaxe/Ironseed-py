@@ -18,12 +18,16 @@ class Generator(object):
         self.systemState = 1 #By default, the game Generator points at itself.
         self.generationStage = 1 # The stage of generation are we at.
         self.portraits = []
-        crew.loadCrewData() #To make things simpler later.
+        crew.loadCrewData()  # To make things simpler later.
         self.shipCreator = pygame.image.load("Graphics_Assets\\char.png")
         self.shipCreatorScaled = pygame.transform.scale(self.shipCreator,(g.width,g.height))
     
         self.crewSelector = pygame.image.load("Graphics_Assets\\char2.png")
         self.crewSelectorScaled = pygame.transform.scale(self.crewSelector,(g.width,g.height))
+        
+        #Generate planetary systems.
+        planets.loadPlanetarySystems()
+        planets.initialisePlanets()
         
     def loadPortraits(self, number=32, file="Graphics_Assets\\image", fileType=".png"):
         self.portraits.append("dummy") # dummy entry.
