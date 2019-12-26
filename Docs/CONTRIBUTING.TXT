@@ -1,0 +1,8 @@
+26/12/2019:
+
+At the moment, it would be best to refrain from contributing, beyond pointing out serious issues or bugs in the issues section.
+The code is under heavy work and not in a workable state at this time, but once it is stable I'll replace this file with
+proper contributing directions.
+
+Regards,
+Nuke Bloodaxe.
