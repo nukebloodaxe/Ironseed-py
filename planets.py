@@ -18,6 +18,9 @@ These really deserve their own class and file.
 
 # name, State, variation, Life/Technology level
 # Check utils2.pas, it contains most planet related details and old algos.
+# Explore.pas contains much of the graphics settings for colours and texturing.
+# Investigate how to integrate into the planet class.
+
 
 import io, pygame, math, random, items, global_constants as g
 
@@ -25,6 +28,7 @@ PlanetarySystems = {} # Original code indicates these max out at 250.
 
 Planets = {} # Original code indicates these max out at 1000
 ScanData = [] # Holds the scan data definitions from scandata.tab.
+# ---> Planet state this way, planet grade down.
 
 class Planet(object):
     def __init__(self, name="Bug", state=0, grade='A', orbit = 0):
@@ -252,16 +256,71 @@ class Planet(object):
             self.bots = [0, 0, 0]
             self.notes = 0
     
-    # This function handles materials and components for display.
-    def getSubQuantities(self):
+    # This function computes the quantities of elements required to make the
+    # components of a final product (component, material, weapon, shield etc.)
+    # If the quantities are sufficient to make the final item, return the
+    # amount that can be produced.
+    # Note: Evil function.
+    def getSubQuantities(self, index, itemType, elements, materials):
+        totalTech = 99
+        itemName = items.getItemOfType(index, itemType)
+        temp = items.itemConstructionDictionary[itemName]
+        for something in range(1,4): # each item uses 3 things to make.
         
-        pass
+            if items.itemDictionary[temp[something]][2] == "ELEMENT":
+                
+                quantity = elements[items.findItemInPseudoArray(temp[0])]
+            
+            elif items.itemDictionary[temp[something]][2] == "MATERIAL":
+            
+                quantity = materials[items.findItemInPseudoArray(temp[0])]
+            
+            # This happens when we receive a final product, like a weapon...
+            elif items.itemDictionary[temp[something]][2] == "COMPONENT":
+                subIndex = items.findItemInPseudoArray(temp[something[0]])
+                quantity = self.getSubQuantities(subIndex, "COMPONENT", 
+                                                 elements, materials)
+            if quantity < totalTech:
+                totalTech = quantity
+            
+        return totalTech
     
     # Scans are predefined, so return quantities accordingly.
-    # This relies on the predefined scan data file.
+    # This relies on the predefined scan data file being loaded.
     def getItemAmounts(self):
+        elements = []
+        materials = []
+        components = []
+        for index in range(g.totalElements):
+            elements.append(ScanData[index][self.state])
         
-        pass
+        for index in range(g.totalMaterials):
+            totalTech = 99 # We don't want to shower the players with gifts.
+            totalYield = 0
+            item = items.getItemOftype("MATERIAL", index)
+            temp = items.itemConstructionDictionary[item]
+            for element in range(1,4): # each material uses 3 elements to make.
+                quantity = elements[items.findItemInPseudoArray(temp[element])]
+                totalYield += quantity
+                if quantity < totalTech:
+                    totalTech = quantity
+            if totalTech > 0:
+                materials.append(totalYield)
+            else:
+                materials.append(0)
+                
+        materials[0] = 0
+        materials[20] = 0
+        
+        for index in range(g.totalComponents):
+            components.append(self.getSubQuantities(index, "COMPONENT",
+                                                    elements, materials))
+        
+        components[0] = 0
+        components[21] = 0
+        components[22] = 0
+        
+        return elements, materials, components
     
     # Add items to the planet, including results of surface mining/manufacturing.
     #These are added by name for ease of use in the dictionaries.
@@ -292,7 +351,7 @@ class Planet(object):
                 for index in range(1,7):
                     
                     if len(self.cache) < 7:
-                        self.cache.append(items.getRandomItem("MATERIAL", g.totalMaerials))
+                        self.cache.append(items.getRandomItem("MATERIAL", g.totalMaterials))
                         remaining -= 1
                     if len(self.cache) == total or remaining <= 0:
                         break
@@ -483,11 +542,10 @@ def populatePlanetarySystems():
     
     pass
 
-# Load in scandata, used during planet scans.
+# Load in scanData, used during planet scans.
 def loadScanData(scannerFile="Data_Generators\Other\IronPy_scandata.tab"):
     scanFile = io.open(scannerFile, "r")
     scanDataString = []
-    count = 1 # image file names start at 01 (e.g. image01.png)
     temp = ""
     while temp != "ENDF":
         scanDataString = (scanFile.readline().split('\n')[0]).split('\t') #Data Line line
@@ -497,5 +555,3 @@ def loadScanData(scannerFile="Data_Generators\Other\IronPy_scandata.tab"):
         # A scan entry line has now been loaded.
 
     scanFile.close()
-
-    pass

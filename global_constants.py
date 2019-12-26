@@ -32,6 +32,9 @@ totalComponents = 22
 totalDevices = 13
 totalShields = 14
 totalWeapons = 57
+maxCargo = totalElements + totalMaterials + totalMaterials + totalComponents
+maxCargo += totalDevices + totalShields + totalWeapons + 1
+
 
 #game related constants; will be class integrated later.
 gameStatus = 0

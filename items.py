@@ -45,6 +45,28 @@ def getRandomItem(itemType, limit):
             if foundTypeCount == rando:
                 return item[0]
 
+# Get the item name of "type" at "count" position, this effectively acts as 
+# primative array traversal.
+def getItemOfType(itemType, count):
+    foundTypeCount = 0
+    for item in itemDictionary:
+        if item[2] == itemType:
+            foundTypeCount += 1
+            if foundTypeCount == count:
+                return item[0]
+            
+# We look for the item and return the position as though the ditionary was an
+# array.  We are assuming the item exists.
+def findItemInPseudoArray(item):
+    itemType = itemDicitonary[item][2]
+    foundTypeCount = 0
+    for searchItem in itemDictionary:
+        if searchItem[2] == itemType:
+            foundTypeCount += 1
+            if searchItem[0] == item:
+                return foundTypeCount
+
+
 # End of get random item functions.  These exist to make things easier.
 
 # Populate the item and item construction dictionaries.
@@ -69,17 +91,17 @@ def loadItemData(file1="Data_Generators\Other\IronPy_items.tab",
     
     while S2 != "":
         decodedConst = S2.split('\t')
-        temp = [] # remove the \n and make elements ints.
+        requiredCrewLevels = [] # remove the \n and make elements ints.
         for integer in decodedConst[5:]:
             if integer != '\n':
-                temp.append(int(integer))
+                requiredCrewLevels.append(int(integer))
         # Item to create, Part 1, Part 2, Part 3, Worth, Required crew levels.
         itemConstructionDictionary[decodedConst[0]] = [decodedConst[0],
                                                        decodedConst[1],
                                                        decodedConst[2],
                                                        decodedConst[3],
                                                        int(decodedConst[4]),
-                                                       temp]
+                                                       requiredCrewLevels]
         S2 = constructFile.readline()
         
     while S1 != "":
