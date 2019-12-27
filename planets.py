@@ -34,6 +34,7 @@ SystemData = []
 class Planet(object):
     def __init__(self):
         self.name = "UNKNOWN"
+        self.systemName = "" # Quicker for reverse lookups.
         self.index = 0 # Normally our planet number.
         self.state = 0
         self.grade = 0 # Appears to be "mode" in original code.
@@ -49,6 +50,7 @@ class Planet(object):
         self.dateMonth = 0
         self.dateYear = 0
         self.visits = 0
+        self.orbit = 0 # set this during system generation.
         self.outpost = 0 # Extra feature, is this an outpost?
         self.owned = 0 # Extra feature, the owner of the planet.
         # Planet bitmap of terrain data.
@@ -64,7 +66,9 @@ class Planet(object):
     def generate(self, index):
         
         self.index = index
-        
+        self.seed = random.randint(1,64000)
+        random.seed(self.seed)
+        self.size = random.randint(1, 5)
         if index == 1:
             self.age = random.randint(0,7)
             if self.age <=3:
@@ -140,14 +144,16 @@ class Planet(object):
     
     # Get the technology level of the planet.
     # Note: I'm not 100% sure how those values work.
-    def getTechLevel(self, systemName):
+    # It is possible that a bit-shift is intended, but that will
+    # require more research.
+    def getTechLevel(self):
         if self.orbit == 0:
             return 0 # We are a star... although, what about Dyson spheres?
         techLevel = -2
-        if systemName in ["KODUH","OLEZIAS","IYNK","TEVIX","SEKA","WIOTUN"]:
+        if self.systemName in ["KODUH","OLEZIAS","IYNK","TEVIX","SEKA","WIOTUN"]:
             return 6*256 # Really...
         
-        if systemName == "EXOPID":
+        if self.systemName == "EXOPID":
             
             if 27 in g.eventFlags:
                 return 0
@@ -403,9 +409,10 @@ class Planet(object):
         return elements, materials, components
     
     # Add items to the planet, including results of surface mining/manufacturing.
-    #These are added by name for ease of use in the dictionaries.
+    # These are added by name for ease of use in the dictionaries.
     # Note: A planet normally has only one bot type, I'm adding this for
     # the possibility of a "factory" planet.
+    # TODO: Function calls need to be correctd to real versions.
     def addItems(self, quantityLimit):
         if not self.depleted:
             elements, materials, components = self.getItemAmounts()
@@ -456,14 +463,14 @@ class Planet(object):
     # Areas where technology is present are represented as a bright pixel.
     # Note: Colour adjust later.  This function used to draw the planet
     # to screen as well...
-    def createPlanet(self, systemName):
+    def createPlanet(self):
         # Prepare texture for per-pixel adjustments.
         planetSurface = pygame.PixelArray(self.planetTexture)
         
         currentX, currentY = 0
         random.seed(self.seed)
         step = 0
-        technologyLevel = self.getTechLevel(systemName)
+        technologyLevel = self.getTechLevel(self.systemName)
         for index in range(75000):
             step += 1
             currentX = currentX-1+random.randrange(0,3)
@@ -527,7 +534,7 @@ class Planet(object):
         
 class PlanetarySystem(object):
     def __init__(self, systemName = "Buggy", positionX=0.0, positionY=0.0, positionZ=0.0):
-        self.systemName = systemName
+        self.systemName = systemName # Don't forget to assign to planets too.
         #Visitation related info
         self.dateMonth = g.starDate[0]
         self.dateYear = g.starDate[2]
@@ -535,19 +542,31 @@ class PlanetarySystem(object):
         self.positionX = positionX
         self.positionY = positionY
         self.positionZ = positionZ
-        
+        self.notes = 0
+        self.starGrade = 0 # quick lookup of the type of star.
+        self.numberOfPlanets = 0 # how many planets this system has.
         self.planets = [] # Max 9 including star(at 0).
             
     # Get the tech level for a particular planet.
     def getTechLevel(self, orbit):
         self.planets[orbit].getTechLevel(self.systemName)
-        
+    
+    # Determine amount of planets this system has.
+    def createPlanetCount(self):
+        self.numberOfPlanets = 3 + random.randint(1,3)
+    
     # Update the system, which is normally based on time passed since last visit.
     # Run once only for each visit!
     def updateSystem(self):
         self.visits += 1 # It is HIGHLY unlikely we'll roll this over...
         self.dateMonth = g.starDate[0]
         self.dateYear = g.starDate[2]
+        
+    # A trick to show the name as "UNKNOWN" when a system has not been visited.
+    def getName(self):
+        if self.visits > 0:
+            return self.systemName
+        return "UNKNOWN"
 
 # Note: Original code had name of planet based on orbit.
 # ALPHA, BETA, GAMMA, DELTA, EPISILON, ZETA, ETA, THETA
@@ -622,11 +641,62 @@ def loadPlanetarySystems(planetarySystemsFile="Data_Generators\Other\IronPy_Syst
 
     systemsFile.close()
 
+# Here we use a python generator to iterate over the planets dictionary.
+# This produces a noticible improvement to both speed and comprehension of
+# what the code is doing.
+def iteratePlanetDictionary():
+    count = 0
+    for planet in Planets:
+        count += 1
+        yield planet, count
 
-# Add in planets to all systems.
+# Add in planets to all systems.  Breakout when all planets used up.
+# Note: I might dispense with the planet limit later.
+# Note: the code claims OBAN is system 145, however a check of the
+# system lines shows that OBAN is line 127; I will use this value.
 def populatePlanetarySystems():
-    
-    pass
+    lastPlanet = False
+    for system in PlanetarySystems:
+        system.createPlanetCount()
+        
+        if system.systemName == "OBAN":
+            system.numberOfPlanets = 3 # including the star
+        
+        # Add Sun Here.
+        #TODO: Random orbits for the count of planets.
+        for orbit in range(0, system.numberOfPlanets):
+            
+            planet, count = iteratePlanetDictionary()
+            planet.orbit = orbit
+            planet.systemName = system.systemName
+            random.seed(planet.seed) # make sure values are consistent.
+            planet.water = random.randint(0,50)
+            
+            if system.systemName == "OBAN":
+                if i == 1:
+                    planet.state = 5
+                    planet.grade = 3
+                    planet.orbit = 4
+                    planet.age = 2000
+                
+                elif i == 2:
+                    planet.state = 2
+                    planet.grade = 3
+                    planet.orbit = 2
+                    planet.age = 2000
+            
+            system.planets.append(planet)
+            
+            if orbit == 0:
+                planet.generate(1) # activate sun code.
+                system.starGrade = planet.state
+                
+            if count == 1000:
+                lastPlanet = True
+                break
+            
+        if lastPlanet == True:
+            break
 
 # Load in scanData, used during planet scans.
 def loadScanData(scannerFile="Data_Generators\Other\IronPy_scandata.tab"):

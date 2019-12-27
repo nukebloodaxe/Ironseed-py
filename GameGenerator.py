@@ -28,6 +28,7 @@ class Generator(object):
         #Generate planetary systems.
         planets.loadPlanetarySystems()
         planets.initialisePlanets()
+        planets.populatePlanetarySystems()
         
     def loadPortraits(self, number=32, file="Graphics_Assets\\image", fileType=".png"):
         self.portraits.append("dummy") # dummy entry.
