@@ -7,6 +7,20 @@ Ironseed helper functions
 import pygame, random
 import global_constants as g
 
+# Check event flags to see if the event has been tripped.
+# Note: negative events and events above 20000 always return true.
+def checkEvent(event):
+    if event < 0 or event >= 20000:
+        return True
+    
+    if event >= 8192:
+        return False
+    
+    if event in g.eventFlags:
+        return True
+    else:
+        return False
+
 #Safe wrapping at a given step and number
 def safeWrap(width,step,current):
     whereAt = current+step
