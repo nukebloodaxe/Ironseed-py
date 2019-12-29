@@ -58,7 +58,7 @@ def getItemOfType(itemType, count):
 # We look for the item and return the position as though the ditionary was an
 # array.  We are assuming the item exists.
 def findItemInPseudoArray(item):
-    itemType = itemDicitonary[item][2]
+    itemType = itemDictionary[item][2]
     foundTypeCount = 0
     for searchItem in itemDictionary:
         if searchItem[2] == itemType:
