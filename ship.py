@@ -22,7 +22,7 @@ class RepairTeam(object):
 class Ship(object):
     def __init__(self):
         self.name = "De Bug"
-        self.gunNodes = [0,0,0,0,0,0,0,0,0,0]
+        self.gunNodes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.gunMax = 0
         self.armed = False
         self.cargo = {}
@@ -69,13 +69,131 @@ class Ship(object):
         self.cargo["Dirk"] = ["Dirk", 1]
         self.cargo["Minebot"] = ["Minebot", 1]
         self.cargo["Manufactory"] = ["Manufactory", 1]
+        
+        # Ship messages that need printing, not role specific.
+        self.shipMessages = []
     
-    #Apply damage to the ship, mitigating it with the shield first.
-    def receiveDamage(totalDamage, PsychiDamage, particleDamage,
+    # Add a message to the pending messages queue, these are printed onscreen
+    # later.  CrewMember is the EGO Synth containment unit number.
+    def addMessage(self, message, crewMember):
+        self.shipMessages.append((message, crewMember))
+    
+    #Get a message from the pending messages queue.  Returns an empty string
+    #when no messages are pending.
+    def getMessage(self):
+        if len(self.shipMessages) == 0:
+            return ("",-1) # No message.
+        return self.shipMessages.pop()
+    
+    # Add an item to cargo, different to original.
+    # I've dispensed with the item limit, and am looking at the possibility
+    # of having items left behind if the hold fills.  This eliminates the
+    # random loss of a cargo type if we overfill the hold.
+    # Returns cargo added success as boolean, alongside the remainder.
+    def addCargo(self, itemName, quantity):
+        cargoAdded = False
+        itemWeight = itemDictionary[itemName].cargoSize
+        totalWeight = itemWeight * quantity
+        usedCargo = totalCargoSize()
+        quantityLeft = quantity
+        #TODO: Force Artifacts to add regardless of size.
+        if usedCargo + totalWeight > cargoMax:
+            while usedCargo + itemWeight <= cargoMax:
+                
+                # Try to add as many possible into cargo hold.
+                try:
+                    self.cargo[itemName][1] += 1
+                except:
+                    self.cargo[itemName] = [itemName, 1]
+                usedCargo = totalCargoSize()
+                quantityLeft -= 1
+                cargoAdded = True
+        else:
+            try:
+                self.cargo[itemName][1] += quantity
+            except:
+                self.cargo[itemName] = [itemName, quantity]
+            cargoAdded = True
+            quantityLeft = 0
+        
+        if quantityLeft > 0:
+            quantity = quantityLeft # Experiment.
+            if CargoAdded == False:
+                self.addMessage("Cargo Full!", 2)
+                self.addMessage(str(usedCargo)+'/'+str(self.cargoMax)+' used.', 2)
+            
+            else:
+                self.addMessage("Cargo Filled During Transfer!", 2)
+                self.addMessage(str(usedCargo)+'/'+str(self.cargoMax)+' used.', 2)
+                self.addMessage(str(quantity)+" units were left behind!", 2)
+                
+        return cargoAdded, quantityLeft
+                
+    # Remove a quantity of cargo, returning True and the quantity remaining on
+    # success, else False and quantity removed.
+    def removeCargo(self, itemName, quantity ):
+        cargoRemoved = False
+        quantityLeft = quantity
+        items = 0
+        try:
+            items = self.cargo[itemName][1]
+        except:
+            self.cargo[itemName] = [itemName, 0]
+            items = 0
+        
+        if items >= quantity:
+            quantityLeft = items - quantity
+            cargoRemoved = True
+            
+        elif items == 0:
+            
+            self.addMessage("No " + itemName + " found in cargo!", 2)
+            quantityLeft = 0
+        else:
+            quantityLeft -= self.cargo[itemName][1]
+            self.cargo[itemName][1] = 0
+        
+        return cargoRemoved, quantityLeft
+        
+        
+    # Find total cubic meters of all cargo in hold.
+    def totalCargoSize(self):
+        totalSize = 0
+        for item in cargo:
+            if item[1] >= 1:
+                count = item[1]
+                while count > 0:
+                    totalSize += items.itemDictionary[item[0]].cargoSize
+                    count -= 1
+        return totalSize # this function does not judge...
+    
+    # Check to see if we are overweight.  Background switch determines
+    # if this is in the lower left corner log window, or somewhere else.
+    def checkOverweight(self, background = False):
+        overweight = False
+        # Role 2 for messages.
+        weight = self.totalCargoSize()
+        # Print a big dialogue message if it happens in the background.
+        # As to how that would happen... Tribbles?
+        if weight > self.cargoMax:
+            # big dialogue box!
+            if background:
+                #TODO: Big Box functionality.
+            else:
+                self.addMessage("Cargo Full!", 2)
+                self.addMessage(str(weight)+'/'+str(self.cargoMax)+' used.', 2)
+                self.addMessage('Must Jettison cargo.', 2)
+            overweight = True
+            
+        return overweight # This function does judge...
+        
+    # Apply damage to the ship, mitigating it with the shield first.
+    def receiveDamage(self, totalDamage, PsychiDamage, particleDamage,
                       inertialDamage, energyDamage):
-        #First, find out how much damage the shield can absorb.
-        shield
+        # TODO: Everything.
+        # First, find out how much damage the shield can absorb.
         pass
+        
     
     #Apply power drain to battery
     def dischargeBattery():
