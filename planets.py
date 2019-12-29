@@ -63,13 +63,13 @@ class Planet(object):
     
     # New game initialisation, this occurs during the generation phase.
     # Results are ultimately saved to save game file for new game.
-    def generate(self, index):
+    def generate(self, index, sun = False):
         
         self.index = index
         self.seed = random.randint(1,64000)
         random.seed(self.seed)
         self.size = random.randint(1, 5)
-        if index == 1:
+        if sun == True:
             self.age = random.randint(0,7)
             if self.age <=3:
                 self.grade = 1
@@ -644,16 +644,23 @@ def loadPlanetarySystems(planetarySystemsFile="Data_Generators\Other\IronPy_Syst
 # Here we use a python generator to iterate over the planets dictionary.
 # This produces a noticible improvement to both speed and comprehension of
 # what the code is doing.
+# Note: support function for populatePlanetary systems, run it nowhere else.
 def iteratePlanetDictionary():
     count = 0
-    for planet in Planets:
-        count += 1
-        yield planet, count
+    while 1:
+        count = 0
+        for planet in Planets:
+            count += 1
+            if count > 1000:
+                break
+            yield planet, count
 
 # Add in planets to all systems.  Breakout when all planets used up.
 # Note: I might dispense with the planet limit later.
 # Note: the code claims OBAN is system 145, however a check of the
-# system lines shows that OBAN is line 127; I will use this value.
+# system lines shows that OBAN is line 127; I will use "OBAN" as the
+# planetary system value.
+# Note: run this function only Once!
 def populatePlanetarySystems():
     lastPlanet = False
     for system in PlanetarySystems:
@@ -667,31 +674,35 @@ def populatePlanetarySystems():
         for orbit in range(0, system.numberOfPlanets):
             
             planet, count = iteratePlanetDictionary()
+            # planet.index = count # Possible: adjust index to dictionary order.
             planet.orbit = orbit
             planet.systemName = system.systemName
             random.seed(planet.seed) # make sure values are consistent.
             planet.water = random.randint(0,50)
             
             if system.systemName == "OBAN":
-                if i == 1:
-                    planet.state = 5
-                    planet.grade = 3
-                    planet.orbit = 4
-                    planet.age = 2000
                 
-                elif i == 2:
+                if orbit == 1:
+                    
                     planet.state = 2
                     planet.grade = 3
                     planet.orbit = 2
                     planet.age = 2000
-            
+                
+                elif orbit == 2:
+
+                    planet.state = 5
+                    planet.grade = 3
+                    planet.orbit = 4
+                    planet.age = 2000
+                    
             system.planets.append(planet)
             
             if orbit == 0:
-                planet.generate(1) # activate sun code.
+                planet.generate(count, True) # activate sun code.
                 system.starGrade = planet.state
                 
-            if count == 1000:
+            if count >= 1000:
                 lastPlanet = True
                 break
             
