@@ -6,7 +6,7 @@ Handles the main render and tick loop.
 @author: Nuke Bloodaxe
 """
 import pygame, sys, time, random, numpy, pygame.sndarray, intro_main
-import ship, crew, items, planets, weaponsAndShields
+import ship, crew, items, planets, weaponsAndShields, PlanetScanner
 import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
@@ -33,19 +33,21 @@ class IronSeed(object):
         #Populate Item dictionaries
         items.loadItemData()
         planets.loadScanData()
+        planets.loadPlanetarySystems()
         crew.loadCrewData()
         weaponsAndShields.loadWeaponsAndShields()
         self.crew = crew.Crew()
         self.ship = ship.Ship()
         self.intro = intro_main.IronseedIntro()
         self.generator = gen.Generator() # Settings at new-game state.
-        self.crewCom = crewC.crewComm(self.crew) #Needs to have crew data set.
+        self.crewCom = crewC.crewComm(self.crew) # Needs to have crew data set.
+        self.planetScanner = PlanetScanner.PlanetScanner()
         
         self.states = {1:self.generator.update, # The crew + ship selection system.
                        2:"main", # Main menu.
                        3:self.intro.update, #Game Intro - quite useful for testing.
                        4:"cargo", # ship cargo system, includes item assembly.
-                       5:"Planet", #Planet surveys and drone ops.
+                       5:self.planetScanner.update, #Planet surveys and drone ops.
                        6:"Communications", #Comms between ships/planets
                        7:"Combat", #Normal and simulated combat.
                        8:self.crewCom.update, #"talk" with crew members.
@@ -60,7 +62,7 @@ class IronSeed(object):
         h.renderText(self.creditText,g.font,self.displaySurface,g.WHITE,g.offset)
         pygame.display.update()
             
-        # wait some seconds
+        # wait some seconds, approx 4.
         pygame.time.wait(4000)
         
         # enter main state and logic loop.

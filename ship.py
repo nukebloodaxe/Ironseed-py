@@ -179,6 +179,7 @@ class Ship(object):
             # big dialogue box!
             if background:
                 #TODO: Big Box functionality.
+                pass
             else:
                 self.addMessage("Cargo Full!", 2)
                 self.addMessage(str(weight)+'/'+str(self.cargoMax)+' used.', 2)
@@ -188,6 +189,7 @@ class Ship(object):
         return overweight # This function does judge...
         
     # Apply damage to the ship, mitigating it with the shield first.
+    # if Life Support fails, you die there and then.
     def receiveDamage(self, totalDamage, PsychiDamage, particleDamage,
                       inertialDamage, energyDamage):
         # TODO: Everything.
@@ -195,7 +197,9 @@ class Ship(object):
         pass
         
     
-    #Apply power drain to battery
+    # Apply power drain to battery
+    # Note: Apply weapons first, then the shield.
+    # Enhancement Possible: Power allocation % could be added.
     def dischargeBattery():
         
         pass

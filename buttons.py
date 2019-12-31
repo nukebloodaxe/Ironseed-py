@@ -23,12 +23,12 @@ class Button(object):
     
     # Set this position of the button on screen, we give the top left corner of
     # the button as a tuple of (x,y).
-    def setPosition(position):
+    def setPosition(self, position):
         self.position = position
     
     # Check if a given tuple of (x,y) is within the button area.
     # Note: given as screen position, so needs to be translated to button area.
-    def within(position):
+    def within(self, position):
         
         isWithin = False
         
@@ -64,3 +64,6 @@ class Button(object):
         self.resolutionX = g.width
         self.resolutionY = g.height
         
+# Ironseed has these big dialogue boxes that appear, we can handle those here.
+class BigDialogueBox(Button):
+    pass
