@@ -11,3 +11,5 @@ __pycache__/ship.cpython-37.pyc
 __pycache__/crewcomm.cpython-37.pyc
 __pycache__/GameGenerator.cpython-37.pyc
 __pycache__/weaponsAndShields.cpython-37.pyc
+__pycache__/buttons.cpython-37.pyc
+__pycache__/PlanetScanner.cpython-37.pyc
