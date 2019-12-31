@@ -60,7 +60,15 @@ class Planet(object):
         self.planetTexture = pygame.Surface((g.planetHeight, g.planetWidth), 0)
         # self.createPlanet()
         # Note: if you see a system with a star called 'Bug', then you have a problem.
-    
+        
+        # Probot scan related Data points.
+        # 1 for each hemesphere.  When value is 2, scan is complete.
+        self.lithosphere = 0
+        self.hydrosphere = 0
+        self.atmosphere = 0
+        self.biosphere = 0
+        self.anomaly = 0
+        
     # New game initialisation, this occurs during the generation phase.
     # Results are ultimately saved to save game file for new game.
     def generate(self, index, sun = False):
@@ -81,6 +89,7 @@ class Planet(object):
             return
         
         self.state = random.randint(0,7)
+        self.water = random.randint(0,50)
         
         if self.state == 0:
             self.age = random.randint(0, 5)
@@ -398,6 +407,8 @@ class Planet(object):
         materials[0] = 0
         materials[20] = 0
         
+        # We use the sub category function in here to determine if we have
+        # enough materials to actually manufacture the component concerned.
         for index in range(g.totalComponents):
             components.append(self.getSubQuantities(index, "COMPONENT",
                                                     elements, materials))
@@ -412,7 +423,7 @@ class Planet(object):
     # These are added by name for ease of use in the dictionaries.
     # Note: A planet normally has only one bot type, I'm adding this for
     # the possibility of a "factory" planet.
-    # TODO: Function calls need to be correctd to real versions.
+    # TODO: Function calls need to be corrected to real versions.
     def addItems(self, quantityLimit):
         if not self.depleted:
             elements, materials, components = self.getItemAmounts()
@@ -420,8 +431,9 @@ class Planet(object):
             total = 0
             
             if self.bots[0] > 0:
-
-                total = elements
+                
+                for element in elements:
+                    total += element
                 
                 for index in range(1,7):
                     
@@ -433,7 +445,8 @@ class Planet(object):
             
             if self.bots[1] > 0:
                 
-                total += materials
+                for material in materials:
+                    total += material
                 
                 for index in range(1,7):
                     
@@ -442,13 +455,11 @@ class Planet(object):
                         remaining -= 1
                     if len(self.cache) == total or remaining <= 0:
                         break
-            # We use the sub category function in here to determine if we have
-            # enough materials to actually manufacture the component concerned.
+                    
             if self.bots[2] > 0:
                 
-                total += components
-                
-                #TODO: Sub-component check here.
+                for component in components:
+                    total += component
                 
                 for index in range(1,7):
                     
@@ -461,7 +472,7 @@ class Planet(object):
     # Create the planet bitmap, which uses the random pixel height-change
     # method to raise and lower terrain.
     # Areas where technology is present are represented as a bright pixel.
-    # Note: Colour adjust later.  This function used to draw the planet
+    # Note: Colour adjust later.  This function is used to draw the planet
     # to screen as well...
     def createPlanet(self):
         # Prepare texture for per-pixel adjustments.
@@ -501,8 +512,185 @@ class Planet(object):
                     
         #TODO: Convert height bitmap to planet graphic in self.planetTexture
         
+    # Create a swirl effect, usually for clouds on a gas giant.
+    def createSwirl(self, currentX, currentY, size):
         
-
+        currentPixel = 0
+        
+        if currentY <= g.height: # Southern Hemesphere.
+            if size == 2:
+                currentPixel = self.planetTerrain[currentY-1][currentX]
+                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+1] - random.randint(1,3)
+                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1,3)
+            
+            elif size == 3:
+                currentPixel = self.planetTerrain[currentY-1][currentX]
+                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+2] - random.randint(1,3)
+                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1,3)
+                currentPixel = self.planetTerrain[currentY-1][currentX+1]
+                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+1] - random.randint(1,3)
+                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1,3)
+                
+            elif size == 4:
+                currentPixel = self.planetTerrain[currentY-1][currentX]
+                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+3] - random.randint(1,3)
+                self.planetTerrain[currentY][currentX+3] = currentPixel - random.randint(1,3)
+                currentPixel = self.planetTerrain[currentY-1][currentX+1]
+                self.planetTerrain[currentY-1][currentX+1] = self.planetTerrain[currentY][currentX+2] - random.randint(1,3)
+                self.planetTerrain[currentY][currentX+2] = currentPixel - random.randint(1,3)                
+                currentPixel = self.planetTerrain[currentY-2][currentX+2]
+                self.planetTerrain[currentY-2][currentX+2] = self.planetTerrain[currentY+1][currentX+1] - random.randint(1,3)
+                self.planetTerrain[currentY+1][currentX+1] = currentPixel - random.randint(1,3)
+                currentPixel = self.planetTerrain[currentY-2][currentX+1]
+                self.planetTerrain[currentY-2][currentX+1] = self.planetTerrain[currentY+1][currentX+2] - random.randint(1,3)
+                self.planetTerrain[currentY+1][currentX+2] = currentPixel - random.randint(1,3)
+                
+        else: # Northern Hemesphere.
+            if size == 2:
+                currentPixel = self.planetTerrain[currentY-1][currentX+1]
+                self.planetTerrain[currentY-1][currentX+1] = self.planetTerrain[currentY][currentX] - random.randint(1,3)
+                self.planetTerrain[currentY][currentX] = currentPixel - random.randint(1,3)
+                
+            elif size == 3:
+                currentPixel = self.planetTerrain[currentY][currentX]
+                self.planetTerrain[currentY][currentX] = self.planetTerrain[currentY-1][currentX+2] - random.randint(1,3)
+                self.planetTerrain[currentY-1][currentX+2] = currentPixel - random.randint(1,3)
+                currentPixel = self.planetTerrain[currentY-1][currentX+1]
+                self.planetTerrain[currentY-1][currentX+1] = self.planetTerrain[currentY][currentX+1] - random.randint(1,3)
+                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1,3)
+                
+            elif size == 4:            
+                currentPixel = self.planetTerrain[currentY][currentX]
+                self.planetTerrain[currentY][currentX] = self.planetTerrain[currentY-1][currentX+3] - random.randint(1,3)
+                self.planetTerrain[currentY-1][currentX+3] = currentPixel - random.randint(1,3)
+                currentPixel = self.planetTerrain[currentY][currentX+1]
+                self.planetTerrain[currentY][currentX+1] = self.planetTerrain[currentY-1][currentX+2] - random.randint(1,3)
+                self.planetTerrain[currentY-1][currentX+2] = currentPixel - random.randint(1,3)                
+                currentPixel = self.planetTerrain[currentY-2][currentX+2]
+                self.planetTerrain[currentY-2][currentX+2] = self.planetTerrain[currentY+1][currentX+1] - random.randint(1,3)
+                self.planetTerrain[currentY+1][currentX+1] = currentPixel - random.randint(1,3)
+                currentPixel = self.planetTerrain[currentY-2][currentX+1]
+                self.planetTerrain[currentY-2][currentX+1] = self.planetTerrain[currentY+1][currentX+2] - random.randint(1,3)
+                self.planetTerrain[currentY+1][currentX+2] = currentPixel - random.randint(1,3)
+    
+    # Create a Gas Planet bitmap.
+    def createGasPlanet(self):
+        currentX, currentY = 0
+        random.seed(self.seed)
+        step = 0
+        colours = [0,0,0]
+        # You never know, there might be blimp people...
+        technologyLevel = self.getTechLevel(self.systemName)
+        
+        # What horrible colours shall we choose?
+        if random.randint(0,2) > 0:
+            colours[0] = 32
+            colours[1] = 48
+            colours[2] = 64
+        else:
+            colours[0] = 112
+            colours[1] = 128
+            colours[2] = 96
+        # Create the atmospheric bands of "gas".  Who knows what the Blimp
+        # People have been doing...
+        areas = 1
+        bandColour = 0
+        
+        for YPosition in range(int(g.height/2), 0, -1):
+            areas -= 1
+            if areas == 0:
+                areas = (int(g.height/2) - abs(YPosition - int(g.height/2))) / 10
+                areas = areas + 6 + random.randint(0, areas + 5)
+                if (areas < YPosition) and ((areas + 5) > YPosition):
+                    areas = YPosition >> 1 # bit shift by 1 right.
+                bandColour = (bandColour + random.randint(0,2) + 1) % 3
+                
+                if bandColour == 0:
+                    bandColour = colours[0] + 8 + random.randint(0,5)
+                    
+                elif bandColour == 1:
+                    bandColour = colours[1] + 8 + random.randint(0,5)
+                    
+                else:
+                    bandColour = colours[2] + 8 + random.randint(0,5)
+        
+            for XPosition in range(0, int(g.width)):
+                
+                self.planetTerrain[YPosition][XPosition] = bandColour + random.randint(0,2)
+                self.planetTerrain[g.height-YPosition][XPosition] = bandColour + random.randint(0,2)
+            
+        # Create areas of turbulance between bands, aka the Jupiter look.
+        for YPosition in range(3, g.height):
+            
+            if (self.planetTerrain[YPosition][1] & 0xF0) != (self.planetTerrain[YPosition-1][1] & 0xF0):
+                
+                XPosition = 1
+                while XPosition <= g.width:
+                    band = random.randint(0, 4) + 1
+                    if band + XPosition > g.height:
+                        band = h.height - XPosition
+                    self.createSwirl(XPosition,YPosition,band)
+                    XPosition += band
+                YPosition += 2
+                
+        # Create Spots: this was pretty dire in the code...
+        spotCount = 6 + random.randint(0,5)
+        spotSize = 0
+        for spot in range(1, spotCount):
+            colour = random.randint(0,2)
+            if colour == 0:
+                colour = colours[0] + 2 + random.randint(0,4)
+                
+            elif colour == 1:
+                colour = colours[1] + 2 + random.randint(0,4)
+                
+            else:
+                colour = colours[2] + 2 + random.randint(0,4)
+            
+            if spot == 1:
+                spotSize = 15 + random.randint(1,5)
+            else:
+                spotSize = 2 + random.randint(1,6)
+            
+            spotSize2 = spotSize * spotSize
+            spotSize21 = (spotSize - 1) * (spotSize - 1)
+            spotSize22 = (spotSize - 2) * (spotSize - 2)
+            XPosition = random.randint(0, g.width)
+            YPosition = random.randint(0, (g.height-10)-(2*spotSize)) + 5 + spotSize
+            
+            for X1 in range(spotSize*-1, spotSize):
+                XX = X1 + XPosition
+                X12 = X1 * X1
+                if XX < 1:
+                    XX += g.width
+                
+                elif XX > 240:
+                    XX -= g.width
+                diametre = round(math.sqrt(spotSize2 - (X1 * X1)))
+                for Y1 in range(diametre*-1, diametre):
+                    diametre2 = (X1*X1) * (Y1*Y1)
+                    if diametre2 > spotSize21:
+                        self.planetTerrain[Y1+YPosition][XX] += 1 + random.randint(1,2)
+                    elif diametre2 > spotSize22:
+                        self.planetTerrain[Y1+YPosition][XX] += colour - 1 - random.randint(1,2)
+                    else:
+                        self.planetTerrain[Y1+YPosition][XX] += colour + random.randint(1,2)
+                    
+    # Create an Asteroid field bitmap.
+    def createAsteroidField(self):
+        
+        pass
+    
+    # Create a Nubula/Cloud Bitmap.
+    def createCloud(self):
+        
+        pass
+    
+    # Create a Star bitmap.
+    def createStar(self):
+        
+        pass
+    
     # Render the planet : Calls other functions for special cases.
     # This takes the planet texture and wraps it to a sphere,
     # while also applying special effects such as water levels,
@@ -523,6 +711,10 @@ class Planet(object):
     
     # Render an Asteroid field.
     def renderAsteroids(self, displaySurface):
+        
+        pass
+
+    def renderCloud(self):
         
         pass
 
@@ -581,7 +773,7 @@ def initialisePlanets(fileName=""):
 def transformCheckPlanet(planet):
     name, state, grade, life = Planets[planet]
     # chance of transformation.
-    
+    #TODO
     #BIG ALGO HERE
     Planets[planet] = (name,state,grade)
     
@@ -653,7 +845,7 @@ def iteratePlanetDictionary():
             count += 1
             if count > 1000:
                 break
-            yield planet, count
+            yield Planets[planet], count
 
 # Add in planets to all systems.  Breakout when all planets used up.
 # Note: I might dispense with the planet limit later.
@@ -662,8 +854,12 @@ def iteratePlanetDictionary():
 # planetary system value.
 # Note: run this function only Once!
 def populatePlanetarySystems():
+    
     lastPlanet = False
-    for system in PlanetarySystems:
+    count = 0
+    
+    for pSystem in PlanetarySystems:
+        system = PlanetarySystems[pSystem]
         system.createPlanetCount()
         
         if system.systemName == "OBAN":
@@ -673,35 +869,35 @@ def populatePlanetarySystems():
         #TODO: Random orbits for the count of planets.
         for orbit in range(0, system.numberOfPlanets):
             
-            planet, count = iteratePlanetDictionary()
+            # planet, count = iteratePlanetDictionary()
             # planet.index = count # Possible: adjust index to dictionary order.
-            planet.orbit = orbit
-            planet.systemName = system.systemName
-            random.seed(planet.seed) # make sure values are consistent.
-            planet.water = random.randint(0,50)
+            Planets[count].orbit = orbit
+            Planets[count].systemName = system.systemName
             
             if system.systemName == "OBAN":
                 
                 if orbit == 1:
                     
-                    planet.state = 2
-                    planet.grade = 3
-                    planet.orbit = 2
-                    planet.age = 2000
+                    Planets[count].state = 2
+                    Planets[count].grade = 3
+                    Planets[count].orbit = 2
+                    Planets[count].age = 2000
                 
                 elif orbit == 2:
 
-                    planet.state = 5
-                    planet.grade = 3
-                    planet.orbit = 4
-                    planet.age = 2000
+                    Planets[count].state = 5
+                    Planets[count].grade = 3
+                    Planets[count].orbit = 4
+                    Planets[count].age = 2000
                     
-            system.planets.append(planet)
+            system.planets.append(Planets[count])
             
             if orbit == 0:
-                planet.generate(count, True) # activate sun code.
-                system.starGrade = planet.state
-                
+                Planets[count].generate(count, True) # activate sun code.
+                system.starGrade = Planets[count].state
+            
+            count += 1
+            
             if count >= 1000:
                 lastPlanet = True
                 break
