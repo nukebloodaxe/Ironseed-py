@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tues Dec 17 22:08:18 2019
-Planets
+Planets: Planet and Planet solar system related code.
 These really deserve their own class and file.
 @author: Nuke Bloodaxe
 """
@@ -628,7 +628,7 @@ class Planet(object):
                 while XPosition <= g.width:
                     band = random.randint(0, 4) + 1
                     if band + XPosition > g.height:
-                        band = h.height - XPosition
+                        band = g.height - XPosition
                     self.createSwirl(XPosition,YPosition,band)
                     XPosition += band
                 YPosition += 2
@@ -666,9 +666,9 @@ class Planet(object):
                 
                 elif XX > 240:
                     XX -= g.width
-                diametre = round(math.sqrt(spotSize2 - (X1 * X1)))
+                diametre = round(math.sqrt(spotSize2 - X12))
                 for Y1 in range(diametre*-1, diametre):
-                    diametre2 = (X1*X1) * (Y1*Y1)
+                    diametre2 = X12 * (Y1*Y1)
                     if diametre2 > spotSize21:
                         self.planetTerrain[Y1+YPosition][XX] += 1 + random.randint(1,2)
                     elif diametre2 > spotSize22:
@@ -676,15 +676,60 @@ class Planet(object):
                     else:
                         self.planetTerrain[Y1+YPosition][XX] += colour + random.randint(1,2)
                     
+        #TODO: After the horrendous mess we've just gone through, convert the
+        # bitmap into a surface with the correct colours.
+        
     # Create an Asteroid field bitmap.
+    # Note: The original IS code uses an icon for this.
     def createAsteroidField(self):
         
         pass
     
     # Create a Nubula/Cloud Bitmap.
+    # NOTE: Does not work yet.
+    # TODO: Replace algo ith something a bit nicer.
     def createCloud(self):
-        
-        pass
+        currentX, currentY = 0
+        random.seed(self.seed)
+        steps = random.randint(0, 25) + 50
+        size = 0
+        colours = [0,0,0]
+        # You never know, something might be running in the cloud...
+        technologyLevel = self.getTechLevel(self.systemName)
+        for step in range(steps):
+            if step == 1:
+                size = random.randint(0, 50) + 50
+                x = 160
+                y = 70
+            else:
+                size = random.randint(0, 50) + 25
+                x = size + 30 + random(260 - size*2)
+                y = (size >> 1) + 10 + random.randint(0, 120 - size)
+            
+            # Note: I believe they were referencing the colour.
+            colour = (random.randint(0, 48) + 32) & 0xF0
+            for xWidth in range(-size, size):
+                background1 = (0x7 * (size - abs(xWidth)) ) / size
+                ySize = round(math.cos(xWidth*1.57/size) * (size << 1))
+                for yHeight in range(-ySize, ySize):
+                    if ySize > 0:
+                        background = (background1 * (ySize - abs(yHeight))) * (ySize - abs(yHeight)) / ySize / ySize
+                    else:
+                        background = 0
+                    currentX = x + xWidth
+                    currentY = y + yHeight
+                    # Note: Interact with background here.
+                    # TODO: access background layer.
+                    # Using foreground layer for now.
+                    if (self.planetTerrain[currentY][currentX] > 143) or (random.randint(0,7) < background):
+                        self.planetTerrain[currentY][currentX] = colour | background
+                    
+                    elif (self.planetTerrain[currentY][currentX] and 0xF) < background:
+                        (self.planetTerrain[currentY][currentX] = (self.planetTerrain[currentY][currentX] & 0xF0) | background
+            
+            for xWidth in range(0, 120):
+                for yHeight in range(0, 240):
+                    self.planetTerrain[yHeight][xWidth] = self.planetTerrain[yHeight+10][xWidth+40]
     
     # Create a Star bitmap.
     def createStar(self):
@@ -695,6 +740,7 @@ class Planet(object):
     # This takes the planet texture and wraps it to a sphere,
     # while also applying special effects such as water levels,
     # eclipse shadow, clouds etc.
+    # Note: calls sub-functions for rendering.
     def renderPlanet(self, displaySurface):
         
         pass
@@ -765,7 +811,7 @@ class PlanetarySystem(object):
 def initialisePlanets(fileName=""):
     # Load planet files and populate planet structure
     # Planet by name = (planet name, state, variation, tech level/life)
-    Planets["mars"] = Planet()
+    Planets["mars"] = Planet() # For intro.
     for newPlanet in range(0,1001):
         Planets[newPlanet]=Planet()
         Planets[newPlanet].generate(newPlanet)
