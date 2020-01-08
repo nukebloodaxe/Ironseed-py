@@ -51,7 +51,8 @@ class IronSeed(object):
                        6:"Communications", #Comms between ships/planets
                        7:"Combat", #Normal and simulated combat.
                        8:self.crewCom.update, #"talk" with crew members.
-                       9:"EGO"} #placeholder for ego-synth manipulation.
+                       9:"EGO", #placeholder for ego-synth manipulation.
+                       10:"ORBIT" } # Placeholder for generic orbit screen.
         
         
     
