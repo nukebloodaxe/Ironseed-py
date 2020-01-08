@@ -92,20 +92,20 @@ class Ship(object):
     # Returns cargo added success as boolean, alongside the remainder.
     def addCargo(self, itemName, quantity):
         cargoAdded = False
-        itemWeight = itemDictionary[itemName].cargoSize
+        itemWeight = items.itemDictionary[itemName].cargoSize
         totalWeight = itemWeight * quantity
-        usedCargo = totalCargoSize()
+        usedCargo = self.totalCargoSize()
         quantityLeft = quantity
         #TODO: Force Artifacts to add regardless of size.
-        if usedCargo + totalWeight > cargoMax:
-            while usedCargo + itemWeight <= cargoMax:
+        if usedCargo + totalWeight > self.cargoMax:
+            while usedCargo + itemWeight <= self.cargoMax:
                 
                 # Try to add as many possible into cargo hold.
                 try:
                     self.cargo[itemName][1] += 1
                 except:
                     self.cargo[itemName] = [itemName, 1]
-                usedCargo = totalCargoSize()
+                usedCargo = self.totalCargoSize()
                 quantityLeft -= 1
                 cargoAdded = True
         else:
@@ -118,7 +118,7 @@ class Ship(object):
         
         if quantityLeft > 0:
             quantity = quantityLeft # Experiment.
-            if CargoAdded == False:
+            if cargoAdded == False:
                 self.addMessage("Cargo Full!", 2)
                 self.addMessage(str(usedCargo)+'/'+str(self.cargoMax)+' used.', 2)
             
@@ -159,7 +159,7 @@ class Ship(object):
     # Find total cubic meters of all cargo in hold.
     def totalCargoSize(self):
         totalSize = 0
-        for item in cargo:
+        for item in self.cargo:
             if item[1] >= 1:
                 count = item[1]
                 while count > 0:
