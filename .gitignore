@@ -13,3 +13,6 @@ __pycache__/GameGenerator.cpython-37.pyc
 __pycache__/weaponsAndShields.cpython-37.pyc
 __pycache__/buttons.cpython-37.pyc
 __pycache__/PlanetScanner.cpython-37.pyc
+Data_Generators/Other/planname.txt
+Data_Generators/Other/cargo.txt
+Data_Generators/Other/sysdata.txt

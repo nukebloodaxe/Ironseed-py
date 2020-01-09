@@ -4,11 +4,53 @@ Created on Sun Nov 24 15:08:39 2019
 Ironseed helper functions
 @author: Nuke Bloodaxe
 """
-import pygame, random
+import pygame, random, time
 import global_constants as g
 
-# Check event flags to see if the event has been tripped.
-# Note: negative events and events above 20000 always return true.
+#  Very simple stopwatch.
+
+class StopWatch(object):
+
+    def __init__(self):
+        self.stopwatch = 0
+        self.stopwatchSet = False
+        self.time = 0
+
+    #  Get the current time - Real World.
+    def getTime(self):
+        self.time = time.time()
+        return self.time
+
+    #  Set Stopwatch - Real World
+    def setStopwatch(self):
+        self.stopwatchSet = True
+        self.stopwatch = time.time()
+
+    #  Get Stopwatch time  - Real World
+    #  Should result in current time and later calc of 0 in other calling
+    #  functions.
+    def getStopwatch(self):
+        if self.stopwatchSet == True:
+            return self.stopwatch
+        return time.time()
+
+    #  Get seconds since stopwatch was set.
+    def getElapsedStopwatch(self):
+        return time.time() - self.stopwatch
+    
+    # Reset StopWatch
+    def resetStopwatch(self):
+        self.stopwatchSet = False
+        self.stopwatch = 0
+
+GameStopwatch = StopWatch()  #  Very much needed.
+
+# Increment "game" time, this is IronSeed universe time.
+
+
+
+#  Check event flags to see if the event has been tripped.
+#  Note: negative events and events above 20000 always return true.
 def checkEvent(event):
     if event < 0 or event >= 20000:
         return True
@@ -21,14 +63,14 @@ def checkEvent(event):
     else:
         return False
 
-#Safe wrapping at a given step and number
+#  Safe wrapping at a given step and number
 def safeWrap(width,step,current):
     whereAt = current+step
     if whereAt >= width:
         return whereAt%width
     return whereAt
 
-# Render the given text onto a surface.
+#  Render the given text onto a surface.
 def renderText(text, font, Surface, colour, offset, width=0, height=0, centred=False):
     position = 0
     for line in text:
@@ -57,9 +99,9 @@ def fadeInText(text, width, height, colour, surface, step=0, darken=False, centr
         for pixel in range(g.width):
             if safeCombo[pixel][line] != 0:
                 safeSurface[pixel][line]=safeCombo[pixel][line]            
-            
+
         line += 1
-            
+
     #surface.blit(comboSurface,(0,0))
     del safeSurface
     del safeCombo
@@ -68,7 +110,7 @@ def fadeInText(text, width, height, colour, surface, step=0, darken=False, centr
     return finished
 
 
-#fade out a given surface.
+#  Fade out a given surface.
 def fadeOut(width, height, surface, step):
     finished = False
     fade = pygame.Surface(g.size)
@@ -79,7 +121,7 @@ def fadeOut(width, height, surface, step):
         finished = True
     return finished
 
-#fade in a given surface.
+#  Fade in a given surface.
 def fadeIn(width, height, surface, step):
     finished = False
     fade = pygame.Surface(g.size)
@@ -90,9 +132,9 @@ def fadeIn(width, height, surface, step):
         finished = True
     return finished
 
-#Take a piece of text and converge it on a central location from 4
-#different directions, with god-ray effects.
-#step indicates which step of the transformation to illustrate.
+#  Take a piece of text and converge it on a central location from 4
+#  different directions, with god-ray effects.
+#  step indicates which step of the transformation to illustrate.
 def convergeText(text, font, offset, colour, width, height, surface, step=0, darken=True):
     ratio = height/width
     ratio2 = width/height
@@ -116,9 +158,9 @@ def convergeText(text, font, offset, colour, width, height, surface, step=0, dar
         centre = True
     return (centre, x1+step, y1+step)
 
-#Create TV Fuzz - Quickly, with stylish half-fill by default
-#Based off of David "Futility" Clark's Static filled TV text font.
-#Note: More shades required.
+#  Create TV Fuzz - Quickly, with stylish half-fill by default
+#  Based off of David "Futility" Clark's Static filled TV text font.
+#  Note: More shades required.
 def makeFuzz(width, height, half=True):
         
     fuzzyScreen = pygame.Surface((width, height), 0)
@@ -135,8 +177,8 @@ def makeFuzz(width, height, half=True):
     return fuzzyScreen
 
 """TODO"""
-#Render a planet using an approximation of the old IronSeed Algorithm.
-#Note: I'm thinking high-quality pre-renders might be a better choice.
+#  Render a planet using an approximation of the old IronSeed Algorithm.
+#  Note: I'm thinking high-quality pre-renders might be a better choice.
 def renderPlanet(width, height, planetType, surface, step=0):
     comboSurface = pygame.Surface(g.size)
     finished = False
