@@ -38,11 +38,11 @@ class Ship(object):
         self.fittedShield = ""
         self.shieldLevel = 0
         self.shieldMax = 15
-        self.shieldOptions = [0,0,0]
+        self.shieldOptions = [0, 0 ,0]
         self.frontHull = 1
         self.centreHull = 1
         self.rearHull = 1
-        self.options = [1,20,1,1,2,1,0,1,64,0] #New Game start values.
+        self.options = [1, 20, 1, 1, 2, 1, 0, 1, 64, 0] #New Game start values.
         #self.Crew() # debating about storing this here...
         
         #planetary System related variables: initialised to New Game values.
@@ -52,9 +52,19 @@ class Ship(object):
         self.positionZ = 33
         
         #Engineering related variables
-        self.systemDamage = [25,15,2,3,16,55,22]#New game start values.
+        self.systemDamage = [25, 15, 2, 3, 16, 55, 22]#New game start values.
         #Power Supply, Shield Control, Weapons Control, Engine,
         #Life Support, Communications, Computer AI.
+        self.engineeringTaskDescription = ["Idle", "Power Supply",
+                                           "Shield Control",  "Weapons Control",
+                                           "Engine", "Life Support",
+                                           "Communications", "Computer AI",
+                                           "Hull Damage", "Shield", "Weapon",
+                                           "Device", "Component", "Material",
+                                           "Artifact", "Other"]
+        self.repairType = ["Power Supply", "Shield Control", "Weapons Control",
+                           "Engine", "Life Support", "Communications",
+                           "Computer AI", "Hull Damage"]
         self.engineeringTeam = [RepairTeam(),RepairTeam(),RepairTeam()]
         
         #Prepare initial engineering job after new game start.
