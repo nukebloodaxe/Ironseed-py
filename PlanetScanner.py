@@ -26,8 +26,16 @@ class PlanetScanner(object):
         Probot3 = [0,0]
         Probot4 = [0,0]
         
-        
-    
+        # Descriptors
+        self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Gathering",
+                               "Analyzing", "Returning", "Refueling",
+                               "Destroyed", "Docked"]
+        self.scanTypes = ["Lithosphere", "Hydrosphere", "Atmosphere", "Biosphere",
+                          "Anomaly"]
+        self.planetActivity = ["Calm", "Mild", "Moderate", "Heavy", "Massive"]
+        self.lifeforms = ["Avian", "Monoped", "Biped", "Triped", "Quadraped",
+                          "Octaped", "Aquatics", "Fungi", "Carniferns",
+                          "Crystalline", "Symbiots", "Floaters"]
     # Launch probots for a scan
     def launchProbots(self):
         
