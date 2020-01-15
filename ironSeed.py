@@ -14,7 +14,7 @@ import helper_functions as h
 
 class IronSeed(object):
     def __init__(self):
-        self.state = 3 # initilise with intro set.
+        self.state = 3 # Initilise with intro set.
 
         self.creditText = ["1994 Channel 7, Destiny: Virtual",
                           "Released Under GPL V3.0 in 2013 by Jeremy D Stanton of IronSeed.net",
@@ -28,12 +28,14 @@ class IronSeed(object):
         self.displaySurface = pygame.display.set_mode(g.size)
         pygame.display.set_caption(self.versionText[0]+' '+self.versionText[1])
         
-        #initialise game objects
+        # Initialise game objects
         g.starDate = [2,3,3784,8,75] #M,D,Y,H,M.
-        #Populate Item dictionaries
+        # Populate Item dictionaries
         items.loadItemData()
         planets.loadScanData()
         planets.loadPlanetarySystems()
+        planets.initialisePlanets()
+        planets.populatePlanetarySystems()
         crew.loadCrewData()
         weaponsAndShields.loadWeaponsAndShields()
         self.crew = crew.Crew()
@@ -53,19 +55,19 @@ class IronSeed(object):
                        8:self.crewCom.update, #"talk" with crew members.
                        9:"EGO", #placeholder for ego-synth manipulation.
                        10:"ORBIT" } # Placeholder for generic orbit screen.
-        
-        
-    
+
+
+
     def main_loop(self):
-        
-        #Display copyright credits on start.
+
+        # Display copyright credits on start.
         self.displaySurface.fill(g.BLACK)
-        h.renderText(self.creditText,g.font,self.displaySurface,g.WHITE,g.offset)
+        h.renderText(self.creditText, g.font, self.displaySurface, g.WHITE, g.offset)
         pygame.display.update()
-            
+
         # wait some seconds, approx 4.
         pygame.time.wait(4000)
-        
+
         # enter main state and logic loop.
         while 1:
             for evt in pygame.event.get():
@@ -73,6 +75,5 @@ class IronSeed(object):
                     pygame.quit()
                     sys.exit()
             self.state = self.states[self.state](self.displaySurface)
-            #self.state(self.displaySurface)
+            # self.state(self.displaySurface)
             pygame.display.update()
-        

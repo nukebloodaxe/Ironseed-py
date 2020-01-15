@@ -6,7 +6,7 @@ Intro module
 I know this is as ugly as sin, but I have to start learning somewhere...
 @author: Nuke Bloodaxe
 """
-import pygame, sys, time, random, numpy, pygame.sndarray, ironSeed
+import pygame, sys, time, random, numpy, pygame.sndarray, ironSeed, planets
 import helper_functions as h
 import global_constants as g
 
@@ -160,12 +160,23 @@ class IronseedIntro(object):
         lowerThird = int(3*(height/4))
         centerWidth = int(3*(width/6))
         #  Render planet here.
+        readyPlanet = pygame.Surface((g.planetWidth, g.planetHeight), 0)
+        readyPlanet.set_colorkey(g.BLACK)
+        actualPlanet = planets.Planets[planet].planetBitmapToSphere(readyPlanet, terrainStart = 0, eclipse = True)
+        surface.blit(readyPlanet,(int(g.width/8),int(g.height/3)))
+        #surface.blit(actualPlanet,(200,200))
         #finished = True #  W00T!
         
         h.renderText(text,g.font,surface,g.WHITE,
                      g.offset,centerWidth,lowerThird,True)
+        """
         if h.fadeIn(width, height, surface, step):
-            finished = True
+            #finished = True
+            #print("We Drew: " )
+            surface.blit(planets.Planets[planet].planetTexture,(0,0))
+        """
+        # uncomment to look at planet 2D texture.
+        #surface.blit(planets.Planets[planet].planetTexture,(0,0))
         return finished
         
         
