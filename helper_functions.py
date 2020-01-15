@@ -4,8 +4,96 @@ Created on Sun Nov 24 15:08:39 2019
 Ironseed helper functions
 @author: Nuke Bloodaxe
 """
-import pygame, random, time
+import pygame, random, time, math
 import global_constants as g
+
+#  Map a point on a square 2D array to a point on a 2D sphere.
+#  Note:  No exception correction for math.sqrt(0)
+#  BIG NOTE:  Complexity comes from ridiculous math.sqrt not handling negative
+#             numbers...
+def map(x, y, xWidth, yHeight):
+    #  x * math.sqrt(1 - y * y / 2), y * math.sqrt(1 - x * x / 2)
+    #  Determine in which quadrant circle unit value will appear.
+    #  And convert x and y to temporary unit circle values
+    radius = xWidth / 2
+    unitCircleMultiplier = 1/radius
+    xConverted = 0
+    yConverted = 0
+    quadrant = 1
+    # top right = 3, bottom right = 2, bottom left = 1, top left = 4.
+    
+    if x <= radius:
+        if y <= radius:
+            quadrant = 4 # top left
+            xConverted = -1 * (radius-x) * unitCircleMultiplier#x * unitCircleMultiplier
+            yConverted = -1 * (radius-y) * unitCircleMultiplier#y * unitCircleMultiplier
+        else:
+            quadrant = 3 # Top right - contains top right data.
+            xConverted = -1 * (radius-x) * unitCircleMultiplier
+            yConverted = (radius - y) * unitCircleMultiplier
+    else:
+        if y <= radius:
+            quadrant = 1 # bottom left?
+            xConverted = (radius - x) * unitCircleMultiplier
+            yConverted = -1 * (radius - y) * unitCircleMultiplier
+        else:
+            quadrant = 2  #  Appears to be bottom right data
+            xConverted = -1*(radius - x) * unitCircleMultiplier
+            yConverted = -1*(radius - y) * unitCircleMultiplier
+            
+    #print("X Converted: ", str(xConverted), "Y Converted: ", str(yConverted))
+    # By doing this temporary conversion, all x and y values are positive,
+    # as is the circle unit value.
+    # This is important, as the math.sqrt() function cannot handle 0 or
+    # negative values; just to make our lives harder.
+    tempxUnit = 1 - (yConverted * yConverted) / 2
+    tempyUnit = 1 - (xConverted * xConverted) / 2
+    xUnit = 0
+    yUnit = 0
+    
+    if tempxUnit < 0:
+        xUnit = xConverted * (-1*math.sqrt(-1*tempxUnit))
+    else:
+        xUnit = xConverted * math.sqrt(tempxUnit)
+    
+    if tempyUnit < 0:
+        yUnit = yConverted * (-1*math.sqrt(-1*tempyUnit))
+    else:
+        yUnit = yConverted * math.sqrt(tempyUnit)
+    #yUnit = yConverted * math.sqrt(1 - (xConverted * xConverted) / 2)
+    
+    #print("X Unit: ", str(xUnit), "Y Unit: ", str(yUnit))
+    
+    xMap = xUnit * radius
+    yMap = yUnit * radius
+    
+    #print("X Map: ", str(xMap), "Y Map: ", str(yMap))
+    
+    # Convert to normal space values.
+    xRealSpace = 0
+    yRealSpace = 0
+    if quadrant == 1:
+        # Bottom Left - confirmed working.
+        xRealSpace = int(radius - xMap)
+        yRealSpace = int(yMap + radius)
+        
+    elif quadrant == 2: # Bottom Right - Confirmed working.
+        
+        xRealSpace = int(xMap + radius)
+        yRealSpace = int(yMap + radius)
+        
+    elif quadrant == 3: # Top right data - confirmed working.
+        
+        xRealSpace = -1 * int(radius-xMap)
+        yRealSpace = int(radius - yMap)
+        
+    else: # Top Left, confirmed correct.
+        xRealSpace = -1 * int(radius-xMap)
+        yRealSpace = -1 * int(radius-yMap)
+    
+    #print("X: ", str(xRealSpace), "Y: ", str(yRealSpace))
+    
+    return xRealSpace, yRealSpace
 
 #  Very simple stopwatch.
 

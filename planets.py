@@ -22,7 +22,8 @@ These really deserve their own class and file.
 # Investigate how to integrate into the planet class.
 
 
-import io, pygame, math, random, items, global_constants as g
+import io, pygame, math, random, items
+import helper_functions as h, global_constants as g
 
 PlanetarySystems = {} # Original code indicates these max out at 250.
 
@@ -34,32 +35,34 @@ SystemData = []
 class Planet(object):
     def __init__(self):
         self.name = "UNKNOWN"
-        self.systemName = "" # Quicker for reverse lookups.
-        self.index = 0 # Normally our planet number.
+        self.systemName = "" #  Quicker for reverse lookups.
+        self.index = 0 #  Normally our planet number.
         self.state = 0
-        self.grade = 0 # Appears to be "mode" in original code.
+        self.grade = 0 #  Appears to be "mode" in original code.
         self.size = 1
+        self.radius = 0
         self.water = 0
         self.age = 0
-        self.bots = [0, 0, 0] # Mining, Fabricator, Manufactory.
-        self.depleted = 0 # Have bots completed mining/building/fabricating?
+        self.bots = [0, 0, 0] #  Mining, Fabricator, Manufactory.
+        self.depleted = 0 #  Have bots completed mining/building/fabricating?
         self.notes = 0
-        self.seed = 0 # Seed used for procedural generation.
-        self.cache = [] # Item cache, limit of 7 items.
+        self.seed = 0 #  Seed used for procedural generation.
+        self.cache = [] #  Item cache, limit of 7 items.
         # Visitation date related info:
         self.dateMonth = 0
         self.dateYear = 0
         self.visits = 0
-        self.orbit = 0 # set this during system generation.
-        self.outpost = 0 # Extra feature, is this an outpost?
-        self.owned = 0 # Extra feature, the owner of the planet.
+        self.orbit = 0 #  set this during system generation.
+        self.outpost = 0 #  Extra feature, is this an outpost?
+        self.owned = 0 #  Extra feature, the owner of the planet.
         # Planet bitmap of terrain data.
         self.planetTerrain = [[0 for i in range(g.planetWidth)] for j in range(g.planetHeight)]
         
-        # Planet texture related data
-        self.planetTexture = pygame.Surface((g.planetHeight, g.planetWidth), 0)
-        # self.createPlanet()
-        # Note: if you see a system with a star called 'Bug', then you have a problem.
+        #  Planet texture related data
+        self.planetTexture = pygame.Surface((g.planetWidth, g.planetHeight), 0)
+        self.planetTexture.set_colorkey(g.BLACK)
+        #  self.createPlanet()
+        #  Note: if you see a system with a star called 'Bug', then you have a problem.
         
         # Probot scan related Data points.
         # 1 for each hemesphere.  When value is 2, scan is complete.
@@ -77,6 +80,16 @@ class Planet(object):
         self.seed = random.randint(1,64000)
         random.seed(self.seed)
         self.size = random.randint(1, 5)
+        
+        if self.size == 0 or self.size == 1:
+            self.radius = 900
+            
+        elif self.size == 2 or self.size == 3:
+            self.radius = 1095
+            
+        else:
+            self.radius = 3000
+        
         if sun == True:
             self.age = random.randint(0,7)
             if self.age <=3:
@@ -478,41 +491,41 @@ class Planet(object):
         # Prepare texture for per-pixel adjustments.
         planetSurface = pygame.PixelArray(self.planetTexture)
         
-        currentX, currentY = 0
+        currentX, currentY = 0, 0
         random.seed(self.seed)
         step = 0
-        technologyLevel = self.getTechLevel(self.systemName)
+        technologyLevel = self.getTechLevel()
         for index in range(75000):
             step += 1
             currentX = currentX-1+random.randrange(0,3)
             currentY = currentY-1+random.randrange(0,3)
-            if currentX > g.planetWidth:
+            if currentX > g.planetWidth-1:
                 currentX = 0
             elif currentX < 1:
                 currentX = g.planetWidth-1
             
-            if currentY > g.planetHeight:
+            if currentY > g.planetHeight-1:
                 currentY = 0
             elif currentY < 1:
                 currentY = g.planetHeight-1
             
             if self.planetTerrain[currentY][currentX] < 240:
                 self.planetTerrain[currentY][currentX] += 7
-        # Make bright spots representing buildings/tech.
+        #  Make bright spots representing buildings/tech.
         if technologyLevel > 0:
             technologyLevel = (technologyLevel >> 4) * 10 + (technologyLevel & 0x0F)
             technologyLevel = technologyLevel * technologyLevel / 10
-            # The above evilness is the nearest approximation I can get at the
-            # moment for what was happening in pascal.
+            #  The above evilness is the nearest approximation I can get at the
+            #  moment for what was happening in pascal.
             for index in range(technologyLevel):
                 currentX = random.randrange(0, g.planetWidth - 1)
                 currentY = random.randrange(0, g.planetHeight - 1)
                 if self.planetTerrain[currentY][currentX] > self.water:
                     self.planetTerrain[currentY][currentX] = 255
                     
-        #TODO: Convert height bitmap to planet graphic in self.planetTexture
+        #  TODO: Convert height bitmap to planet graphic in self.planetTexture
         
-    # Create a swirl effect, usually for clouds on a gas giant.
+    #  Create a swirl effect, usually for clouds on a gas giant.
     def createSwirl(self, currentX, currentY, size):
         
         currentPixel = 0
@@ -725,25 +738,158 @@ class Planet(object):
                         self.planetTerrain[currentY][currentX] = colour | background
                     
                     elif (self.planetTerrain[currentY][currentX] and 0xF) < background:
-                        (self.planetTerrain[currentY][currentX] = (self.planetTerrain[currentY][currentX] & 0xF0) | background
+                        self.planetTerrain[currentY][currentX] = (self.planetTerrain[currentY][currentX] & 0xF0) | background
             
             for xWidth in range(0, 120):
                 for yHeight in range(0, 240):
                     self.planetTerrain[yHeight][xWidth] = self.planetTerrain[yHeight+10][xWidth+40]
+
+
+    #  Wrap a flat surface to a pseudo sphere.
+    #  The idea is that we can take a defined area of a planet, a flat surface,
+    #  and convert it into a "sphere" which we can rotate every so often.
+    #  A rotation is an illusion, and all we are doing is advancing the start and
+    #  end pixels by one.
+    #  sphereSurface must be square and terrain start must be
+    #  within or equil to the width of the planet surface.
+    def planetBitmapToSphere(self, sphereSurface, terrainStart = 0, eclipse = True):
+        #  math.radians(degrees)
+        #  width of terrain: len(self.planetTerrain[0][0])
+        #  Height of surface sphereSurface.get_height()
+        tempPlanet = pygame.Surface((g.planetHeight, g.planetHeight), 0)
+        tempPlanet.set_colorkey(g.BLACK)
+        tempPlanet2 = pygame.PixelArray(tempPlanet)
+        #  360 degrees in a circle.
+        
+        for x in range(0, g.planetHeight):
+            bitmapSafeX = h.safeWrap(g.planetWidth,x,terrainStart)
+            safeX = h.safeWrap(g.planetHeight,x,0)
+            for y in range(0, g.planetHeight):
+                if self.water > self.planetTerrain[y][safeX]:
+                    #  Water depth support...
+                    #  TODO : preliminary support
+                    #  Current blue is based on difference between water level and terrain
+                    tempPlanet2[y][safeX] = (0, 0, self.water-self.planetTerrain[y][bitmapSafeX])
+                
+                #  TODO : Tech level support for level of light.
+                #  Check for technology, if pixel = technology, then put bright pixel.
+                
+                #  TODO : Green pixels based on life present.
+                
+                #  Check if we can do eclipse in same routine.
+                #  TODO : light level due to eclipse.
+                else:
+                    # TODO:  correct colours.
+                    tempPlanet2[y][safeX] = (0,self.planetTerrain[y][bitmapSafeX],0)
+        """       
+        if tempPlanet.get_height() < 180:
+            tempPlanetC = pygame.transform.smoothscale(tempPlanet,(180,180))
+            tempPlanet = tempPlanetC
+        
+        sphereDiameter = tempPlanet.get_height()
+        degreesPerPixel = 180/sphereDiameter
+        sphereRadius = sphereDiameter/2
+        print("Sphere Diameter: ", sphereDiameter)
+        print("degreesPerPixel: ", degreesPerPixel)
+        print("Sphere Radius: ", sphereRadius)
+        print("tempPlanet Width: ", tempPlanet.get_width())
+        print("Temp Planet Height: ", tempPlanet.get_height())
+        """
+        
+        #  https://www.xarg.org/2017/07/how-to-map-a-square-to-a-circle/
+        #  Thank you Robert, this is exactly what I was looking for!
+        #  function map(x, y):
+        #    return [ x * math.sqrt(1-y*y/2), y * math.sqrt(1-x*x/2)]
+        #  Alternative approach start
+        
+        tempPlanet3 = pygame.Surface((g.planetHeight, g.planetHeight), 0)
+        tempPlanet3.set_colorkey(g.BLACK)
+        tempPlanet3.fill(g.BLACK)
+        tempPlanet4 = pygame.PixelArray(tempPlanet3)
+        
+        #print("Total Data Points: ", g.planetHeight*g.planetHeight)
+        #count = 0
+        exceptions = 0
+        for x in range(0, g.planetHeight):
+            for y in range(0, g.planetHeight):
+                
+                try:
+                    xLocus, yLocus = h.map(x, y, g.planetHeight, g.planetHeight)
+                    tempPlanet4[yLocus][xLocus] = tempPlanet2[y][x]
+                    #count += 1
+                except:
+                    exceptions += 1
+        #print("Data Points Succeeded: ", count, " Exceptions: ", exceptions)
+        tempPlanet2.close()
+        tempPlanet4.close()
+        
+        #  Test texture surface, have a look at it when it is flat.
+        #  Note: scale will be incorrect as target is smaller.  This is okay.
+        self.planetTexture = tempPlanet
+        #self.planetTexture.blit(tempPlanet,(0,0))
+        sphereSurface.blit(tempPlanet3, (0,0))
+        return tempPlanet3
+        #  That's it!
+        # Alternative approach finish.
     
     # Create a Star bitmap.
     def createStar(self):
         
-        pass
-    
-    # Render the planet : Calls other functions for special cases.
-    # This takes the planet texture and wraps it to a sphere,
-    # while also applying special effects such as water levels,
-    # eclipse shadow, clouds etc.
-    # Note: calls sub-functions for rendering.
-    def renderPlanet(self, displaySurface):
         
         pass
+    
+    #  Render the planet : Calls other functions for special cases.
+    #  This takes the planet texture and wraps it to a sphere,
+    #  while also applying special effects such as water levels,
+    #  eclipse shadow, clouds etc.
+    #  Note: calls sub-functions for rendering.
+    #  Note:  Most curious, old code has support for rotation based on the
+    #  current time.  This, being cool, will be added.
+
+    def renderPlanet(self, displaySurface, XPosition, YPosition,
+                     step, time, eclipse=True):
+
+        day, month, year, second = 0  #  For rotation calculations.
+        c2, r2 = 0.0 #  c^2, r^2
+        eclipseCoverage = 0
+        glowIndex = 4#  It's glowing brightly.
+        roundPlanetTexture = pygame.PixelArray(self.planetTexture)
+        # Prepare our planet texture for per-pixel blit.
+        random.seed(self.seed) #  Ensure consistency each time drawn.
+        
+        #  Warning: Calculus ahead, c2, r2 and the like represent c^2, r^2 etc.
+        if self.radius < 901:
+            c2 = 1.2
+        
+        elif self.radius > 2000:
+            c2 = 1.09
+        
+        else: 
+            c2 = 1.16
+        
+        #  Sort out the eclipse shadow settings.
+        
+        selectEclipsePhase = random.randint(0,3)
+        
+        if selectEclipsePhase == 0:
+            eclipseCoverage = random.randint(0, 25) + 30
+        
+        elif selectEclipsePhase == 1:
+            eclipseCoverage = 80 - random.randint(0, 25)
+            
+        elif selectEclipsePhase == 2:
+            eclipseCoverage = 200 + random.randint(0, 25)
+            
+        else:
+            eclipseCoverage = 250 - random.randint(0, 25)
+        
+        r2 = math.round(math.sqrt(self.radius))
+        offset = g.planetWidth-r2
+        maxSphere = 2*r2+4
+        sphere = maxSphere/2
+        
+        
+        
     
     # Render a Gas Giant
     def renderGasGiant(self, displaySurface):
@@ -771,7 +917,7 @@ class Planet(object):
     
         
 class PlanetarySystem(object):
-    def __init__(self, systemName = "Buggy", positionX=0.0, positionY=0.0, positionZ=0.0):
+    def __init__(self, systemName="Buggy", positionX=0.0, positionY=0.0, positionZ=0.0):
         self.systemName = systemName # Don't forget to assign to planets too.
         #Visitation related info
         self.dateMonth = g.starDate[0]
@@ -812,9 +958,15 @@ def initialisePlanets(fileName=""):
     # Load planet files and populate planet structure
     # Planet by name = (planet name, state, variation, tech level/life)
     Planets["mars"] = Planet() # For intro.
+    Planets["mars"].seed = 90
+    Planets["mars"].generate("mars")
+    Planets["mars"].createPlanet()
+    
     for newPlanet in range(0,1001):
         Planets[newPlanet]=Planet()
+        Planets[newPlanet].seed = random.random()
         Planets[newPlanet].generate(newPlanet)
+        
     
 def transformCheckPlanet(planet):
     name, state, grade, life = Planets[planet]
