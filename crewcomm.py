@@ -31,6 +31,10 @@ class crewComm(object):
     def update(self, displaySurface):
         return self.communicate(displaySurface)
 
+    # Handle mouse events for user interaction.
+    def interact(self, mouseButton):
+        return self.systemState
+
     #Compare the keyword against all event entries and check to see which
     #flags have been tripped, return the reply entry matching the highest
     #tripped flag number.
@@ -53,7 +57,7 @@ class crewComm(object):
             self.musicState = True
         return 8 # TODO, currently loops communication system for testing.
 
-
+    
 
 #load all crew comversation related data.
 #file location and prefix, Number of files(file number), extension.

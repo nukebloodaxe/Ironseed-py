@@ -55,6 +55,17 @@ class IronSeed(object):
                        8:self.crewCom.update, #"talk" with crew members.
                        9:"EGO", #placeholder for ego-synth manipulation.
                        10:"ORBIT" } # Placeholder for generic orbit screen.
+        
+        self.interactive = {1:self.generator.interact,
+                            2:"main",
+                            3:self.intro.interact,
+                            4:"cargo",
+                            5:self.planetScanner.interact,
+                            6:"Communications",
+                            7:"Combat",
+                            8:self.crewCom.interact,
+                            9:"EGO",
+                            10:"Orbit"}
 
 
 
@@ -74,6 +85,9 @@ class IronSeed(object):
                 if evt.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                # Handle mouse input.
+                elif evt.type == pygame.MOUSEBUTTONDOWN:
+                    self.state = self.interactive[self.state](evt.button)
             self.state = self.states[self.state](self.displaySurface)
             # self.state(self.displaySurface)
             pygame.display.update()

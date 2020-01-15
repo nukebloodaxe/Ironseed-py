@@ -175,10 +175,22 @@ class IronseedIntro(object):
             #print("We Drew: " )
             surface.blit(planets.Planets[planet].planetTexture,(0,0))
         """
+        h.fadeIn(width, height, surface, step)
+        
+        if h.GameStopwatch.stopwatchSet:
+            if h.GameStopwatch.getElapsedStopwatch() > 15:
+                h.GameStopwatch.resetStopwatch()
+                finished = True
+        else:
+            h.GameStopwatch.setStopwatch()
+            
         # uncomment to look at planet 2D texture.
         #surface.blit(planets.Planets[planet].planetTexture,(0,0))
         return finished
-        
+    
+    # Handle mouse events for user interaction.
+    def interact(self, mouseButton):
+        return 2 # Exit intro and go to main menu.
         
     def update(self, displaySurface):
         return self.runIntro(displaySurface)
@@ -251,6 +263,7 @@ class IronseedIntro(object):
             if finished:
                 self.resetCounts(5)
         
+        # Fade in the red text declaring the date and place.
         if self.introStage == 5:
             finished = h.fadeInText(self.introText2, (g.width/2), (g.height/7),
                                     g.RED, displaySurface, self.count)

@@ -85,6 +85,10 @@ class Generator(object):
     def update(self, displaySurface):
         return self.runGenerator(displaySurface)
     
+    # Handle mouse events for user interaction.
+    def interact(self, mouseButton):
+        return self.systemState
+    
     # Main generator game loop.
     def runGenerator(self, displaySurface):
         if self.generationStage == 1:

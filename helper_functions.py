@@ -263,33 +263,3 @@ def makeFuzz(width, height, half=True):
             for x in xrange:
                 S((x,y),C(colours))
     return fuzzyScreen
-
-"""TODO"""
-#  Render a planet using an approximation of the old IronSeed Algorithm.
-#  Note: I'm thinking high-quality pre-renders might be a better choice.
-def renderPlanet(width, height, planetType, surface, step=0):
-    comboSurface = pygame.Surface(g.size)
-    finished = False
-    #comboSurface.set_alpha(step*10)
-    safeSurface = pygame.PixelArray(surface)
-    safeCombo = pygame.PixelArray(comboSurface)
-    #we create the planet first, then blit the pixels onto the original
-    #surface.  Unfortunately, the creation process is not fast.
-    
-    
-    
-    # Now to the copy, taking into account the transparency layer.
-    line = 0
-    while line<g.height:
-        for pixel in range(g.width):
-            if safeCombo[pixel][line] != 0:
-                safeSurface[pixel][line]=safeCombo[pixel][line]            
-            
-        line += 1
-            
-    #surface.blit(comboSurface,(0,0))
-    del safeSurface
-    del safeCombo
-    if (step*10) >= 255:
-        finished = True
-    return finished

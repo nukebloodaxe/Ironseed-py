@@ -36,6 +36,8 @@ class PlanetScanner(object):
         self.lifeforms = ["Avian", "Monoped", "Biped", "Triped", "Quadraped",
                           "Octaped", "Aquatics", "Fungi", "Carniferns",
                           "Crystalline", "Symbiots", "Floaters"]
+        self.systemState = 5
+        
     # Launch probots for a scan
     def launchProbots(self):
         
@@ -54,6 +56,10 @@ class PlanetScanner(object):
     def update(self, displaySurface):
         self.runScanner(displaySurface)
         pass
+    
+    # Handle mouse events for user interaction.
+    def interact(self, mouseButton):
+        return self.systemState
     
     def runScanner(self, displaySurface):
         
