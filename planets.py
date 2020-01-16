@@ -6,30 +6,34 @@ These really deserve their own class and file.
 @author: Nuke Bloodaxe
 """
 
-# State:
-# 0: Gaseous, A:Nebula, B:Gas Giant, C:Heavy Atmosphere
-# 1: Active, A: Volcanic, B: Semi-Volcanic, C: Land Formation
-# 2: Stable, A: Land and Water, B: Slight Vegitation, C: Medium Vegitation (Tech 0)
-# 3: Early Life, A: Heavy Vegitation (tech 0), B: Medium Vegitation (tech 1), C: Medium Vegitation (Tech 2)
-# 4: Advanced Life, A: Medium Vegitation (tech 3), B:Slight Vegitation (tech 3), C: No Vegitation (Tech 5)
-# 5: Dying, A:Ruins, B:Medium Vegitation, C:Dead Rock
-# 6: Dead, A:Radiation, B:Asteroid, C:Null
-# 7: Star, A:Yellow, B:Red, C:White
+#  State:
+#  0: Gaseous, A:Nebula, B:Gas Giant, C:Heavy Atmosphere
+#  1: Active, A: Volcanic, B: Semi-Volcanic, C: Land Formation
+#  2: Stable, A: Land and Water, B: Slight Vegitation, C: Medium Vegitation (Tech 0)
+#  3: Early Life, A: Heavy Vegitation (tech 0), B: Medium Vegitation (tech 1), C: Medium Vegitation (Tech 2)
+#  4: Advanced Life, A: Medium Vegitation (tech 3), B:Slight Vegitation (tech 3), C: No Vegitation (Tech 5)
+#  5: Dying, A:Ruins, B:Medium Vegitation, C:Dead Rock
+#  6: Dead, A:Radiation, B:Asteroid, C:Null
+#  7: Star, A:Yellow, B:Red, C:White
 
-# name, State, variation, Life/Technology level
-# Check utils2.pas, it contains most planet related details and old algos.
-# Explore.pas contains much of the graphics settings for colours and texturing.
-# Investigate how to integrate into the planet class.
-
+#  name, State, variation, Life/Technology level
+#  Check utils2.pas, it contains most planet related details and old algos.
+#  Explore.pas contains much of the graphics settings for colours and texturing.
+#  Investigate how to integrate into the planet class.
+#  Note:  System name and planet names combined = 1000 units.
+#  Although the planet names appear to never have been used, it should be possible to 
+#  add them and an extra 250 entries.  The 250 extra entries won't be cannon, but then
+#  again I believe they will add more class to the game; quite why channel 7 never
+#  used that file is a mystery for now.
 
 import io, pygame, math, random, items
 import helper_functions as h, global_constants as g
 
-PlanetarySystems = {} # Original code indicates these max out at 250.
+PlanetarySystems = {} #  Original code indicates these max out at 250.
 
-Planets = {} # Original code indicates these max out at 1000
-ScanData = [] # Holds the scan data definitions from scandata.tab.
-# ---> Planet state this way, planet grade down.
+Planets = {} #  Original code indicates these max out at 1000
+ScanData = [] #  Holds the scan data definitions from scandata.tab.
+#  ---> Planet state this way, planet grade down.
 SystemData = []
 
 class Planet(object):
@@ -171,6 +175,11 @@ class Planet(object):
     def getTechLevel(self):
         if self.orbit == 0:
             return 0 # We are a star... although, what about Dyson spheres?
+        
+        #if self.name == "mars":  #  Twilight zone, this check doesn't work?!?
+        #    print("I am Mars")
+        #    return 1500
+        
         techLevel = -2
         if self.systemName in ["KODUH","OLEZIAS","IYNK","TEVIX","SEKA","WIOTUN"]:
             return 6*256 # Really...
@@ -220,7 +229,7 @@ class Planet(object):
         return techLevel
     
     # This effectively ages the planet based on the time since last visit.
-    # If the planet state changes the all notes, bots and cache items are lost.
+    # If the planet state changes then all notes, bots and cache items are lost.
     def adjustPlanet(self, timePassed):
 
         if self.bots[0] > 0 or self.bots[1] > 0 or self.bots[2] > 0:
@@ -490,11 +499,12 @@ class Planet(object):
     def createPlanet(self):
         # Prepare texture for per-pixel adjustments.
         planetSurface = pygame.PixelArray(self.planetTexture)
-        
+        #print("I am creating a planet: ", self.name)
         currentX, currentY = 0, 0
         random.seed(self.seed)
         step = 0
         technologyLevel = self.getTechLevel()
+        #print("Technology Level is: ", technologyLevel)
         for index in range(75000):
             step += 1
             currentX = currentX-1+random.randrange(0,3)
@@ -511,13 +521,16 @@ class Planet(object):
             
             if self.planetTerrain[currentY][currentX] < 240:
                 self.planetTerrain[currentY][currentX] += 7
+                
         #  Make bright spots representing buildings/tech.
         if technologyLevel > 0:
-            technologyLevel = (technologyLevel >> 4) * 10 + (technologyLevel & 0x0F)
+            #print("Tech Ahoy!: ", technologyLevel)
+            technologyLevel = (int(technologyLevel) >> 4) * 10 + (int(technologyLevel) & 0x0F)
             technologyLevel = technologyLevel * technologyLevel / 10
+            #print("Adjusted: ", technologyLevel)
             #  The above evilness is the nearest approximation I can get at the
             #  moment for what was happening in pascal.
-            for index in range(technologyLevel):
+            for index in range(int(technologyLevel)):
                 currentX = random.randrange(0, g.planetWidth - 1)
                 currentY = random.randrange(0, g.planetHeight - 1)
                 if self.planetTerrain[currentY][currentX] > self.water:
@@ -590,10 +603,10 @@ class Planet(object):
     def createGasPlanet(self):
         currentX, currentY = 0
         random.seed(self.seed)
-        step = 0
+        #step = 0
         colours = [0,0,0]
         # You never know, there might be blimp people...
-        technologyLevel = self.getTechLevel(self.systemName)
+        #technologyLevel = self.getTechLevel(self.systemName)
         
         # What horrible colours shall we choose?
         if random.randint(0,2) > 0:
@@ -700,7 +713,7 @@ class Planet(object):
     
     # Create a Nubula/Cloud Bitmap.
     # NOTE: Does not work yet.
-    # TODO: Replace algo ith something a bit nicer.
+    # TODO: Replace algo with something a bit nicer.
     def createCloud(self):
         currentX, currentY = 0
         random.seed(self.seed)
@@ -708,7 +721,7 @@ class Planet(object):
         size = 0
         colours = [0,0,0]
         # You never know, something might be running in the cloud...
-        technologyLevel = self.getTechLevel(self.systemName)
+        #technologyLevel = self.getTechLevel(self.systemName)
         for step in range(steps):
             if step == 1:
                 size = random.randint(0, 50) + 50
@@ -753,6 +766,27 @@ class Planet(object):
     #  sphereSurface must be square and terrain start must be
     #  within or equil to the width of the planet surface.
     def planetBitmapToSphere(self, sphereSurface, terrainStart = 0, eclipse = True):
+        
+        eclipseCoverage = 0  #  Area covered by eclipse shadow.
+        glowIndex = 4  #  It's glowing brightly.
+        day, month, year, second = 0  #  For rotation calculations.
+        
+        #  Sort out the eclipse shadow settings.
+        
+        selectEclipsePhase = random.randint(0,3)
+        
+        if selectEclipsePhase == 0:
+            eclipseCoverage = random.randint(0, 25) + 30
+        
+        elif selectEclipsePhase == 1:
+            eclipseCoverage = 80 - random.randint(0, 25)
+            
+        elif selectEclipsePhase == 2:
+            eclipseCoverage = 200 + random.randint(0, 25)
+            
+        else:
+            eclipseCoverage = 250 - random.randint(0, 25)
+        
         #  math.radians(degrees)
         #  width of terrain: len(self.planetTerrain[0][0])
         #  Height of surface sphereSurface.get_height()
@@ -771,15 +805,38 @@ class Planet(object):
                     #  Current blue is based on difference between water level and terrain
                     tempPlanet2[y][safeX] = (0, 0, self.water-self.planetTerrain[y][bitmapSafeX])
                 
-                #  TODO : Tech level support for level of light.
-                #  Check for technology, if pixel = technology, then put bright pixel.
+                #  Check for technology, if pixel = technology, then put bright
+                #  yellow pixel.  This is based on tech level.
                 
+                elif self.planetTerrain[y][bitmapSafeX] == 255:
+                
+                    Technology = self.getTechLevel()
+                
+                    if Technology <= 1:
+                        if Technology > 0:
+                            tempPlanet2[y][safeX] = g.TECH1
+                            
+                    elif Technology <= 2:
+                        tempPlanet2[y][safeX] = g.TECH2
+                            
+                    elif Technology <= 3:
+                        tempPlanet2[y][safeX] = g.TECH3
+                            
+                    elif Technology <= 4:
+                        tempPlanet2[y][safeX] = g.TECH4
+                            
+                    elif Technology <= 5:
+                        tempPlanet2[y][safeX] = g.TECH5
+                            
+                    else:
+                        tempPlanet2[y][safeX] = g.YELLOW
+                            
                 #  TODO : Green pixels based on life present.
                 
                 #  Check if we can do eclipse in same routine.
                 #  TODO : light level due to eclipse.
                 else:
-                    # TODO:  correct colours.
+                    # TODO:  Add the correct colours.
                     tempPlanet2[y][safeX] = (0,self.planetTerrain[y][bitmapSafeX],0)
         """       
         if tempPlanet.get_height() < 180:
@@ -845,6 +902,8 @@ class Planet(object):
     #  Note: calls sub-functions for rendering.
     #  Note:  Most curious, old code has support for rotation based on the
     #  current time.  This, being cool, will be added.
+    #  Note: might dispense with this function, the new create function is so
+    #  much better.
 
     def renderPlanet(self, displaySurface, XPosition, YPosition,
                      step, time, eclipse=True):
@@ -852,7 +911,7 @@ class Planet(object):
         day, month, year, second = 0  #  For rotation calculations.
         c2, r2 = 0.0 #  c^2, r^2
         eclipseCoverage = 0
-        glowIndex = 4#  It's glowing brightly.
+        glowIndex = 4  #  It's glowing brightly.
         roundPlanetTexture = pygame.PixelArray(self.planetTexture)
         # Prepare our planet texture for per-pixel blit.
         random.seed(self.seed) #  Ensure consistency each time drawn.
@@ -958,12 +1017,18 @@ def initialisePlanets(fileName=""):
     # Load planet files and populate planet structure
     # Planet by name = (planet name, state, variation, tech level/life)
     Planets["mars"] = Planet() # For intro.
-    Planets["mars"].seed = 90
     Planets["mars"].generate("mars")
+    Planets["mars"].name = "mars"
+    Planets["mars"].seed = 37337
+    Planets["mars"].state = 4
+    Planets["mars"].grade = 3
+    Planets["mars"].water = 10
+    Planets["mars"].age = 1000000
+    Planets["mars"].orbit = 4
     Planets["mars"].createPlanet()
     
     for newPlanet in range(0,1001):
-        Planets[newPlanet]=Planet()
+        Planets[newPlanet] = Planet()
         Planets[newPlanet].seed = random.random()
         Planets[newPlanet].generate(newPlanet)
         
