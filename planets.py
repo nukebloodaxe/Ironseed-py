@@ -32,6 +32,7 @@ import helper_functions as h, global_constants as g
 PlanetarySystems = {} #  Original code indicates these max out at 250.
 
 Planets = {} #  Original code indicates these max out at 1000
+PlanetNames = []
 ScanData = [] #  Holds the scan data definitions from scandata.tab.
 #  ---> Planet state this way, planet grade down.
 SystemData = []
@@ -61,12 +62,13 @@ class Planet(object):
         self.owned = 0 #  Extra feature, the owner of the planet.
         # Planet bitmap of terrain data.
         self.planetTerrain = [[0 for i in range(g.planetWidth)] for j in range(g.planetHeight)]
-        
+        self.eclipsePhase = random.randint(0,4)  #  Area covered by eclipse shadow.
         #  Planet texture related data
         self.planetTexture = pygame.Surface((g.planetWidth, g.planetHeight), 0)
         self.planetTexture.set_colorkey(g.BLACK)
         #  self.createPlanet()
-        #  Note: if you see a system with a star called 'Bug', then you have a problem.
+        #  Note: if you see a system with a star called 'UNKNOWN',
+        #        then you have a serious problem.
         
         # Probot scan related Data points.
         # 1 for each hemesphere.  When value is 2, scan is complete.
@@ -521,6 +523,10 @@ class Planet(object):
             
             if self.planetTerrain[currentY][currentX] < 240:
                 self.planetTerrain[currentY][currentX] += 7
+            
+            #  Avoid random tech pixels, or non-valid colours.
+            if self.planetTerrain[currentY][currentX] >= 255:
+                self.planetTerrain[currentY][currentX] = 254
                 
         #  Make bright spots representing buildings/tech.
         if technologyLevel > 0:
@@ -757,6 +763,25 @@ class Planet(object):
                 for yHeight in range(0, 240):
                     self.planetTerrain[yHeight][xWidth] = self.planetTerrain[yHeight+10][xWidth+40]
 
+    #  Returns an eclipse X axis figure based on the phase of the eclipse.
+    #  This figure, int, is slightly randomised to give a fuzzy edge.
+    def eclipse(self, selectEclipsePhase=0):
+        
+        eclipseCoverage = 0
+        
+        if selectEclipsePhase == 0:
+            eclipseCoverage = random.randint(0, (g.planetHeight/5)/2) + (g.planetHeight/5)/2
+        
+        elif selectEclipsePhase == 1:
+            eclipseCoverage = (g.planetHeight/5)*2 - random.randint(0, (g.planetHeight/5)/2)
+            
+        elif selectEclipsePhase == 2:
+            eclipseCoverage = (g.planetHeight/5)*4 + random.randint(0, (g.planetHeight/5)/2)
+            
+        else:
+            eclipseCoverage = g.planetHeight - random.randint(0, (g.planetHeight/5)/2)
+            
+        return eclipseCoverage
 
     #  Wrap a flat surface to a pseudo sphere.
     #  The idea is that we can take a defined area of a planet, a flat surface,
@@ -767,26 +792,10 @@ class Planet(object):
     #  within or equil to the width of the planet surface.
     def planetBitmapToSphere(self, sphereSurface, terrainStart = 0, eclipse = True):
         
-        eclipseCoverage = 0  #  Area covered by eclipse shadow.
         glowIndex = 4  #  It's glowing brightly.
-        day, month, year, second = 0  #  For rotation calculations.
-        
-        #  Sort out the eclipse shadow settings.
-        
-        selectEclipsePhase = random.randint(0,3)
-        
-        if selectEclipsePhase == 0:
-            eclipseCoverage = random.randint(0, 25) + 30
-        
-        elif selectEclipsePhase == 1:
-            eclipseCoverage = 80 - random.randint(0, 25)
-            
-        elif selectEclipsePhase == 2:
-            eclipseCoverage = 200 + random.randint(0, 25)
-            
-        else:
-            eclipseCoverage = 250 - random.randint(0, 25)
-        
+        day, month, year, second = 0, 0, 0, 0  #  For rotation calculations.
+        #starDate = [2, 3, 3784, 8, 75] #  M,D,Y,H,M.
+
         #  math.radians(degrees)
         #  width of terrain: len(self.planetTerrain[0][0])
         #  Height of surface sphereSurface.get_height()
@@ -799,17 +808,28 @@ class Planet(object):
             bitmapSafeX = h.safeWrap(g.planetWidth,x,terrainStart)
             safeX = h.safeWrap(g.planetHeight,x,0)
             for y in range(0, g.planetHeight):
-                if self.water > self.planetTerrain[y][safeX]:
+                eclipseMask = self.eclipse(self.eclipsePhase)
+                if self.water > self.planetTerrain[y][bitmapSafeX]:
+                    #print("water")
                     #  Water depth support...
                     #  TODO : preliminary support
                     #  Current blue is based on difference between water level and terrain
-                    tempPlanet2[y][safeX] = (0, 0, self.water-self.planetTerrain[y][bitmapSafeX])
-                
+                    if safeX <= eclipseMask:
+                        tempPlanet2[y][safeX] = (0,
+                                                 0,
+                                                 (self.water-self.planetTerrain[y][bitmapSafeX]))
+                    else:
+                        #  Brighten
+                        tempPlanet2[y][safeX] = (0,
+                                                 0,
+                                                 ((self.water-self.planetTerrain[y][bitmapSafeX]) + 40) % 254)
+                    #print("What should be here: ", str((0, 0, self.water-self.planetTerrain[y][bitmapSafeX])))
+                    #print("What is here: ", tempPlanet2[y][safeX])
                 #  Check for technology, if pixel = technology, then put bright
                 #  yellow pixel.  This is based on tech level.
                 
                 elif self.planetTerrain[y][bitmapSafeX] == 255:
-                
+                    #print("technology")
                     Technology = self.getTechLevel()
                 
                     if Technology <= 1:
@@ -835,9 +855,21 @@ class Planet(object):
                 
                 #  Check if we can do eclipse in same routine.
                 #  TODO : light level due to eclipse.
+                
                 else:
                     # TODO:  Add the correct colours.
-                    tempPlanet2[y][safeX] = (0,self.planetTerrain[y][bitmapSafeX],0)
+                    #print("default")
+                    if safeX <= eclipseMask:
+                        tempPlanet2[y][safeX] = (0,
+                                                 self.planetTerrain[y][bitmapSafeX],
+                                                 0)
+                    else:
+                        #  Brighten
+                        tempPlanet2[y][safeX] = (40,
+                                                 (self.planetTerrain[y][bitmapSafeX] + 40) % 254,
+                                                 40)
+                    #tempPlanet2[y][safeX] = (0,self.planetTerrain[y][bitmapSafeX],0)
+                    
         """       
         if tempPlanet.get_height() < 180:
             tempPlanetC = pygame.transform.smoothscale(tempPlanet,(180,180))
@@ -884,7 +916,8 @@ class Planet(object):
         #  Note: scale will be incorrect as target is smaller.  This is okay.
         self.planetTexture = tempPlanet
         #self.planetTexture.blit(tempPlanet,(0,0))
-        sphereSurface.blit(tempPlanet3, (0,0))
+        #  I know, but this is something that needs investigating further.
+        sphereSurface.blit(pygame.transform.rotate(tempPlanet3, 90), (0,0))
         return tempPlanet3
         #  That's it!
         # Alternative approach finish.
@@ -1013,8 +1046,18 @@ class PlanetarySystem(object):
 
 # Note: Original code had name of planet based on orbit.
 # ALPHA, BETA, GAMMA, DELTA, EPISILON, ZETA, ETA, THETA
-def initialisePlanets(fileName=""):
+def initialisePlanets(planetNamesFile="Data_Generators\Other\IronPy_PlanetNames.tab"):
     # Load planet files and populate planet structure
+
+    planetsFile = io.open(planetNamesFile, "r")
+    planetDataString = planetsFile.readline().split('\n')[0] #Data Line
+    while planetDataString != "ENDF":
+        PlanetNames.append(planetDataString)
+        # A scan entry line has now been loaded.
+        planetDataString = planetsFile.readline().split('\n')[0] #Data Line line
+
+    planetsFile.close()
+    
     # Planet by name = (planet name, state, variation, tech level/life)
     Planets["mars"] = Planet() # For intro.
     Planets["mars"].generate("mars")
@@ -1029,6 +1072,7 @@ def initialisePlanets(fileName=""):
     
     for newPlanet in range(0,1001):
         Planets[newPlanet] = Planet()
+        Planets[newPlanet].name = PlanetNames[newPlanet]
         Planets[newPlanet].seed = random.random()
         Planets[newPlanet].generate(newPlanet)
         
