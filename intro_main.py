@@ -163,7 +163,7 @@ class IronseedIntro(object):
         readyPlanet = pygame.Surface((g.planetWidth, g.planetHeight), 0)
         readyPlanet.set_colorkey(g.BLACK)
         actualPlanet = planets.Planets[planet].planetBitmapToSphere(readyPlanet, terrainStart = 0, eclipse = True)
-        surface.blit(readyPlanet,(int(g.width/8),int(g.height/3)))
+        surface.blit(readyPlanet,(int(g.width/16),int(g.height/8)))
         #surface.blit(actualPlanet,(200,200))
         #finished = True #  W00T!
         
