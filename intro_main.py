@@ -23,7 +23,7 @@ class IronseedIntro(object):
         self.versionText = ["Ironseed", g.version] #Ridiculous version string required...
         self.introText1 = ["A","Destiny: Virtual", "Designed Game"]
         self.introText2 = ["Mars", "3784 A.D."]
-        self.introText3 = ["Escaping the iron fist of a fanatic",
+        self.introText3 = ["Escaping the iron fist of a fanatical",
                           "theocracy, the members of the Ironseed",
                           "Movement launch into space and are set",
                           "adrift after suffering a computer",
@@ -162,7 +162,8 @@ class IronseedIntro(object):
         #  Render planet here.
         readyPlanet = pygame.Surface((g.planetWidth, g.planetHeight), 0)
         readyPlanet.set_colorkey(g.BLACK)
-        actualPlanet = planets.Planets[planet].planetBitmapToSphere(readyPlanet, terrainStart = 0, eclipse = True)
+        terrainStart = step % (g.planetWidth+1)
+        actualPlanet = planets.Planets[planet].planetBitmapToSphere(readyPlanet, terrainStart, eclipse = True)
         surface.blit(readyPlanet,(int(g.width/16),int(g.height/8)))
         #surface.blit(actualPlanet,(200,200))
         #finished = True #  W00T!
