@@ -47,6 +47,7 @@ class Planet(object):
         self.size = 1
         self.radius = 0
         self.water = 0
+        self.vegitationLevel = (0,0)  #  New for this engine.
         self.age = 0
         self.bots = [0, 0, 0] #  Mining, Fabricator, Manufactory.
         self.depleted = 0 #  Have bots completed mining/building/fabricating?
@@ -110,6 +111,10 @@ class Planet(object):
         self.state = random.randint(0,7)
         self.water = random.randint(0,50)
         
+        slightVegitation = (self.water, self.water + 10)
+        mediumVegitation = (self.water, self.water + 50)
+        heavyVegitation = (self.water, self.water + 150)#  The Triffids are loose!
+        
         if self.state == 0:
             self.age = random.randint(0, 5)
             if self.age <=3:
@@ -132,22 +137,29 @@ class Planet(object):
                 self.grade = 1
             elif self.age <= 350000000 and self.age > 200000000:
                 self.grade = 2
+                self.vegitationLevel = slightVegitation
             else:
                 self.grade = 3
+                self.vegitationLevel = mediumVegitation
         elif self.state == 3:
             self.age = random.randint(0, 15001)*1000
             if self.age <=150000000:
                 self.grade = 1
+                self.vegitationLevel = heavyVegitation
             elif self.age <= 150005000 and self.age > 150000000:
                 self.grade = 2
+                self.vegitationLevel = mediumVegitation
             else:
                 self.grade = 3
+                self.vegitationLevel = mediumVegitation
         elif self.state == 4:
             self.age = random.randint(0, 5000)
             if self.age <=2000:
                 self.grade = 1
+                self.vegitationLevel = mediumVegitation
             elif self.age <= 3000 and self.age > 2000:
                 self.grade = 2
+                self.vegitationLevel = slightVegitation
             else:
                 self.grade = 3
         elif self.state == 5:
@@ -156,6 +168,7 @@ class Planet(object):
                 self.grade = 1
             elif self.age <= 5500 and self.age > 1500:
                 self.grade = 2
+                self.vegitationLevel = mediumVegitation
             else:
                 self.grade = 3
         else: # State 6
@@ -795,7 +808,7 @@ class Planet(object):
         glowIndex = 4  #  It's glowing brightly.
         day, month, year, second = 0, 0, 0, 0  #  For rotation calculations.
         #starDate = [2, 3, 3784, 8, 75] #  M,D,Y,H,M.
-
+        adjustedPixel = 0  # to avoid using modulus later.
         #  math.radians(degrees)
         #  width of terrain: len(self.planetTerrain[0][0])
         #  Height of surface sphereSurface.get_height()
@@ -820,9 +833,13 @@ class Planet(object):
                                                  (self.water-self.planetTerrain[y][bitmapSafeX]))
                     else:
                         #  Brighten
+                        adjustedPixel = (self.water-self.planetTerrain[y][bitmapSafeX]) + 60
+                        if adjustedPixel >= 255:
+                            adjustedPixel = 254
+                        
                         tempPlanet2[y][safeX] = (0,
                                                  0,
-                                                 ((self.water-self.planetTerrain[y][bitmapSafeX]) + 40) % 254)
+                                                 adjustedPixel)
                     #print("What should be here: ", str((0, 0, self.water-self.planetTerrain[y][bitmapSafeX])))
                     #print("What is here: ", tempPlanet2[y][safeX])
                 #  Check for technology, if pixel = technology, then put bright
@@ -852,6 +869,20 @@ class Planet(object):
                         tempPlanet2[y][safeX] = g.YELLOW
                             
                 #  TODO : Green pixels based on life present.
+                elif self.planetTerrain[y][bitmapSafeX] < self.vegitationLevel[1]:
+                    if safeX <= eclipseMask:
+                        tempPlanet2[y][safeX] = (0,
+                                                 self.planetTerrain[y][bitmapSafeX],
+                                                 0)
+                    else:
+                        #  Brighten
+                        adjustedPixel = self.planetTerrain[y][bitmapSafeX] + 40
+                        if adjustedPixel >= 255:
+                            adjustedPixel = 254
+                        
+                        tempPlanet2[y][safeX] = (0,
+                                                 adjustedPixel,
+                                                 0)
                 
                 #  Check if we can do eclipse in same routine.
                 #  TODO : light level due to eclipse.
@@ -860,14 +891,18 @@ class Planet(object):
                     # TODO:  Add the correct colours.
                     #print("default")
                     if safeX <= eclipseMask:
-                        tempPlanet2[y][safeX] = (0,
+                        tempPlanet2[y][safeX] = (self.planetTerrain[y][bitmapSafeX],
                                                  self.planetTerrain[y][bitmapSafeX],
-                                                 0)
+                                                 self.planetTerrain[y][bitmapSafeX])
                     else:
                         #  Brighten
-                        tempPlanet2[y][safeX] = (40,
-                                                 (self.planetTerrain[y][bitmapSafeX] + 40) % 254,
-                                                 40)
+                        adjustedPixel = self.planetTerrain[y][bitmapSafeX] + 40
+                        if adjustedPixel >= 255:
+                            adjustedPixel = 254
+                        
+                        tempPlanet2[y][safeX] = (adjustedPixel,
+                                                 adjustedPixel,
+                                                 adjustedPixel)
                     #tempPlanet2[y][safeX] = (0,self.planetTerrain[y][bitmapSafeX],0)
                     
         """       
@@ -1062,7 +1097,7 @@ def initialisePlanets(planetNamesFile="Data_Generators\Other\IronPy_PlanetNames.
     Planets["mars"] = Planet() # For intro.
     Planets["mars"].generate("mars")
     Planets["mars"].name = "mars"
-    Planets["mars"].seed = 37337
+    Planets["mars"].seed = 3733
     Planets["mars"].state = 4
     Planets["mars"].grade = 3
     Planets["mars"].water = 10
