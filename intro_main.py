@@ -28,19 +28,26 @@ class IronseedIntro(object):
                           "Movement launch into space and are set",
                           "adrift after suffering a computer",
                           "malfunction"]
-        self.introText4 = ["As captain, you awaken along with the",
+        self.introText4 = ["Ship IRONSEED to Relay Point:",
+                           "Link Established.",
+                           "Receiving Encode Variants.",
+                           "Wiping Source Encodes.",
+                           "Terminating Transmission.",
+                           'Control Protocol Transfered to Human Encode "PRIME".']
+                        #  Que Transformers theme...
+        self.introText5 = ["As captain, you awaken along with the",
                            "crew some thousand years later and are",
                            "confronted by an alien horde..."]
-        self.introText5 = ["Orders: Approach and Destroy.",
+        self.introText6 = ["Orders: Approach and Destroy.",
                            "Jamming all Emissions.",
                            "Targeting...",
                            "Locked and Loading...",
                            "Closing for Fire..."]
-        self.introText6 = ["Enemy Closing Rapidly...",
+        self.introText7 = ["Enemy Closing Rapidly...",
                            "Shields Imploding...",
                            "Destruction Imminent.",
                            "Attempting Crash Landing."]
-        self.introText7 = ["They threaten to devour all life in",
+        self.introText8 = ["They threaten to devour all life in",
                            "their path...your only hope of defeating",
                            "the Scavengers is to reunite the Kendar,",
                            "an ancient alliance among the free",
@@ -50,6 +57,7 @@ class IronseedIntro(object):
         self.mars = pygame.image.load("Graphics_Assets\\world.png")
         self.charCom = pygame.image.load("Graphics_Assets\\charcom.png")
         self.battle = pygame.image.load("Graphics_Assets\\battle1.png")
+        self.alienShip = pygame.image.load("Graphics_Assets\\alien.png")
         self.ship = pygame.image.load("Graphics_Assets\\ship1.png")
         self.intro5 = pygame.image.load("Graphics_Assets\\intro5.png")
         
@@ -60,6 +68,8 @@ class IronseedIntro(object):
         #  Prepare counters
         self.count = 1
         self.length = 0
+        
+        self.encodeStep = 0
 
         self.centredX = 0.0
         self.centeredY = 0.0
@@ -70,18 +80,30 @@ class IronseedIntro(object):
         self.fade.set_alpha(10)
     
         #  Prepare Channel 7 Logo for blitting.
-        self.C7Scaled = pygame.transform.scale(self.channel7Logo,(g.width,g.height))
+        self.C7Scaled = pygame.transform.scale(self.channel7Logo, (g.width, g.height))
         self.C7LogoBlit = pygame.PixelArray(self.C7Scaled.convert())
-        self.C7LogoCreate = pygame.Surface((g.width,g.height), 0)
+        self.C7LogoCreate = pygame.Surface((g.width, g.height), 0)
         self.C7LogoCreate.set_colorkey(g.BLACK)
         
         #  Prepare starfield for blitting.
-        self.starFieldScaled= pygame.transform.scale(self.starField,(g.width,g.height))
+        self.starFieldScaled= pygame.transform.scale(self.starField, (g.width, g.height))
         #self.starFieldBlit = pygame.PixelArray(self.scaled.convert())
         
         #  Prepare Mars for Blitting.
-        self.marsScaled = pygame.transform.scale(self.mars,(g.width,g.height))
-        #self.marsBlit = pygame.PixelArray(self.scaled.convert())        
+        self.marsScaled = pygame.transform.scale(self.mars, (g.width, g.height))
+        #self.marsBlit = pygame.PixelArray(self.scaled.convert())
+        
+        #  Prepare Character communication screeen for blitting.
+        self.charComScaled = pygame.transform.scale(self.charCom, (g.width, g.height))
+        self.charComScaled.set_colorkey(g.BLACK)
+        
+        #  Prepare ship for blitting, this will be transformed later.
+        self.shipScaled = pygame.transform.scale(self.ship, (g.width, g.height))
+        
+        # Prepare Alien battleship deck
+        self.alienShipScaled = pygame.transform.scale(self.alienShip, (g.width, g.height))
+        self.alienShipScaled.set_colorkey(g.BLACK)
+        
         
     def isIntroFinished(self):
         return self.introFinished
@@ -187,6 +209,36 @@ class IronseedIntro(object):
             
         # uncomment to look at planet 2D texture.
         #surface.blit(planets.Planets[planet].planetTexture,(0,0))
+        return finished
+    
+    #  Load the encodes of the IronSeed Movement members.
+    #  Terminate origin bodies on end of transmission.
+    #  Note:  These guys love red, we are using count for bar length.
+    #  Crafty:  We will cheat by drawing the bars first, and then drawing the
+    #  Comm screen over the top...
+    def loadEncodes(self, surface, count):
+        finished = False
+        currentTimer = 0
+        surface.blit(self.charComScaled, (0, 0))
+        
+        if self.encodeStep == 0:
+            currentTimer = 5
+        
+        self.introText4
+        
+        #  Our timer for this sequence.
+        if h.GameStopwatch.stopwatchSet:
+            if h.GameStopwatch.getElapsedStopwatch() > currentTimer:
+                h.GameStopwatch.resetStopwatch()
+                self.encodeStep += 1
+                count = 0
+                if self.encodeStep == 10:
+                    finished = True
+                    self.encodeStep = 0
+                    h.GameStopwatch.resetStopwatch()
+        else:
+            h.GameStopwatch.setStopwatch()
+        
         return finished
     
     # Handle mouse events for user interaction.
@@ -307,14 +359,17 @@ class IronseedIntro(object):
         #  In this scene the Ironseed is loading in its EGO banks as the
         #  members of the rebellion evacuate.
         if self.introStage == 9:
-
-            self.resetCounts(10)
+            
+            finished = self.loadEncodes(displaySurface, self.count)
+            self.count += 1
+            if finished:
+                self.resetCounts(10)
             
         #  Game synopsis given at this point, the Ironseed mission overall is given.
         #  Features a moon-like planet to the left as usual.
         if self.introStage == 10:
             
-            finished = self.planetTextGenerate(self.introText4, "mars", self.starField,
+            finished = self.planetTextGenerate(self.introText5, "mars", self.starField,
                                           displaySurface, g.height, g.width,
                                           self.count)
             #h.fadeIn(g.width,g.height,displaySurface,self.count)
