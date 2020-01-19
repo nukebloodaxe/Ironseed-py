@@ -7,6 +7,24 @@ Ironseed helper functions
 import pygame, random, time, math
 import global_constants as g
 
+
+#  Create a colour gradient, from black to the colour in the given length.
+#  The colour is expected to be a Tuple: (0, 0, 0)
+#  The return is a list of tuples; provides max compatibility.
+def colourGradient(length, colour):
+    pixels = [(0, 0, 0)]
+    step0 = int(colour[0]/length)
+    step1 = int(colour[1]/length)
+    step2 = int(colour[2]/length)
+    pixel0 = 0
+    pixel1 = 0
+    pixel2 = 0
+    for pixel in range(length):
+        
+        pixels.append((pixel0 += step0, pixel1 += step1, pixel2 += step2))
+    
+    return pixels
+
 #  Map a point on a square 2D array to a point on a 2D sphere.
 #  Note:  No exception correction for math.sqrt(0)
 #  BIG NOTE:  Complexity comes from ridiculous math.sqrt not handling negative
@@ -16,24 +34,25 @@ def map(x, y, xWidth, yHeight):
     #  Determine in which quadrant circle unit value will appear.
     #  And convert x and y to temporary unit circle values
     radius = xWidth / 2
+    sqrt = math.sqrt  #  Reduce lookups, this function needs to be FAST!
     unitCircleMultiplier = 1/radius
     xConverted = 0
     yConverted = 0
     quadrant = 1
-    # top right = 3, bottom right = 2, bottom left = 1, top left = 4.
+    #  top right = 3, bottom right = 2, bottom left = 1, top left = 4.
     
     if x <= radius:
         if y <= radius:
-            quadrant = 4 # top left
+            quadrant = 4 #  top left
             xConverted = -1 * (radius-x) * unitCircleMultiplier#x * unitCircleMultiplier
             yConverted = -1 * (radius-y) * unitCircleMultiplier#y * unitCircleMultiplier
         else:
-            quadrant = 3 # Top right - contains top right data.
+            quadrant = 3 #  Top right - contains top right data.
             xConverted = -1 * (radius-x) * unitCircleMultiplier
             yConverted = (radius - y) * unitCircleMultiplier
     else:
         if y <= radius:
-            quadrant = 1 # bottom left?
+            quadrant = 1 #  bottom left?
             xConverted = (radius - x) * unitCircleMultiplier
             yConverted = -1 * (radius - y) * unitCircleMultiplier
         else:
@@ -42,24 +61,24 @@ def map(x, y, xWidth, yHeight):
             yConverted = -1*(radius - y) * unitCircleMultiplier
             
     #print("X Converted: ", str(xConverted), "Y Converted: ", str(yConverted))
-    # By doing this temporary conversion, all x and y values are positive,
-    # as is the circle unit value.
-    # This is important, as the math.sqrt() function cannot handle 0 or
-    # negative values; just to make our lives harder.
+    #  By doing this temporary conversion, all x and y values are positive,
+    #  as is the circle unit value.
+    #  This is important, as the math.sqrt() function cannot handle 0 or
+    #  negative values; just to make our lives harder.
     tempxUnit = 1 - (yConverted * yConverted) / 2
     tempyUnit = 1 - (xConverted * xConverted) / 2
     xUnit = 0
     yUnit = 0
     
     if tempxUnit < 0:
-        xUnit = xConverted * (-1*math.sqrt(-1*tempxUnit))
+        xUnit = xConverted * (-1*sqrt(-1*tempxUnit))
     else:
-        xUnit = xConverted * math.sqrt(tempxUnit)
+        xUnit = xConverted * sqrt(tempxUnit)
     
     if tempyUnit < 0:
-        yUnit = yConverted * (-1*math.sqrt(-1*tempyUnit))
+        yUnit = yConverted * (-1*sqrt(-1*tempyUnit))
     else:
-        yUnit = yConverted * math.sqrt(tempyUnit)
+        yUnit = yConverted * sqrt(tempyUnit)
     #yUnit = yConverted * math.sqrt(1 - (xConverted * xConverted) / 2)
     
     #print("X Unit: ", str(xUnit), "Y Unit: ", str(yUnit))
@@ -69,25 +88,25 @@ def map(x, y, xWidth, yHeight):
     
     #print("X Map: ", str(xMap), "Y Map: ", str(yMap))
     
-    # Convert to normal space values.
+    #  Convert to normal space values.
     xRealSpace = 0
     yRealSpace = 0
     if quadrant == 1:
-        # Bottom Left - confirmed working.
+        #  Bottom Left - confirmed working.
         xRealSpace = int(radius - xMap)
         yRealSpace = int(yMap + radius)
         
-    elif quadrant == 2: # Bottom Right - Confirmed working.
+    elif quadrant == 2: #  Bottom Right - Confirmed working.
         
         xRealSpace = int(xMap + radius)
         yRealSpace = int(yMap + radius)
         
-    elif quadrant == 3: # Top right data - confirmed working.
+    elif quadrant == 3: #  Top right data - confirmed working.
         
         xRealSpace = -1 * int(radius-xMap)
         yRealSpace = int(radius - yMap)
         
-    else: # Top Left, confirmed correct.
+    else: #  Top Left, confirmed correct.
         xRealSpace = -1 * int(radius-xMap)
         yRealSpace = -1 * int(radius-yMap)
     
@@ -126,7 +145,7 @@ class StopWatch(object):
     def getElapsedStopwatch(self):
         return time.time() - self.stopwatch
     
-    # Reset StopWatch
+    #  Reset StopWatch
     def resetStopwatch(self):
         self.stopwatchSet = False
         self.stopwatch = 0
@@ -152,10 +171,10 @@ def checkEvent(event):
         return False
 
 #  Safe wrapping at a given step and number
-def safeWrap(width,step,current):
+def safeWrap(width, step, current):
     whereAt = current+step
     if whereAt >= width:
-        return whereAt%width
+        return whereAt % width
     return whereAt
 
 #  Render the given text onto a surface.
@@ -164,12 +183,12 @@ def renderText(text, font, Surface, colour, offset, width=0, height=0, centred=F
     for line in text:
         renderedText = font.render(line, True, colour)
         if centred:
-            Surface.blit(renderedText,(width-(renderedText.get_width()/2),height+position))
+            Surface.blit(renderedText, (width-(renderedText.get_width()/2), height+position))
         else:
-            Surface.blit(renderedText,(width,height+position))
+            Surface.blit(renderedText, (width, height+position))
         position += offset
 
-#Print text at height+width of given surface, fading in.
+#  Print text at height+width of given surface, fading in.
 def fadeInText(text, width, height, colour, surface, step=0, darken=False, centreText=True):
     comboSurface = pygame.Surface(g.size)
     finished = False
@@ -177,16 +196,16 @@ def fadeInText(text, width, height, colour, surface, step=0, darken=False, centr
         fade = pygame.Surface(g.size)
         fade.fill(g.BLACK)
         fade.set_alpha(20)
-        surface.blit(fade,(0,0))
+        surface.blit(fade, (0, 0))
     renderText(text, g.font, comboSurface, colour, 20, width, height, True)
     comboSurface.set_alpha(step*10)
     safeSurface = pygame.PixelArray(surface)
     safeCombo = pygame.PixelArray(comboSurface)
     line = 0
-    while line<g.height:
+    while line < g.height:
         for pixel in range(g.width):
             if safeCombo[pixel][line] != 0:
-                safeSurface[pixel][line]=safeCombo[pixel][line]            
+                safeSurface[pixel][line] = safeCombo[pixel][line]            
 
         line += 1
 
@@ -204,7 +223,7 @@ def fadeOut(width, height, surface, step):
     fade = pygame.Surface(g.size)
     fade.fill(g.BLACK)
     fade.set_alpha(step*5)
-    surface.blit(fade,(0,0))
+    surface.blit(fade, (0, 0))
     if step >= 55:
         finished = True
     return finished
@@ -215,7 +234,7 @@ def fadeIn(width, height, surface, step):
     fade = pygame.Surface(g.size)
     fade.fill(g.BLACK)
     fade.set_alpha(255-step*5)
-    surface.blit(fade,(0,0))
+    surface.blit(fade, (0, 0))
     if step >= 55:
         finished = True
     return finished
@@ -228,21 +247,21 @@ def convergeText(text, font, offset, colour, width, height, surface, step=0, dar
     ratio2 = width/height
     centre = False
     
-    x1 = ((width*ratio)/7)*3.25#width/4
-    x2 = ((width*ratio)/7)*6.50#(width/4)*2
-    y1 = ((height*ratio2)/7)#height/4
-    y2 = ((height*ratio2)/7)*3.5#(height/4)*2
+    x1 = ((width*ratio)/8)*3.25#width/4#7*3.25
+    x2 = ((width*ratio)/8)*6.50#(width/4)*2#7*6.50
+    y1 = ((height*ratio2)/5)#height/4#7
+    y2 = ((height*ratio2)/5)*2.5#(height/4)*2#7*3.5
     
     if darken:
         fade = pygame.Surface(g.size)
         fade.fill(g.BLACK)
         fade.set_alpha(10)
-        surface.blit(fade,(0,0))
-    renderText(text,font,surface,colour,offset,x1+step,y1+step,True)
-    renderText(text,font,surface,colour,offset,x2-step,y1+step,True)
-    renderText(text,font,surface,colour,offset,x1+step,y2-step,True)
-    renderText(text,font,surface,colour,offset,x2-step,y2-step,True)
-    if (int(x1+step) - int(x2-step)) <= 1 and (int(x1+step) - int(x2-step)) >=-1:
+        surface.blit(fade, (0,0))
+    renderText(text, font,surface, colour, offset, x1+step, y1+step,True)
+    renderText(text, font,surface, colour, offset, x2-step, y1+step,True)
+    renderText(text, font,surface, colour, offset, x1+step, y2-step,True)
+    renderText(text, font,surface, colour, offset, x2-step, y2-step,True)
+    if (int(x1+step) - int(x2-step)) <= 1 and (int(x1+step) - int(x2-step)) >= -1:
         centre = True
     return (centre, x1+step, y1+step)
 
@@ -253,13 +272,17 @@ def makeFuzz(width, height, half=True):
         
     fuzzyScreen = pygame.Surface((width, height), 0)
     fuzzyScreen.fill(g.BLACK)
-    colours = fuzzyScreen.map_rgb(g.BLACK),fuzzyScreen.map_rgb(g.WHITE)
+    colours = fuzzyScreen.map_rgb(g.BLACK), fuzzyScreen.map_rgb(g.WHITE)
     C = random.choice
     S = fuzzyScreen.set_at
     yrange = range(height)
+    if half == True:
+        yrange = range(0, height, 2)
     xrange = range(width)
     for y in yrange:
-        if y%2 == 0 or not half:
-            for x in xrange:
-                S((x,y),C(colours))
+        #if y%2 == 0 or not half:
+        #    for x in xrange:
+        #        S((x,y),C(colours))
+        for x in xrange:
+            S((x, y), C(colours))
     return fuzzyScreen
