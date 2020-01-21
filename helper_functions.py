@@ -13,15 +13,17 @@ import global_constants as g
 #  The return is a list of tuples; provides max compatibility.
 def colourGradient(length, colour):
     pixels = [(0, 0, 0)]
-    step0 = int(colour[0]/length)
-    step1 = int(colour[1]/length)
-    step2 = int(colour[2]/length)
+    step0 = colour[0]/length
+    step1 = colour[1]/length
+    step2 = colour[2]/length
     pixel0 = 0
     pixel1 = 0
     pixel2 = 0
     for pixel in range(length):
-        
-        pixels.append((pixel0 += step0, pixel1 += step1, pixel2 += step2))
+        pixel0 += step0
+        pixel1 += step1
+        pixel2 += step2
+        pixels.append((int(pixel0), int(pixel1), int(pixel2)))
     
     return pixels
 
@@ -96,17 +98,17 @@ def map(x, y, xWidth, yHeight):
         xRealSpace = int(radius - xMap)
         yRealSpace = int(yMap + radius)
         
-    elif quadrant == 2: #  Bottom Right - Confirmed working.
+    elif quadrant == 2:  #  Bottom Right - Confirmed working.
         
         xRealSpace = int(xMap + radius)
         yRealSpace = int(yMap + radius)
         
-    elif quadrant == 3: #  Top right data - confirmed working.
+    elif quadrant == 3:  #  Top right data - confirmed working.
         
         xRealSpace = -1 * int(radius-xMap)
         yRealSpace = int(radius - yMap)
         
-    else: #  Top Left, confirmed correct.
+    else:  #  Top Left, confirmed correct.
         xRealSpace = -1 * int(radius-xMap)
         yRealSpace = -1 * int(radius-yMap)
     
@@ -137,7 +139,7 @@ class StopWatch(object):
     #  Should result in current time and later calc of 0 in other calling
     #  functions.
     def getStopwatch(self):
-        if self.stopwatchSet == True:
+        if self.stopwatchSet is True:
             return self.stopwatch
         return time.time()
 
@@ -257,10 +259,10 @@ def convergeText(text, font, offset, colour, width, height, surface, step=0, dar
         fade.fill(g.BLACK)
         fade.set_alpha(10)
         surface.blit(fade, (0,0))
-    renderText(text, font,surface, colour, offset, x1+step, y1+step,True)
-    renderText(text, font,surface, colour, offset, x2-step, y1+step,True)
-    renderText(text, font,surface, colour, offset, x1+step, y2-step,True)
-    renderText(text, font,surface, colour, offset, x2-step, y2-step,True)
+    renderText(text, font,surface, colour, offset, x1+step, y1+step, True)
+    renderText(text, font,surface, colour, offset, x2-step, y1+step, True)
+    renderText(text, font,surface, colour, offset, x1+step, y2-step, True)
+    renderText(text, font,surface, colour, offset, x2-step, y2-step, True)
     if (int(x1+step) - int(x2-step)) <= 1 and (int(x1+step) - int(x2-step)) >= -1:
         centre = True
     return (centre, x1+step, y1+step)
@@ -276,7 +278,7 @@ def makeFuzz(width, height, half=True):
     C = random.choice
     S = fuzzyScreen.set_at
     yrange = range(height)
-    if half == True:
+    if half is True:
         yrange = range(0, height, 2)
     xrange = range(width)
     for y in yrange:
