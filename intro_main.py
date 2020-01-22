@@ -20,7 +20,7 @@ class IronseedIntro(object):
                            "2016 Nuke Bloodaxe - Code Tidying",
                            "2020 Nuke Bloodaxe - Complete Python Refactor/Rewrite",
                            "All rights reserved."]
-        self.versionText = ["Ironseed", g.version] #Ridiculous version string required...
+        self.versionText = ["Ironseed", g.version] #  Ridiculous version string required...
         self.introText1 = ["A","Destiny: Virtual", "Designed Game"]
         self.introText2 = ["Mars", "3784 A.D."]
         self.introText3 = ["Escaping the iron fist of a fanatical",
@@ -93,9 +93,14 @@ class IronseedIntro(object):
         self.marsScaled = pygame.transform.scale(self.mars, (g.width, g.height))
         #self.marsBlit = pygame.PixelArray(self.scaled.convert())
         
-        #  Prepare Character communication screeen for blitting.
+        #  Prepare Character communication screen for blitting.
         self.charComScaled = pygame.transform.scale(self.charCom, (g.width, g.height))
         self.charComScaled.set_colorkey(g.BLACK)
+        
+        # Gradient as a list of tuples.
+        self.redBar = h.colourGradient(int(g.width/16)*2, g.RED)
+        #  Full length Encode Bar.
+        self.fullBar = h.createBar(self.redBar, int((g.width/320)*37), int((g.height/200)*2)+1)
         
         #  Prepare ship for blitting, this will be transformed later.
         self.shipScaled = pygame.transform.scale(self.ship, (g.width, g.height))
@@ -109,6 +114,9 @@ class IronseedIntro(object):
         return self.introFinished
     
     def resetIntro(self):
+        self.count = 0
+        self.length = 0
+        self.encodeStep = 0
         self.introStage = 0
         self.introFinished = False
     
@@ -216,28 +224,82 @@ class IronseedIntro(object):
     #  Note:  These guys love red, we are using count for bar length.
     #  Crafty:  We will cheat by drawing the bars first, and then drawing the
     #  Comm screen over the top...
+    #  Transmission lines are supposed to draw every 2 seconds.
     def loadEncodes(self, surface, count):
         finished = False
         currentTimer = 0
-        surface.blit(self.charComScaled, (0, 0))
+        lowerThird = int(7*(g.height/10))
+        centerWidth = int(g.width/16)
+        encodeLoading = self.encodeStep - 3
         
         if self.encodeStep == 0:
             currentTimer = 5
+            h.renderText([self.introText4[0]], g.font, surface, g.WHITE,
+                          0, centerWidth, lowerThird)
         
-        self.introText4
+        elif self.encodeStep == 1:
+            
+             h.renderText([self.introText4[1]], g.font, surface, g.WHITE,
+             0, centerWidth*10, lowerThird)
+             self.encodeStep += 1
+             
+        elif self.encodeStep == 2:
+
+             h.renderText([self.introText4[2]], g.font, surface, g.WHITE,
+             0, centerWidth, lowerThird+g.offset)
+             self.encodeStep += 1
+             
+        elif self.encodeStep == 3:        
+            currentTimer = 4
+            h.colourGradient()
+            
+            
+        # Map the red encode sections to the screen.
         
-        #  Our timer for this sequence.
+        
+        #  Draw full encode bars for each cycle.
+        if encodeLoading >= 2:
+            #  Bar 1
+            surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*48)))
+            if encodeLoading >= 3:
+                #  Bar 2
+                surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*78)))
+                if encodeLoading >= 4:
+                    #  Bar 3
+                    surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*108)))
+                    if encodeLoading >= 5:
+                        #  Bar 4
+                        surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*48)))
+                        if encodeLoading == 6:  #  6
+                            #  Bar 5
+                            surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*78)))
+                        else:
+                            #  Bar 5
+                            surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*78)))
+                            #  Bar 6
+                            surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*108)))
+                            
+        #  Our timer for this sequence.        
         if h.GameStopwatch.stopwatchSet:
             if h.GameStopwatch.getElapsedStopwatch() > currentTimer:
                 h.GameStopwatch.resetStopwatch()
                 self.encodeStep += 1
-                count = 0
-                if self.encodeStep == 10:
-                    finished = True
-                    self.encodeStep = 0
-                    h.GameStopwatch.resetStopwatch()
         else:
             h.GameStopwatch.setStopwatch()
+        """
+                self.introText4 = ["Ship IRONSEED to Relay Point:",
+                           "Link Established.",
+                           "Receiving Encode Variants.",
+                           "Wiping Source Encodes.",
+                           "Terminating Transmission.",
+                           'Control Protocol Transfered to Human Encode "PRIME".']
+        """
+        if self.encodeStep >= 1:
+            primeStatic = h.makeFuzz(int((g.width/16)*4), int((g.height/10)*4))
+            surface.blit(primeStatic, (int((g.width/16)*6), int((g.height/10)*2)))
+
+            
+        surface.blit(self.charComScaled, (0, 0))
         
         return finished
     
