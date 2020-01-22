@@ -7,7 +7,9 @@ Note: * is now used in keywords files to indicate multi-word terms.
 @author: Nuke Bloodaxe
 """
 
-import io, pygame, random, global_constants as g, crew
+import io, pygame, random, crew
+import global_constants as g
+import helper_functions as h
 
 CrewKeywords = {} #crewmember{}->Keyword->{event:reponse code,runtime event,list treatment-single/multiline etc}
 
@@ -23,60 +25,63 @@ class crewComm(object):
         self.crewMembers = shipCrew
         self.selectedCrew = 0 #nobody
         self.state = 8
-        #Prepare background image
+        #  Prepare background image
         self.charCom = pygame.image.load("Graphics_Assets\\charcom.png")
         self.charComScaled = pygame.transform.scale(self.charCom,(g.width,g.height))
-        self.musicState = False
+        #  Prepare Character communication screen for blitting.
+        self.charComScaled = pygame.transform.scale(self.charCom, (g.width, g.height))
+        self.charComScaled.set_colorkey(g.BLACK)
+        self.musicState = False  #  Music playback?
         
     def update(self, displaySurface):
         return self.communicate(displaySurface)
 
-    # Handle mouse events for user interaction.
+    #  Handle mouse events for user interaction.
     def interact(self, mouseButton):
         return self.systemState
 
-    #Compare the keyword against all event entries and check to see which
-    #flags have been tripped, return the reply entry matching the highest
-    #tripped flag number.
+    #  Compare the keyword against all event entries and check to see which
+    #  flags have been tripped, return the reply entry matching the highest
+    #  tripped flag number.
     def checkKeywordEventFlags(self, keyword = ""):
         
         pass
     
-    #Parse the string of text looking for keywords present in the crewKeywords
-    #Dictionary.  Returns a reply based on the best event flag for the text.
+    #  Parse the string of text looking for keywords present in the crewKeywords
+    #  Dictionary.  Returns a reply based on the best event flag for the text.
     def textInterpret(self, text=""):
         tokenisedText = text.split()
         pass
     
     def communicate(self,displaySurface):
         displaySurface.blit(self.charComScaled,(0,0)) # Set background.
-        #Start main intro music
+        #  Start main intro music
         if self.musicState == False:
             pygame.mixer.music.load("sound\\CREWCOMM.OGG")
             pygame.mixer.music.play()
             self.musicState = True
-        return 8 # TODO, currently loops communication system for testing.
+        return 8 #  TODO, currently loops communication system for testing.
 
     
 
-#load all crew comversation related data.
-#file location and prefix, Number of files(file number), extension.
-#Note: We have some advantages with the reposnse lines, as they are written
-#to the crew terminal character by character, we can take advantage of the
-#data formatting codes dynamically.
+#  load all crew comversation related data.
+#  file location and prefix, Number of files(file number), extension.
+#  Note: We have some advantages with the reposnse lines, as they are written
+#  to the crew terminal character by character, we can take advantage of the
+#  data formatting codes dynamically.
 def loadCrewCommunications(file="Data_Generators\Other\crewcon",count=6,extension=".tab"):
     
     for index in range(1,count+1):
         commFile = io.open(file+str(index)+extension, "r")
         commDataString = []
         keyWords = []
-        #commResponseString = [""]
+        #  commResponseString = [""]
         CrewKeywords[index] = {}
         CrewReplies[index] = {}
         temp = [""]
         while temp[0] != "ENDF":
             commDataString = (commFile.readline().split('\n')[0]).split('\t') #Data Line
-            #print(commDataString) # for debug.
+            #  print(commDataString) # for debug.
             keyWords = commDataString[4].split('*')
             for word in keyWords:
                 try:
@@ -98,6 +103,6 @@ def loadCrewCommunications(file="Data_Generators\Other\crewcon",count=6,extensio
                 CrewReplies[index][temp[0]].append(temp[1])
                 temp = (commFile.readline().split('\n')[0]).split('\t')
             
-        # A crewmember's responses have now been loaded.
+        #  A crewmember's responses have now been loaded.
 
         commFile.close()
