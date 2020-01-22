@@ -27,6 +27,36 @@ def colourGradient(length, colour):
     
     return pixels
 
+#  Create a bar using a colourGradient tuple list.
+#  Length is the required element width from the tuple list.
+#  Height is the amount of times the bar is repeated vertically.
+#  Rounded indicates if the end of the bar needs to be drawn as
+#  half a hemesphere with Height diameter.
+#  Returns a pygame surface with the required elements added.
+def createBar(tupleList=[], length=0, height=int((g.height/320)*2), rounded=False):
+    bar = pygame.Surface((length, height))
+    bar.set_colorkey(g.BLACK)
+    barArray = pygame.PixelArray(bar)
+    roundedY = 0
+    roundStep = 0
+    if rounded:
+        roundedY = int(height/2)
+        
+    
+    for x in range(length):
+        for y in range(height):
+            if rounded:
+                if (length - roundedY) <=x:
+                    if y-(x-(length - roundedY)) > 0 and y < y+(x-(length - roundedY)):
+                        barArray[x][y] = tupleList[x]
+                else:
+                    barArray[x][y] = tupleList[x]
+            else:
+                barArray[x][y] = tupleList[x]
+                
+    barArray.close()
+    return bar
+
 #  Map a point on a square 2D array to a point on a 2D sphere.
 #  Note:  No exception correction for math.sqrt(0)
 #  BIG NOTE:  Complexity comes from ridiculous math.sqrt not handling negative
