@@ -25,24 +25,38 @@ class IronSeed(object):
         self.versionText = ["Ironseed", g.version]
         
         # Set Window version and Display surface
+        print("Initialise Screen.")
         self.displaySurface = pygame.display.set_mode(g.size)
         pygame.display.set_caption(self.versionText[0]+' '+self.versionText[1])
         
         # Initialise game objects
         g.starDate = [2,3,3784,8,75] #M,D,Y,H,M.
         # Populate Item dictionaries
+        print("Loading Items")
         items.loadItemData()
+        print("Loading Scan Data")
         planets.loadScanData()
+        print("Loading Planetary Systems")
         planets.loadPlanetarySystems()
+        print("Initialising Planets")
         planets.initialisePlanets()
+        print("Populating Planetary Systems")
         planets.populatePlanetarySystems()
+        print("Loading Crew Data")
         crew.loadCrewData()
+        print("Initialising internal objects:")
         weaponsAndShields.loadWeaponsAndShields()
+        print("Crew Objects")
         self.crew = crew.Crew()
+        print("Ship Objects")
         self.ship = ship.Ship()
+        print("Intro Objects")
         self.intro = intro_main.IronseedIntro()
+        print("Game generator Objects")
         self.generator = gen.Generator() # Settings at new-game state.
+        print("Commnications System Objects")
         self.crewCom = crewC.crewComm(self.crew) # Needs to have crew data set.
+        print("Planet Scanner Objects")
         self.planetScanner = PlanetScanner.PlanetScanner()
         
         self.states = {1:self.generator.update, # The crew + ship selection system.
@@ -66,7 +80,7 @@ class IronSeed(object):
                             8:self.crewCom.interact,
                             9:"EGO",
                             10:"Orbit"}
-
+        print("We Are GO!")
 
 
     def main_loop(self):
