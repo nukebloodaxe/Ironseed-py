@@ -219,67 +219,106 @@ class IronseedIntro(object):
         #surface.blit(planets.Planets[planet].planetTexture,(0,0))
         return finished
     
+    #  Encode helper function, draws the bars in a given position.
+    def drawEncodeBar(self, surface, xPosition, yPosition):
+            currentTimer = 4
+            #  Set green light to red next to bar.
+            if self.count <= 37:
+                growingBar = h.createBar(self.redBar, int((g.width/320)*self.count), int((g.height/200)*2)+1)
+                surface.blit(growingBar, (int((g.width/320)*xPosition), int((g.height/200)*yPosition)))
+            else:
+                self.encodeStep += 1
+                self.count = 0
+                h.GameStopwatch.resetStopwatch()  #  If we beat the timer.
+
     #  Load the encodes of the IronSeed Movement members.
     #  Terminate origin bodies on end of transmission.
     #  Note:  These guys love red, we are using count for bar length.
     #  Crafty:  We will cheat by drawing the bars first, and then drawing the
     #  Comm screen over the top...
     #  Transmission lines are supposed to draw every 2 seconds.
-    def loadEncodes(self, surface, count):
+    def loadEncodes(self, surface):
         finished = False
         currentTimer = 0
         lowerThird = int(7*(g.height/10))
         centerWidth = int(g.width/16)
-        encodeLoading = self.encodeStep - 3
-        
+
         if self.encodeStep == 0:
             currentTimer = 5
             h.renderText([self.introText4[0]], g.font, surface, g.WHITE,
                           0, centerWidth, lowerThird)
-        
+
         elif self.encodeStep == 1:
-            
+
              h.renderText([self.introText4[1]], g.font, surface, g.WHITE,
              0, centerWidth*10, lowerThird)
              self.encodeStep += 1
-             
+
         elif self.encodeStep == 2:
 
              h.renderText([self.introText4[2]], g.font, surface, g.WHITE,
              0, centerWidth, lowerThird+g.offset)
              self.encodeStep += 1
-             
-        elif self.encodeStep == 3:        
-            currentTimer = 4
-            h.colourGradient()
-            
-            
+             self.count = 0
+
+        #  Left Side
+
+        elif self.encodeStep == 3:
+            currentTimer = 15
+            #  TODO Set green light to red next to bar.
+            self.drawEncodeBar(surface, 13, 48)
+
+        elif self.encodeStep == 4:
+            currentTimer = 15
+            #  TODO Set green light to red next to bar.
+            self.drawEncodeBar(surface, 13, 78)
+
+        elif self.encodeStep == 5:
+            currentTimer = 15
+            #  TODO Set green light to red next to bar.
+            self.drawEncodeBar(surface, 13, 108)
+
+        #  Right Side.
+
+        elif self.encodeStep == 6:
+            currentTimer = 15
+            #  TODO Set green light to red next to bar.
+            self.drawEncodeBar(surface, 271, 48)
+
+        elif self.encodeStep == 7:
+            currentTimer = 15
+            #  TODO Set green light to red next to bar.
+            self.drawEncodeBar(surface, 271, 78)
+
+        elif self.encodeStep == 8:
+            currentTimer = 15
+            #  TODO Set green light to red next to bar.
+            self.drawEncodeBar(surface, 271, 108)
+
         # Map the red encode sections to the screen.
-        
-        
+
+
         #  Draw full encode bars for each cycle.
-        if encodeLoading >= 2:
+        if self.encodeStep >= 2:
             #  Bar 1
             surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*48)))
-            if encodeLoading >= 3:
+            if self.encodeStep >= 3:
                 #  Bar 2
                 surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*78)))
-                if encodeLoading >= 4:
+                if self.encodeStep >= 4:
                     #  Bar 3
                     surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*108)))
-                    if encodeLoading >= 5:
+                    if self.encodeStep >= 5:
                         #  Bar 4
                         surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*48)))
-                        if encodeLoading == 6:  #  6
+                        if self.encodeStep >= 6:
                             #  Bar 5
                             surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*78)))
-                        else:
-                            #  Bar 5
-                            surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*78)))
-                            #  Bar 6
-                            surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*108)))
+                            if self.encodeStep >= 7:
+                                #  Bar 6
+                                surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*108)))
                             
-        #  Our timer for this sequence.        
+        #  Our timer for this sequence.
         if h.GameStopwatch.stopwatchSet:
             if h.GameStopwatch.getElapsedStopwatch() > currentTimer:
                 h.GameStopwatch.resetStopwatch()
@@ -298,7 +337,6 @@ class IronseedIntro(object):
             primeStatic = h.makeFuzz(int((g.width/16)*4), int((g.height/10)*4))
             surface.blit(primeStatic, (int((g.width/16)*6), int((g.height/10)*2)))
 
-            
         surface.blit(self.charComScaled, (0, 0))
         
         return finished
@@ -390,7 +428,7 @@ class IronseedIntro(object):
         #  Fade Out
         if self.introStage == 6:
             finished = h.fadeOut(g.width,g.height,displaySurface,self.count)
-            self.count +=1
+            self.count += 1
             pygame.time.wait(100)
             if finished:
                 self.resetCounts(7)
@@ -406,14 +444,14 @@ class IronseedIntro(object):
                                           displaySurface, g.height, g.width,
                                           self.count)
             
-            self.count +=1
+            self.count += 1
             if finished:
                 self.resetCounts(8)
         
         #  Fade Out
         if self.introStage == 8:
-            finished = h.fadeOut(g.width,g.height,displaySurface,self.count)
-            self.count +=1
+            finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
+            self.count += 1
             pygame.time.wait(100)
             if finished:
                 self.resetCounts(9)
@@ -422,8 +460,9 @@ class IronseedIntro(object):
         #  members of the rebellion evacuate.
         if self.introStage == 9:
             
-            finished = self.loadEncodes(displaySurface, self.count)
+            finished = self.loadEncodes(displaySurface)
             self.count += 1
+            #pygame.time.wait(500)
             if finished:
                 self.resetCounts(10)
             
@@ -442,7 +481,7 @@ class IronseedIntro(object):
         
         #  Fade Out
         if self.introStage == 11:
-            finished = h.fadeOut(g.width,g.height,displaySurface,self.count)
+            finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
             self.count +=1
             pygame.time.wait(100)
             if finished:
