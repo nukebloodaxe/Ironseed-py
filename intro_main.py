@@ -244,22 +244,20 @@ class IronseedIntro(object):
         centerWidth = int(g.width/16)
 
         if self.encodeStep == 0:
-            currentTimer = 5
+            currentTimer = 2
             h.renderText([self.introText4[0]], g.font, surface, g.WHITE,
                           0, centerWidth, lowerThird)
 
         elif self.encodeStep == 1:
-
-             h.renderText([self.introText4[1]], g.font, surface, g.WHITE,
-             0, centerWidth*10, lowerThird)
-             self.encodeStep += 1
+            currentTimer = 2
+            h.renderText([self.introText4[1]], g.font, surface, g.WHITE,
+            0, centerWidth*10, lowerThird)
 
         elif self.encodeStep == 2:
-
-             h.renderText([self.introText4[2]], g.font, surface, g.WHITE,
-             0, centerWidth, lowerThird+g.offset)
-             self.encodeStep += 1
-             self.count = 0
+            currentTimer = 2
+            h.renderText([self.introText4[2]], g.font, surface, g.WHITE,
+            0, centerWidth, lowerThird+g.offset)
+            self.count = 0
 
         #  Left Side
 
@@ -294,27 +292,42 @@ class IronseedIntro(object):
             currentTimer = 15
             #  TODO Set green light to red next to bar.
             self.drawEncodeBar(surface, 271, 108)
+            
+        elif self.encodeStep == 9:
+            currentTimer = 2
+            h.renderText([self.introText4[3]], g.font, surface, g.WHITE,
+            0, centerWidth, lowerThird+(g.offset*2))
+            
+        elif self.encodeStep == 10:
+            currentTimer = 2
+            h.renderText([self.introText4[4]], g.font, surface, g.WHITE,
+            0, centerWidth, lowerThird+(g.offset*3))
+            
+        elif self.encodeStep == 11:
+            currentTimer = 2
+            h.renderText([self.introText4[5]], g.font, surface, g.WHITE,
+            0, centerWidth, lowerThird+(g.offset*4))
 
         # Map the red encode sections to the screen.
 
 
         #  Draw full encode bars for each cycle.
-        if self.encodeStep >= 2:
+        if self.encodeStep >= 4:
             #  Bar 1
             surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*48)))
-            if self.encodeStep >= 3:
+            if self.encodeStep >= 5:
                 #  Bar 2
                 surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*78)))
-                if self.encodeStep >= 4:
+                if self.encodeStep >= 6:
                     #  Bar 3
                     surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*108)))
-                    if self.encodeStep >= 5:
+                    if self.encodeStep >= 7:
                         #  Bar 4
                         surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*48)))
-                        if self.encodeStep >= 6:
+                        if self.encodeStep >= 8:
                             #  Bar 5
                             surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*78)))
-                            if self.encodeStep >= 7:
+                            if self.encodeStep >= 9:
                                 #  Bar 6
                                 surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*108)))
                             
@@ -338,6 +351,9 @@ class IronseedIntro(object):
             surface.blit(primeStatic, (int((g.width/16)*6), int((g.height/10)*2)))
 
         surface.blit(self.charComScaled, (0, 0))
+        
+        if self.encodeStep == 11:
+            finished = True
         
         return finished
     
