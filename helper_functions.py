@@ -46,7 +46,7 @@ def createBar(tupleList=[], length=0, height=int((g.height/320)*2), rounded=Fals
     for x in range(length):
         for y in range(height):
             if rounded:
-                if (length - roundedY) <=x:
+                if (length - roundedY) <= x:
                     if y-(x-(length - roundedY)) > 0 and y < y+(x-(length - roundedY)):
                         barArray[x][y] = tupleList[x]
                 else:
@@ -281,8 +281,8 @@ def convergeText(text, font, offset, colour, width, height, surface, step=0, dar
     
     x1 = ((width*ratio)/8)*3.25#width/4#7*3.25
     x2 = ((width*ratio)/8)*6.50#(width/4)*2#7*6.50
-    y1 = ((height*ratio2)/5)#height/4#7
-    y2 = ((height*ratio2)/5)*2.5#(height/4)*2#7*3.5
+    y1 = ((height*ratio2)/5)#/5)#height/4#7
+    y2 = ((height*ratio2)/5)*2.5#/5)*2.5#(height/4)*2#7*3.5
     
     if darken:
         fade = pygame.Surface(g.size)

@@ -1207,7 +1207,6 @@ def populatePlanetarySystems():
         if system.systemName == "OBAN":
             system.numberOfPlanets = 3 # including the star
         
-        # Add Sun Here.
         #TODO: Random orbits for the count of planets.
         for orbit in range(0, system.numberOfPlanets):
             
@@ -1234,6 +1233,7 @@ def populatePlanetarySystems():
                     
             system.planets.append(Planets[count])
             
+            # Add Sun Here.
             if orbit == 0:
                 Planets[count].generate(count, True) # activate sun code.
                 system.starGrade = Planets[count].state
