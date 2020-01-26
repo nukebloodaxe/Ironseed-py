@@ -237,6 +237,7 @@ class IronseedIntro(object):
     #  Crafty:  We will cheat by drawing the bars first, and then drawing the
     #  Comm screen over the top...
     #  Transmission lines are supposed to draw every 2 seconds.
+    # TODO: Green lights go red on Encode load.
     def loadEncodes(self, surface):
         finished = False
         currentTimer = 0
@@ -249,12 +250,12 @@ class IronseedIntro(object):
                           0, centerWidth, lowerThird)
 
         elif self.encodeStep == 1:
-            currentTimer = 2
+            currentTimer = 3
             h.renderText([self.introText4[1]], g.font, surface, g.WHITE,
             0, centerWidth*10, lowerThird)
 
         elif self.encodeStep == 2:
-            currentTimer = 2
+            currentTimer = 3
             h.renderText([self.introText4[2]], g.font, surface, g.WHITE,
             0, centerWidth, lowerThird+g.offset)
             self.count = 0
@@ -294,17 +295,17 @@ class IronseedIntro(object):
             self.drawEncodeBar(surface, 271, 108)
             
         elif self.encodeStep == 9:
-            currentTimer = 2
+            currentTimer = 3
             h.renderText([self.introText4[3]], g.font, surface, g.WHITE,
             0, centerWidth, lowerThird+(g.offset*2))
             
         elif self.encodeStep == 10:
-            currentTimer = 2
+            currentTimer = 3
             h.renderText([self.introText4[4]], g.font, surface, g.WHITE,
             0, centerWidth, lowerThird+(g.offset*3))
             
         elif self.encodeStep == 11:
-            currentTimer = 2
+            currentTimer = 3
             h.renderText([self.introText4[5]], g.font, surface, g.WHITE,
             0, centerWidth, lowerThird+(g.offset*4))
 
@@ -390,7 +391,7 @@ class IronseedIntro(object):
                 # Fade out Channel 7 logo.
                 elif self.count < 300:
                     self.fade.set_alpha(self.count)
-                    self.count += 15
+                    self.count += 10
             else:
                 displaySurface.fill(g.BLACK)
                 self.resetCounts(2)
@@ -407,10 +408,14 @@ class IronseedIntro(object):
                                                           displaySurface,
                                                           self.count)
             self.count +=1
-            #print("centred: ", finished, "centredX: ", centredX, "centredY: ", centredY)        
+            #print("centred: ", finished, "centredX: ", centredX, "centredY: ", centredY)
+            
+
             pygame.time.wait(10)
             if finished:
                 self.resetCounts(3)
+        
+        #  Display the destiny virtual Text at the centre of the screen.
         
         if self.introStage == 3:
             finished = h.fadeInText(self.introText1, self.centredX, self.centredY,
@@ -418,13 +423,19 @@ class IronseedIntro(object):
             self.count += 1
             pygame.time.wait(50)
             if finished:
-                self.resetCounts(4)
+                if h.GameStopwatch.stopwatchSet:
+                    if h.GameStopwatch.getElapsedStopwatch() > 5:
+                        h.GameStopwatch.resetStopwatch()
+                        self.resetCounts(4)
+                        finished = True
+                else:
+                    h.GameStopwatch.setStopwatch()
         
         #  We now bring in two surfaces, a starfield and mars.
         #  print location and date one line at a time afterwards.
         if self.introStage == 4:
             finished = self.marsSceneGenerate(self.mars, self.starField,
-                                              displaySurface,g.width,g.height,
+                                              displaySurface, g.width, g.height,
                                               self.count)
             self.count +=1
             #print("centred: ", finished, "centredX: ", centredX, "centredY: ", centredY)        
@@ -443,9 +454,9 @@ class IronseedIntro(object):
         
         #  Fade Out
         if self.introStage == 6:
-            finished = h.fadeOut(g.width,g.height,displaySurface,self.count)
+            finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
             self.count += 1
-            pygame.time.wait(100)
+            pygame.time.wait(10)
             if finished:
                 self.resetCounts(7)
         
@@ -461,6 +472,7 @@ class IronseedIntro(object):
                                           self.count)
             
             self.count += 1
+
             if finished:
                 self.resetCounts(8)
         
