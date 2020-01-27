@@ -70,6 +70,10 @@ class IronseedIntro(object):
         self.length = 0
         
         self.encodeStep = 0
+        
+        self.scavengerStep = 0
+        
+        self.crashlandingStep = 0
 
         self.centredX = 0.0
         self.centeredY = 0.0
@@ -102,8 +106,14 @@ class IronseedIntro(object):
         #  Full length Encode Bar.
         self.fullBar = h.createBar(self.redBar, int((g.width/320)*37), int((g.height/200)*2)+1)
         
+        #  Background star with lens flare.
+        self.battleScaled = pygame.transform.scale(self.battle, (g.width, g.height))
+        self.battleScaled.set_colorkey(g.BLACK)
+        
         #  Prepare ship for blitting, this will be transformed later.
         self.shipScaled = pygame.transform.scale(self.ship, (g.width, g.height))
+        self.shipScaled.set_colorkey(g.BLACK)
+        #  TODO:  Set correct scale ratio.
         
         # Prepare Alien battleship deck
         self.alienShipScaled = pygame.transform.scale(self.alienShip, (g.width, g.height))
@@ -186,7 +196,7 @@ class IronseedIntro(object):
     def planetTextGenerate(self, text, planet, starfield, surface, height,
                            width, step):
         finished = False
-        surface.blit(self.starFieldScaled,(0,0))
+        surface.blit(starfield, (0,0))
         lowerThird = int(3*(height/4))
         centerWidth = int(3*(width/6))
         #  Render planet here.
@@ -353,8 +363,17 @@ class IronseedIntro(object):
 
         surface.blit(self.charComScaled, (0, 0))
         
-        if self.encodeStep == 11:
+        if self.encodeStep == 12:
             finished = True
+        
+        return finished
+    
+    #  Scavengers attack sequence.
+    def scavengersAttack(self, displaySurface, width, height, step):
+        finished = False
+        
+        if self.scavengerStep == 0:
+            displaySurface.blit(self.shipScaled, (0, 0))
         
         return finished
     
@@ -372,7 +391,7 @@ class IronseedIntro(object):
         if self.introStage == 0:
             pygame.mixer.music.load("sound\\INTRO1.OGG")
             pygame.mixer.music.play()
-            self.introStage = 1 # normally 1, use other stages for debug.
+            self.introStage = 7 #  normally 1, use other stages for debug.
 
         #  Start displaying screen of fuzzy static, make channel 7 logo
         #  gradually appear.
@@ -467,7 +486,7 @@ class IronseedIntro(object):
         #  This entire scene, preprepared, fades in.
         if self.introStage == 7:
             
-            finished = self.planetTextGenerate(self.introText3, "mars", self.starField,
+            finished = self.planetTextGenerate(self.introText3, "mars", self.starFieldScaled,
                                           displaySurface, g.height, g.width,
                                           self.count)
             
@@ -494,40 +513,88 @@ class IronseedIntro(object):
             if finished:
                 self.resetCounts(10)
             
-        #  Game synopsis given at this point, the Ironseed mission overall is given.
-        #  Features a moon-like planet to the left as usual.
+        #  Fade Out
         if self.introStage == 10:
+            finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
+            self.count += 1
+            pygame.time.wait(100)
+            if finished:
+                self.resetCounts(11)
+        
+        #  Ironseed crew wake up, spot problem of an alien horde being nearby.
+        #  Features a moon-like planet to the left as usual.
+        if self.introStage == 11:
             
-            finished = self.planetTextGenerate(self.introText5, "mars", self.starField,
-                                          displaySurface, g.height, g.width,
-                                          self.count)
+            finished = self.planetTextGenerate(self.introText5, "Icarus",
+                                               self.battleScaled,
+                                               displaySurface, g.height,
+                                               g.width, self.count)
             #h.fadeIn(g.width,g.height,displaySurface,self.count)
             
             self.count +=1
             if finished:
-                self.resetCounts(11)
+                self.resetCounts(12)
         
         #  Fade Out
-        if self.introStage == 11:
+        if self.introStage == 12:
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
             self.count +=1
             pygame.time.wait(100)
             if finished:
-                self.resetCounts(12)
+                self.resetCounts(13)
         
         #  The Scavengers find the ironseed, and the Ironseed is destroyed,
-        #  crash landing onto a small moon.
-        #  This scene features plenty of moving graphics, three overlays required
-        #  for the monitors alone.
+        #  crash landing onto a small barran planet.
+        #  This scene features plenty of moving graphics, three overlays
+        #  required for the monitors alone.
+        if self.introStage == 13:
+            finished = scavengersAttack(displaySurface, g.width, g.height, self.count)
+            self.count +=1
+            pygame.time.wait(100)
+            if finished:
+                self.resetCounts(14)
+                
+        #  Fade Out
+        if self.introStage == 14:
+            finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
+            self.count +=1
+            pygame.time.wait(100)
+            if finished:
+                self.resetCounts(15)
         
+        #  Ironseed crew under attack initiate crash landing on second planet
+        #  of the OBAN system.
+        if self.introStage == 15:
+            finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
+            self.count +=1
+            pygame.time.wait(100)
+            if finished:
+                self.resetCounts(16)
         
-        #temp quick kill.
-#        pygame.quit()
-#        sys.exit()
+        #  Fade Out
+        if self.introStage == 16:
+            finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
+            self.count +=1
+            pygame.time.wait(100)
+            if finished:
+                self.resetCounts(17)
         
+        #  Synopsis of the goal, which is to reunite the Kendar, is given.
+        if self.introStage == 17:
+            
+            finished = self.planetTextGenerate(self.introText8, "Icarus",
+                                               self.battleScaled,
+                                               displaySurface, g.height,
+                                               g.width, self.count)
+            #h.fadeIn(g.width,g.height,displaySurface,self.count)
+            
+            self.count +=1
+            if finished:
+                self.resetCounts(18)
+
         #  check to see if we have reached final intro stage here.
-        return 3 # kludge for testing.
-        #  Note change state to main menu on Intro finish.
-    
-        #  Show main game menu screen
-        #pygame.mixer.music.load("sound\\INTRO2.OGG")
+        if self.introStage == 18:
+            self.resetCounts(0)
+            return 2  #  Go to game main menu.
+        
+        return 3 #  Intro is ongoing
