@@ -520,7 +520,7 @@ class Planet(object):
         step = 0
         technologyLevel = self.getTechLevel()
         #print("Technology Level is: ", technologyLevel)
-        for index in range(75000):
+        for index in range(300000):  #  Quad canon version.
             step += 1
             currentX = currentX-1+random.randrange(0,3)
             currentY = currentY-1+random.randrange(0,3)
@@ -891,9 +891,15 @@ class Planet(object):
                     # TODO:  Add the correct colours.
                     #print("default")
                     if safeX <= eclipseMask:
-                        tempPlanet2[y][safeX] = (self.planetTerrain[y][bitmapSafeX],
-                                                 self.planetTerrain[y][bitmapSafeX],
-                                                 self.planetTerrain[y][bitmapSafeX])
+                        #  Stop land being transparent.
+                        if self.planetTerrain[y][bitmapSafeX] == 0:
+                            tempPlanet2[y][safeX] = (self.planetTerrain[y][bitmapSafeX]+1,
+                                                     self.planetTerrain[y][bitmapSafeX]+1,
+                                                     self.planetTerrain[y][bitmapSafeX]+1)
+                        else:
+                            tempPlanet2[y][safeX] = (self.planetTerrain[y][bitmapSafeX],
+                                                     self.planetTerrain[y][bitmapSafeX],
+                                                     self.planetTerrain[y][bitmapSafeX])
                     else:
                         #  Brighten
                         adjustedPixel = self.planetTerrain[y][bitmapSafeX] + 40
@@ -981,7 +987,7 @@ class Planet(object):
         eclipseCoverage = 0
         glowIndex = 4  #  It's glowing brightly.
         roundPlanetTexture = pygame.PixelArray(self.planetTexture)
-        # Prepare our planet texture for per-pixel blit.
+        #  Prepare our planet texture for per-pixel blit.
         random.seed(self.seed) #  Ensure consistency each time drawn.
         
         #  Warning: Calculus ahead, c2, r2 and the like represent c^2, r^2 etc.
@@ -1018,17 +1024,17 @@ class Planet(object):
         
         
     
-    # Render a Gas Giant
+    #  Render a Gas Giant
     def renderGasGiant(self, displaySurface):
         
         pass
     
-    # Render a star
+    #  Render a star
     def renderStar(self, displaySurface):
         
         pass
     
-    # Render an Asteroid field.
+    #  Render an Asteroid field.
     def renderAsteroids(self, displaySurface):
         
         pass
@@ -1037,7 +1043,7 @@ class Planet(object):
         
         pass
 
-    # Update the planet, this is assuming there has been a change.
+    #  Update the planet, this is assuming there has been a change.
     def update(self):
         pass
     
@@ -1045,8 +1051,8 @@ class Planet(object):
         
 class PlanetarySystem(object):
     def __init__(self, systemName="Buggy", positionX=0.0, positionY=0.0, positionZ=0.0):
-        self.systemName = systemName # Don't forget to assign to planets too.
-        #Visitation related info
+        self.systemName = systemName #  Don't forget to assign to planets too.
+        #  Visitation related info
         self.dateMonth = g.starDate[0]
         self.dateYear = g.starDate[2]
         self.visits = 0
@@ -1058,38 +1064,38 @@ class PlanetarySystem(object):
         self.numberOfPlanets = 0 # how many planets this system has.
         self.planets = [] # Max 9 including star(at 0).
             
-    # Get the tech level for a particular planet.
+    #  Get the tech level for a particular planet.
     def getTechLevel(self, orbit):
         self.planets[orbit].getTechLevel(self.systemName)
     
-    # Determine amount of planets this system has.
+    #  Determine amount of planets this system has.
     def createPlanetCount(self):
         self.numberOfPlanets = 3 + random.randint(1,3)
     
-    # Update the system, which is normally based on time passed since last visit.
-    # Run once only for each visit!
+    #  Update the system, which is normally based on time passed since last visit.
+    #  Run once only for each visit!
     def updateSystem(self):
         self.visits += 1 # It is HIGHLY unlikely we'll roll this over...
         self.dateMonth = g.starDate[0]
         self.dateYear = g.starDate[2]
         
-    # A trick to show the name as "UNKNOWN" when a system has not been visited.
+    #  A trick to show the name as "UNKNOWN" when a system has not been visited.
     def getName(self):
         if self.visits > 0:
             return self.systemName
         return "UNKNOWN"
 
-# Note: Original code had name of planet based on orbit.
-# ALPHA, BETA, GAMMA, DELTA, EPISILON, ZETA, ETA, THETA
+#  Note: Original code had name of planet based on orbit.
+#  ALPHA, BETA, GAMMA, DELTA, EPISILON, ZETA, ETA, THETA
 def initialisePlanets(planetNamesFile="Data_Generators\Other\IronPy_PlanetNames.tab"):
-    # Load planet files and populate planet structure
+    #  Load planet files and populate planet structure
 
     planetsFile = io.open(planetNamesFile, "r")
-    planetDataString = planetsFile.readline().split('\n')[0] #Data Line
+    planetDataString = planetsFile.readline().split('\n')[0] #  Data Line
     while planetDataString != "ENDF":
         PlanetNames.append(planetDataString)
-        # A scan entry line has now been loaded.
-        planetDataString = planetsFile.readline().split('\n')[0] #Data Line line
+        #  A scan entry line has now been loaded.
+        planetDataString = planetsFile.readline().split('\n')[0] #  Data Line line
 
     planetsFile.close()
     
@@ -1105,6 +1111,18 @@ def initialisePlanets(planetNamesFile="Data_Generators\Other\IronPy_PlanetNames.
     Planets["mars"].orbit = 4
     Planets["mars"].createPlanet()
     
+    # Oban planet orbit 2.
+    Planets["Icarus"] = Planet() # For intro.
+    Planets["Icarus"].generate("Icarus")
+    Planets["Icarus"].name = "Icarus"
+    Planets["Icarus"].seed = 7007
+    Planets["Icarus"].state = 2
+    Planets["Icarus"].grade = 3
+    Planets["Icarus"].water = 0
+    Planets["Icarus"].age = 2000
+    Planets["Icarus"].orbit = 2
+    Planets["Icarus"].createPlanet()
+    
     for newPlanet in range(0,1001):
         Planets[newPlanet] = Planet()
         Planets[newPlanet].name = PlanetNames[newPlanet]
@@ -1119,7 +1137,7 @@ def transformCheckPlanet(planet):
     #BIG ALGO HERE
     Planets[planet] = (name,state,grade)
     
-
+"""
 # Render a planet using an approximation of the old IronSeed Algorithm.
 # Note: I'm thinking high-quality pre-renders might be a better choice.
 # landtype= array[1..240,1..120] of byte;
@@ -1151,12 +1169,12 @@ def renderPlanet(width, height, planetType, surface, step=0):
     if (step*10) >= 255:
         finished = True
     return finished
-
-# Load in system data, which includes co-ordinates.
-# Planet quantities and orbits + types are determined via random generation.
-# This makes Ironseed somewhat roguelike, making no game the same twice.
-# Note: Might be interesting to see if we can implement the travelling salesman
-# Algo for working out shortest distance between systems on the starmap.
+"""
+#  Load in system data, which includes co-ordinates.
+#  Planet quantities and orbits + types are determined via random generation.
+#  This makes Ironseed somewhat roguelike, making no game the same twice.
+#  Note: Might be interesting to see if we can implement the travelling salesman
+#  Algo for working out shortest distance between systems on the starmap.
 def loadPlanetarySystems(planetarySystemsFile="Data_Generators\Other\IronPy_SystemData.tab"):
     systemsFile = io.open(planetarySystemsFile, "r")
     systemDataString = (systemsFile.readline().split('\n')[0]).split('\t') #Data Line line
@@ -1164,10 +1182,10 @@ def loadPlanetarySystems(planetarySystemsFile="Data_Generators\Other\IronPy_Syst
         SystemData.append([systemDataString[0], float(systemDataString[1]),
                            float(systemDataString[2]), float(systemDataString[3])])
         #systemDataString = temp.split('\t')
-        # A scan entry line has now been loaded.
+        #  A scan entry line has now been loaded.
         systemDataString = (systemsFile.readline().split('\n')[0]).split('\t') #Data Line line
 
-    # Populate the Planetary Systems Dictionary.
+    #  Populate the Planetary Systems Dictionary.
     
     for system in SystemData:
         PlanetarySystems[system[0]] = PlanetarySystem(system[0], system[1],
@@ -1175,10 +1193,10 @@ def loadPlanetarySystems(planetarySystemsFile="Data_Generators\Other\IronPy_Syst
 
     systemsFile.close()
 
-# Here we use a python generator to iterate over the planets dictionary.
-# This produces a noticible improvement to both speed and comprehension of
-# what the code is doing.
-# Note: support function for populatePlanetary systems, run it nowhere else.
+#  Here we use a python generator to iterate over the planets dictionary.
+#  This produces a noticible improvement to both speed and comprehension of
+#  what the code is doing.
+#  Note: support function for populatePlanetary systems, run it nowhere else.
 def iteratePlanetDictionary():
     count = 0
     while 1:
@@ -1205,13 +1223,13 @@ def populatePlanetarySystems():
         system.createPlanetCount()
         
         if system.systemName == "OBAN":
-            system.numberOfPlanets = 3 # including the star
+            system.numberOfPlanets = 3 # Including the star
         
-        #TODO: Random orbits for the count of planets.
+        #  TODO: Random orbits for the count of planets.
         for orbit in range(0, system.numberOfPlanets):
             
-            # planet, count = iteratePlanetDictionary()
-            # planet.index = count # Possible: adjust index to dictionary order.
+            #planet, count = iteratePlanetDictionary()
+            #planet.index = count #  Possible: adjust index to dictionary order.
             Planets[count].orbit = orbit
             Planets[count].systemName = system.systemName
             
@@ -1233,7 +1251,7 @@ def populatePlanetarySystems():
                     
             system.planets.append(Planets[count])
             
-            # Add Sun Here.
+            #  Add Sun Here.
             if orbit == 0:
                 Planets[count].generate(count, True) # activate sun code.
                 system.starGrade = Planets[count].state
