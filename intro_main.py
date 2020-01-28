@@ -391,7 +391,7 @@ class IronseedIntro(object):
         if self.introStage == 0:
             pygame.mixer.music.load("sound\\INTRO1.OGG")
             pygame.mixer.music.play()
-            self.introStage = 7 #  normally 1, use other stages for debug.
+            self.introStage = 1 #  normally 1, use other stages for debug.
 
         #  Start displaying screen of fuzzy static, make channel 7 logo
         #  gradually appear.
@@ -548,7 +548,7 @@ class IronseedIntro(object):
         #  This scene features plenty of moving graphics, three overlays
         #  required for the monitors alone.
         if self.introStage == 13:
-            finished = scavengersAttack(displaySurface, g.width, g.height, self.count)
+            finished = self.scavengersAttack(displaySurface, g.width, g.height, self.count)
             self.count +=1
             pygame.time.wait(100)
             if finished:
