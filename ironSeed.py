@@ -7,6 +7,7 @@ Handles the main render and tick loop.
 """
 import pygame, sys, time, random, numpy, pygame.sndarray, intro_main
 import ship, crew, items, planets, weaponsAndShields, PlanetScanner
+import mainMenu
 import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
@@ -44,7 +45,7 @@ class IronSeed(object):
         planets.populatePlanetarySystems()
         print("Loading Crew Data")
         crew.loadCrewData()
-        print("Initialising internal objects:")
+        print("Initialising Internal Objects:")
         weaponsAndShields.loadWeaponsAndShields()
         print("Crew Objects")
         self.crew = crew.Crew()
@@ -52,15 +53,17 @@ class IronSeed(object):
         self.ship = ship.Ship()
         print("Intro Objects")
         self.intro = intro_main.IronseedIntro()
-        print("Game generator Objects")
+        print("Game Generator Objects")
         self.generator = gen.Generator() # Settings at new-game state.
         print("Commnications System Objects")
         self.crewCom = crewC.crewComm(self.crew) # Needs to have crew data set.
         print("Planet Scanner Objects")
         self.planetScanner = PlanetScanner.PlanetScanner()
+        print("Creating Main Menu")
+        self.mainMenu = mainMenu.MainMenu()
         
         self.states = {1:self.generator.update, # The crew + ship selection system.
-                       2:"main", # Main menu.
+                       2:self.mainMenu.update, # Main menu.
                        3:self.intro.update, #Game Intro - quite useful for testing.
                        4:"cargo", # ship cargo system, includes item assembly.
                        5:self.planetScanner.update, #Planet surveys and drone ops.
@@ -71,7 +74,7 @@ class IronSeed(object):
                        10:"ORBIT" } # Placeholder for generic orbit screen.
         
         self.interactive = {1:self.generator.interact,
-                            2:"main",
+                            2:self.mainMenu.interact,
                             3:self.intro.interact,
                             4:"cargo",
                             5:self.planetScanner.interact,
