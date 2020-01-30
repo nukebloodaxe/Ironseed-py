@@ -90,7 +90,7 @@ class IronseedIntro(object):
         self.C7LogoCreate.set_colorkey(g.BLACK)
         
         #  Prepare starfield for blitting.
-        self.starFieldScaled= pygame.transform.scale(self.starField, (g.width, g.height))
+        self.starFieldScaled = pygame.transform.scale(self.starField, (g.width, g.height))
         #self.starFieldBlit = pygame.PixelArray(self.scaled.convert())
         
         #  Prepare Mars for Blitting.
@@ -113,7 +113,12 @@ class IronseedIntro(object):
         #  Prepare ship for blitting, this will be transformed later.
         self.shipScaled = pygame.transform.scale(self.ship, (g.width, g.height))
         self.shipScaled.set_colorkey(g.BLACK)
+        
+        #  Buffer for image manipulation.
+        self.bufferSurfaceImage = pygame.Surface((g.width,g.height))
+        self.bufferSurfaceImage.set_colorkey(g.BLACK)
         #  TODO:  Set correct scale ratio.
+        
         
         # Prepare Alien battleship deck
         self.alienShipScaled = pygame.transform.scale(self.alienShip, (g.width, g.height))
@@ -168,16 +173,6 @@ class IronseedIntro(object):
         #print("return")
         return comboSurface
     
-    #  Create the surface depicting the ironseed, add text over time
-    #  as it is analysed by the alien ship.
-    #  Shrink surface to bottom right console location on alien ship.
-    #  Draw background graphic, Draw Alien Ship, Draw argetting consoles.
-    #  Draw frames above and have targeting consoles concentrate on one point.
-    def aliensAttackIronseed(self, starfield, transform, step, stage):
-        finished = False
-        
-        
-        return finished
     
     #  Create the Mars floats up into view against starfield screen.
     def marsSceneGenerate(self, planet, starfield, surface, width, height, step):
@@ -368,12 +363,136 @@ class IronseedIntro(object):
         
         return finished
     
-    #  Scavengers attack sequence.
+    #  Fade in a surface, step represents the opacity decrease.
+    def fadeInSurface(self, surface, opacity):
+        
+        surface.set_alpha(255-opacity)
+        
+    
+    #  Shrink the buffer by a ratio of 1 in all directions.
+    def shrinkBufferSurface(self, ratio):
+            
+        self.bufferSurfaceImage = pygame.transform.smoothscale(self.bufferSurfaceImage,
+                                                               (int((g.width/16)*(16-(ratio*1.6))), int((g.height/10)*(10-ratio))))
+    
+    #  Create the surface depicting the ironseed, add text over time
+    #  as it is analysed by the alien ship.
+    #  Shrink surface to bottom right console location on alien ship.
+    #  Draw background graphic, Draw Alien Ship, Draw targetting consoles.
+    #  Draw frames above and have targeting consoles concentrate on one point.
     def scavengersAttack(self, displaySurface, width, height, step):
         finished = False
+        currentTimer = 0
+        lowerThird = int(7*(g.height/10))
+        centerWidth = int(g.width/16)
+        #  Show the ship being examined
         
         if self.scavengerStep == 0:
+            currentTimer = 3
             displaySurface.blit(self.shipScaled, (0, 0))
+            self.bufferSurfaceImage.set_colorkey(g.RED)
+            self.bufferSurfaceImage.fill(g.BLACK)  #  Reset image buffer.
+            self.bufferSurfaceImage.set_colorkey(g.BLACK)
+        
+        #  Print the Scavenger's analysis and orders.
+        
+        elif self.scavengerStep == 1:
+            currentTimer = 3
+            h.renderText([self.introText6[0]], g.font, displaySurface, g.GREEN,
+            0, centerWidth, lowerThird)
+        
+        elif self.scavengerStep == 2:
+            currentTimer = 3
+            h.renderText([self.introText6[1]], g.font, displaySurface, g.GREEN,
+            0, centerWidth, lowerThird+(g.offset))
+            
+        elif self.scavengerStep == 3:
+            currentTimer = 3
+            h.renderText([self.introText6[2]], g.font, displaySurface, g.GREEN,
+            0, centerWidth, lowerThird+(g.offset*2))
+        
+        elif self.scavengerStep == 4:
+            currentTimer = 3
+            h.renderText([self.introText6[3]], g.font, displaySurface, g.GREEN,
+            0, centerWidth, lowerThird+(g.offset*3))
+        
+        elif self.scavengerStep == 5:
+            currentTimer = 3
+            h.renderText([self.introText6[4]], g.font, displaySurface, g.GREEN,
+            0, centerWidth, lowerThird+(g.offset*4))
+        
+        # Now we switch to shrinking the screen into the viewing panel.
+        elif self.scavengerStep == 6:
+            #  No Timer, this needs to be FAST!
+            self.bufferSurfaceImage = pygame.Surface((g.width,g.height))
+            self.bufferSurfaceImage.set_colorkey(g.RED)
+            self.bufferSurfaceImage.fill(g.BLACK)
+            self.bufferSurfaceImage.set_colorkey(g.BLACK)
+            self.bufferSurfaceImage.blit(displaySurface, (0, 0))
+            #  Surface prepared!
+            self.scavengerStep += 1
+        
+        elif (self.scavengerStep >= 7 and self.scavengerStep <= 13):
+            
+            self.shrinkBufferSurface(self.scavengerStep-6)
+            displaySurface.set_colorkey(g.RED)
+            displaySurface.fill(g.BLACK)
+            displaySurface.set_colorkey(g.BLACK)
+            displaySurface.blit(self.bufferSurfaceImage,
+                                (int((g.width/16)*((self.scavengerStep-6)*1.6)), 
+                                 int((g.height/10)*(self.scavengerStep-6))))
+            self.scavengerStep += 1
+        
+        #  Backup display into Buffer.
+        elif self.scavengerStep == 14:
+            #  No Timer, this needs to be FAST!
+            self.bufferSurfaceImage = displaySurface.copy()
+            #  Prior Surface sampled!
+            
+            self.scavengerStep += 1
+            
+        elif (self.scavengerStep >= 15 and self.scavengerStep <= 270):
+            #  No Timer, this needs to be FAST!
+            #  TODO:  Fix mysterous bug here!
+            #Note:  Voodoo bug!  Looks to be hardware surface mapping issue!
+            displaySurface.set_colorkey(g.RED)
+            displaySurface.fill(g.BLACK)
+            displaySurface.set_colorkey(g.BLACK)
+            displaySurface.blit(self.bufferSurfaceImage, (0, 0))
+            #displaySurface = self.bufferSurfaceImage.copy()
+            #displaySurface.set_colorkey(g.BLACK)
+            #  Surface prepared!
+            self.alienShipScaled.set_alpha(0 + (self.scavengerStep-15))
+            displaySurface.blit(self.alienShipScaled, (0, 0))
+            self.scavengerStep += 1
+        
+        #  Prepare buffer to get targetting reticule.
+        elif self.scavengerStep == 271:
+            #  No Timer, this needs to be FAST!
+            self.bufferSurfaceImage = pygame.Surface((g.width,g.height))
+            self.bufferSurfaceImage.set_colorkey(g.RED)
+            self.bufferSurfaceImage.fill(g.BLACK)
+            self.bufferSurfaceImage.set_colorkey(g.BLACK)
+            self.bufferSurfaceImage.blit(displaySurface, (0, 0))
+            #  Prior Surface sampled!
+            self.scavengerStep += 1
+        
+        #  Draw targeting reticule.
+        elif self.scavengerStep == 272:
+            currentTimer = 10  #  Temp.
+            #  No Timer, this needs to be FAST!
+            displaySurface.blit(self.bufferSurfaceImage, (0, 0))
+            #  Reticule aiming
+            self.scavengerStep += 1
+        else:
+            finished = True
+        #  Our timer for this sequence.
+        if h.GameStopwatch.stopwatchSet:
+            if h.GameStopwatch.getElapsedStopwatch() > currentTimer:
+                h.GameStopwatch.resetStopwatch()
+                self.scavengerStep += 1
+        else:
+            h.GameStopwatch.setStopwatch()
         
         return finished
     
@@ -556,6 +675,7 @@ class IronseedIntro(object):
                 
         #  Fade Out
         if self.introStage == 14:
+            print("Stage 14")
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
             self.count +=1
             pygame.time.wait(100)
