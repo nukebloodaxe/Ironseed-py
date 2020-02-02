@@ -4,7 +4,7 @@ Created on Tue Jan 28 19:25:11 2020
 Ironseed Main Menu.
 @author: Nuke Bloodaxe
 """
-import pygame
+import pygame, buttons, sys
 import helper_functions as h
 import global_constants as g
 
@@ -23,10 +23,30 @@ class MainMenu(object):
         #  Prepare menu graphic for blitting
         self.menuGraphicScaled = pygame.transform.scale(self.menuGraphic, (g.width, g.height))
         
+        #  Positional buttons for the screen options.
+        self.newGame = buttons.Button(35, 237,(71, 367))  # Based on 640x480
+        self.intro = buttons.Button(35, 191, (107, 415))
+        self.quitGame = buttons.Button(35, 177, (336, 416))
+        self.loadGame = buttons.Button(35, 209, (336, 367))
+        
     #  Mouse interactions, click on a menu item and make it work.
     def interact(self, mouseButton):
-        #  TODO
-        return 3  #  Restart the intro for now.
+        currentPosition = pygame.mouse.get_pos()
+        if self.newGame.within(currentPosition):
+            print("New Game")
+            return 1
+        elif self.intro.within(currentPosition):
+            print("Rerun Intro")
+            return 3
+        elif self.quitGame.within(currentPosition):  #  Quit game viciously.
+            print("Exit")
+            pygame.quit()
+            sys.exit()
+        elif self.loadGame.within(currentPosition):
+            print("Load Game")
+            return 11
+        
+        return 3  #  Restart the intro as a failsafe.
     
     #  Update state routine
     def update(self, displaySurface):
@@ -40,11 +60,12 @@ class MainMenu(object):
             self.menuStage = 1 #  normally 1, use other stages for debug.
             
         if self.menuStage == 1:
-            #  TODO: blit starfield.
+            #  Blit starfield.
             
             starFieldBlit = pygame.PixelArray(self.starFieldScaled)
             displaySurfaceBlit = pygame.PixelArray(displaySurface)
             
+            #  Advance and wrap the starfield at 15 pixels per frame.
             self.rollingStarfield += 15
             
             if self.rollingStarfield >= g.width:
