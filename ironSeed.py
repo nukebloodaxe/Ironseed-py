@@ -82,7 +82,9 @@ class IronSeed(object):
                             7:"Combat",
                             8:self.crewCom.interact,
                             9:"EGO",
-                            10:"Orbit"}
+                            10:"Orbit",
+                            11:"Load Game",
+                            12:"Save Game"}
         print("We Are GO!")
 
 
