@@ -445,10 +445,17 @@ class IronseedIntro(object):
         
         #  Backup display into Buffer.
         elif self.scavengerStep == 14:
-            #  No Timer, this needs to be FAST!
-            self.bufferSurfaceImage = displaySurface.copy()
-            #  Prior Surface sampled!
             
+            #  Insert sacred pixel of bug fix!
+            #bugFix = pygame.PixelArray(displaySurface)
+            #  Ommmmm...
+            #bugfix[0][0] = (1,1,1)
+            #  *Monk chant* de sacra pixel insertis bugfix *bell toll*
+            #bugfix.close()
+            
+            #  No Timer, this needs to be FAST!
+            #self.bufferSurfaceImage = displaySurface.copy()
+            #  Prior Surface sampled!
             self.scavengerStep += 1
             
         elif (self.scavengerStep >= 15 and self.scavengerStep <= 270):
@@ -458,13 +465,16 @@ class IronseedIntro(object):
             displaySurface.set_colorkey(g.RED)
             displaySurface.fill(g.BLACK)
             displaySurface.set_colorkey(g.BLACK)
-            displaySurface.blit(self.bufferSurfaceImage, (0, 0))
+            displaySurface.blit(self.bufferSurfaceImage,
+                                (int((g.width/16)*(7*1.6)), 
+                                 int((g.height/10)*7)))
+            #displaySurface.blit(self.bufferSurfaceImage, (0, 0))
             #displaySurface = self.bufferSurfaceImage.copy()
             #displaySurface.set_colorkey(g.BLACK)
             #  Surface prepared!
             self.alienShipScaled.set_alpha(0 + (self.scavengerStep-15))
             displaySurface.blit(self.alienShipScaled, (0, 0))
-            self.scavengerStep += 1
+            self.scavengerStep += 5
         
         #  Prepare buffer to get targetting reticule.
         elif self.scavengerStep == 271:
