@@ -17,7 +17,7 @@ class Generator(object):
     def __init__(self):
         self.currentShip = ship.Ship() # Should initialise to default start values.
         self.systemState = 1 # By default, the game Generator points at itself.
-        self.generationStage = 1 # The stage of generation are we at.
+        self.generationStage = 0 # The stage of generation are we at.
         self.portraits = []
         crew.loadCrewData()  # To make things simpler later.
         self.shipCreator = pygame.image.load("Graphics_Assets\\char.png")
@@ -29,6 +29,7 @@ class Generator(object):
         # define button positions for a 640x480 screen.
         # Note: expect this to be very buggy!  Placeholder class in effect.
         
+        self.musicState = False
         
         # Animations in effect
         self.raiseBall = False
@@ -39,6 +40,9 @@ class Generator(object):
         self.changePortrait = False
         self.oldPortrait = 0
         self.newPortrait = 0
+        
+        #  Button positions and handler objects.
+        
         
         # Generate planetary systems.
         planets.loadPlanetarySystems()
@@ -91,12 +95,33 @@ class Generator(object):
     
     # Main generator game loop.
     def runGenerator(self, displaySurface):
-        if self.generationStage == 1:
+        #  Preparation routine
+        if self.generationStage == 0:
+            #  Start main intro music
+            if self.musicState == False:
+                pygame.mixer.music.load("sound\\CHARGEN.OGG")
+                pygame.mixer.music.play()
+                self.musicState = True
+                self.generationStage += 1
+                
+        #  Ship generator.
+        elif self.generationStage == 1:
             self.drawShip(displaySurface)
-            
-        if self.generationStage == 2:
+        
+        #  Crew Selection.
+        elif self.generationStage == 2:
             self.drawCrew(displaySurface)
+        
+        #  Roguelike game initialisation.
+        elif self.generationStage == 3:
+        
+            pass
+    
+        # save game.
+        elif self.generationStage == 4:
             
+            self.systemState = 12
+        
         return self.systemState
     
     
