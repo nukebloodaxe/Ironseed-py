@@ -8,7 +8,7 @@ Ship Datastructure
 import io, pygame, crew, items, random, global_constants as g
 import weaponsAndShields
 
-#The engineering repair teams, historically there are three.
+#  The engineering repair teams, historically there are three.
 class RepairTeam(object):
     def __init__(self):
         self.job = 0 # system in damage array being worked on.
@@ -16,9 +16,9 @@ class RepairTeam(object):
         self.jobType = 0
         self.extra = 0
 
-# The ship our crew are haunting...
-# At this level we use game start values.  On game load all of this is expected
-# to be overwritten with the conents of the save file.
+#  The ship our crew are haunting...
+#  At this level we use game start values.  On game load all of this is expected
+#  to be overwritten with the conents of the save file.
 class Ship(object):
     def __init__(self):
         self.name = "De Bug"
@@ -45,16 +45,16 @@ class Ship(object):
         self.options = [1, 20, 1, 1, 2, 1, 0, 1, 64, 0] #New Game start values.
         #self.Crew() # debating about storing this here...
         
-        #planetary System related variables: initialised to New Game values.
+        #  Planetary System related variables: initialised to New Game values.
         self.orbiting = 1
         self.positionX = 166
         self.positionY = 226
         self.positionZ = 33
         
-        #Engineering related variables
+        #  Engineering related variables
         self.systemDamage = [25, 15, 2, 3, 16, 55, 22]#New game start values.
-        #Power Supply, Shield Control, Weapons Control, Engine,
-        #Life Support, Communications, Computer AI.
+        #  Power Supply, Shield Control, Weapons Control, Engine,
+        #  Life Support, Communications, Computer AI.
         self.engineeringTaskDescription = ["Idle", "Power Supply",
                                            "Shield Control",  "Weapons Control",
                                            "Engine", "Life Support",
@@ -67,50 +67,50 @@ class Ship(object):
                            "Computer AI", "Hull Damage"]
         self.engineeringTeam = [RepairTeam(),RepairTeam(),RepairTeam()]
         
-        #Prepare initial engineering job after new game start.
+        #  Prepare initial engineering job after new game start.
         self.engineeringTeam[0].timeLeft = self.systemDamage[6]*70+random.randrange(1,30)
         self.engineeringTeam[0].job = 6 # Area we are working on.
         self.engineeringTeam[0].jobType = 0 #Repairing
         
         self.research = 0
         
-        #populate Cargo with initial items.
+        #  Populate Cargo with initial items.
         self.cargo["Probot"] = ["Probot", 2]
         self.cargo["Dirk"] = ["Dirk", 1]
         self.cargo["Minebot"] = ["Minebot", 1]
         self.cargo["Manufactory"] = ["Manufactory", 1]
         
-        # Ship messages that need printing, not role specific.
+        #  Ship messages that need printing, not role specific.
         self.shipMessages = []
     
-    # Add a message to the pending messages queue, these are printed onscreen
-    # later.  CrewMember is the EGO Synth containment unit number.
+    #  Add a message to the pending messages queue, these are printed onscreen
+    #  later.  CrewMember is the EGO Synth containment unit number.
     def addMessage(self, message, crewMember):
         self.shipMessages.append((message, crewMember))
     
-    #Get a message from the pending messages queue.  Returns an empty string
-    #when no messages are pending.
+    #  Get a message from the pending messages queue.  Returns an empty string
+    #  when no messages are pending.
     def getMessage(self):
         if len(self.shipMessages) == 0:
             return ("",-1) # No message.
         return self.shipMessages.pop()
     
-    # Add an item to cargo, different to original.
-    # I've dispensed with the item limit, and am looking at the possibility
-    # of having items left behind if the hold fills.  This eliminates the
-    # random loss of a cargo type if we overfill the hold.
-    # Returns cargo added success as boolean, alongside the remainder.
+    #  Add an item to cargo, different to original.
+    #  I've dispensed with the item limit, and am looking at the possibility
+    #  of having items left behind if the hold fills.  This eliminates the
+    #  random loss of a cargo type if we overfill the hold.
+    #  Returns cargo added success as boolean, alongside the remainder.
     def addCargo(self, itemName, quantity):
         cargoAdded = False
         itemWeight = items.itemDictionary[itemName].cargoSize
         totalWeight = itemWeight * quantity
         usedCargo = self.totalCargoSize()
         quantityLeft = quantity
-        #TODO: Force Artifacts to add regardless of size.
+        #  TODO: Force Artifacts to add regardless of size.
         if usedCargo + totalWeight > self.cargoMax:
             while usedCargo + itemWeight <= self.cargoMax:
                 
-                # Try to add as many possible into cargo hold.
+                #  Try to add as many possible into cargo hold.
                 try:
                     self.cargo[itemName][1] += 1
                 except:
@@ -139,8 +139,8 @@ class Ship(object):
                 
         return cargoAdded, quantityLeft
                 
-    # Remove a quantity of cargo, returning True and the quantity remaining on
-    # success, else False and quantity removed.
+    #  Remove a quantity of cargo, returning True and the quantity remaining on
+    #  success, else False and quantity removed.
     def removeCargo(self, itemName, quantity ):
         cargoRemoved = False
         quantityLeft = quantity
@@ -166,7 +166,7 @@ class Ship(object):
         return cargoRemoved, quantityLeft
         
         
-    # Find total cubic meters of all cargo in hold.
+    #  Find total cubic meters of all cargo in hold.
     def totalCargoSize(self):
         totalSize = 0
         for item in self.cargo:
@@ -175,20 +175,20 @@ class Ship(object):
                 while count > 0:
                     totalSize += items.itemDictionary[item[0]].cargoSize
                     count -= 1
-        return totalSize # this function does not judge...
+        return totalSize #  This function does not judge...
     
     # Check to see if we are overweight.  Background switch determines
     # if this is in the lower left corner log window, or somewhere else.
     def checkOverweight(self, background = False):
         overweight = False
-        # Role 2 for messages.
+        #  Role 2 for messages.
         weight = self.totalCargoSize()
-        # Print a big dialogue message if it happens in the background.
-        # As to how that would happen... Tribbles?
+        #  Print a big dialogue message if it happens in the background.
+        #  As to how that would happen... Tribbles?
         if weight > self.cargoMax:
-            # big dialogue box!
+            #  Big dialogue box!
             if background:
-                #TODO: Big Box functionality.
+                #  TODO: Big Box functionality.
                 pass
             else:
                 self.addMessage("Cargo Full!", 2)
@@ -196,7 +196,7 @@ class Ship(object):
                 self.addMessage('Must Jettison cargo.', 2)
             overweight = True
             
-        return overweight # This function does judge...
+        return overweight #  This function does judge...
         
     # Apply damage to the ship, mitigating it with the shield first.
     # if Life Support fails, you die there and then.
@@ -278,9 +278,20 @@ class Ship(object):
             self.cargo = self.cargo+50
         
         self.acceleration = 270000/self.mass
-            
+        
+    #  Change the Front Up.
+        
+    #  Change the Front Down.
+        
+    #  Change the Center Up.
+        
+    #  Change the Center Down.
+        
+    #  Change the Rear Up.
     
-    #Recalculate the ship stats, normally used when checking after mass
-    #changes or the application of upgrades.
+    #  Change the Rear Down.
+    
+    #  Recalculate the ship stats, normally used when checking after mass
+    #  changes or the application of upgrades.
     def recalculateShipStats(self):
         pass

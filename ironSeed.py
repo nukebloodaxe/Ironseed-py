@@ -54,24 +54,26 @@ class IronSeed(object):
         print("Intro Objects")
         self.intro = intro_main.IronseedIntro()
         print("Game Generator Objects")
-        self.generator = gen.Generator() # Settings at new-game state.
+        self.generator = gen.Generator(self.ship, self.crew) #  Settings at new-game state.
         print("Commnications System Objects")
-        self.crewCom = crewC.crewComm(self.crew) # Needs to have crew data set.
+        self.crewCom = crewC.crewComm(self.crew) #  Needs to have crew data set.
         print("Planet Scanner Objects")
         self.planetScanner = PlanetScanner.PlanetScanner()
         print("Creating Main Menu")
         self.mainMenu = mainMenu.MainMenu()
         
-        self.states = {1:self.generator.update, # The crew + ship selection system.
-                       2:self.mainMenu.update, # Main menu.
-                       3:self.intro.update, #Game Intro - quite useful for testing.
-                       4:"cargo", # ship cargo system, includes item assembly.
+        self.states = {1:self.generator.update, #  The crew + ship selection system.
+                       2:self.mainMenu.update, #  Main menu.
+                       3:self.intro.update, #  Game Intro - quite useful for testing.
+                       4:"cargo", #  Ship cargo system, includes item assembly.
                        5:self.planetScanner.update, #Planet surveys and drone ops.
-                       6:"Communications", #Comms between ships/planets
-                       7:"Combat", #Normal and simulated combat.
-                       8:self.crewCom.update, #"talk" with crew members.
-                       9:"EGO", #placeholder for ego-synth manipulation.
-                       10:"ORBIT" } # Placeholder for generic orbit screen.
+                       6:"Communications", #  Comms between ships/planets
+                       7:"Combat", #  Normal and simulated combat.
+                       8:self.crewCom.update, #  "talk" with crew members.
+                       9:"EGO", #   Placeholder for ego-synth manipulation.
+                       10:"ORBIT", #  Placeholder for generic orbit screen.
+                       11: "Load Game",
+                       12: "Save Game" }
         
         self.interactive = {1:self.generator.interact,
                             2:self.mainMenu.interact,
