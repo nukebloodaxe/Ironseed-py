@@ -10,12 +10,13 @@ button.
 
 import global_constants as g
 
+#  Buttons are square.
 class Button(object):
-    def __init__(self, height, width): # Tuples of (X,Y)
-        self.height
-        self.width
+    def __init__(self, height, width, position = (0, 0)): # Tuples of (X,Y)
+        self.height = height
+        self.width = width
         
-        self.position = (0,0)
+        self.position = position  #  Top left corner.
         
         # Store the values used to generate this button.
         self.resolutionX = g.width
