@@ -60,6 +60,7 @@ class IronseedIntro(object):
         self.alienShip = pygame.image.load("Graphics_Assets\\alien.png")
         self.ship = pygame.image.load("Graphics_Assets\\ship1.png")
         self.intro5 = pygame.image.load("Graphics_Assets\\intro5.png")
+        self.ironseed = pygame.image.load("Graphics_Assets\\main3.png")
         
         #  Prime intro stage checker
         self.introStage = 0
@@ -124,6 +125,10 @@ class IronseedIntro(object):
         self.alienShipScaled = pygame.transform.scale(self.alienShip, (g.width, g.height))
         self.alienShipScaled.set_colorkey(g.BLACK)
         
+        #  Prepare Ironseed deck image;  I really should have the EGO jars
+        #  bubbling in distress here.
+        self.ironseedScaled = pygame.transform.scale(self.ironseed, (g.width, g.height))
+        self.ironseedScaled.set_colorkey(g.BLACK)
         
     def isIntroFinished(self):
         return self.introFinished
@@ -506,6 +511,16 @@ class IronseedIntro(object):
         
         return finished
     
+    #  Ironseed receives damage, and then crash lands.
+    #  Use planet "Icarus" from Oban system for planet to left of main view.
+    #  Blue bars are used to indicate status as the ship comes under attack.
+    def ironseedCrash(self, width, height, displaySurface, count):
+        
+        finished = False
+        
+        
+        return finished
+    
     # Handle mouse events for user interaction.
     def interact(self, mouseButton):
         return 2 # Exit intro and go to main menu.
@@ -695,7 +710,7 @@ class IronseedIntro(object):
         #  Ironseed crew under attack initiate crash landing on second planet
         #  of the OBAN system.
         if self.introStage == 15:
-            finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
+            finished = h.ironseedCrash(g.width, g.height, displaySurface, self.count)
             self.count +=1
             pygame.time.wait(100)
             if finished:
