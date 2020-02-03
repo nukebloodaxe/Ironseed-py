@@ -40,7 +40,7 @@ class Ship(object):
         self.shieldMax = 15
         self.shieldOptions = [0, 0 ,0]
         self.frontHull = 1
-        self.centreHull = 1
+        self.centerHull = 1
         self.rearHull = 1
         self.options = [1, 20, 1, 1, 2, 1, 0, 1, 64, 0] #New Game start values.
         #self.Crew() # debating about storing this here...
@@ -175,10 +175,10 @@ class Ship(object):
                 while count > 0:
                     totalSize += items.itemDictionary[item[0]].cargoSize
                     count -= 1
-        return totalSize #  This function does not judge...
+        return totalSize  #  This function does not judge...
     
-    # Check to see if we are overweight.  Background switch determines
-    # if this is in the lower left corner log window, or somewhere else.
+    #  Check to see if we are overweight.  Background switch determines
+    #  if this is in the lower left corner log window, or somewhere else.
     def checkOverweight(self, background = False):
         overweight = False
         #  Role 2 for messages.
@@ -198,25 +198,25 @@ class Ship(object):
             
         return overweight #  This function does judge...
         
-    # Apply damage to the ship, mitigating it with the shield first.
-    # if Life Support fails, you die there and then.
+    #  Apply damage to the ship, mitigating it with the shield first.
+    #  if Life Support fails, you die there and then.
     def receiveDamage(self, totalDamage, PsychiDamage, particleDamage,
                       inertialDamage, energyDamage):
-        # TODO: Everything.
-        # First, find out how much damage the shield can absorb.
+        #  TODO: Everything.
+        #  First, find out how much damage the shield can absorb.
         pass
         
     
-    # Apply power drain to battery
-    # Note: Apply weapons first, then the shield.
-    # Enhancement Possible: Power allocation % could be added.
+    #  Apply power drain to battery
+    #  Note: Apply weapons first, then the shield.
+    #  Enhancement Possible: Power allocation % could be added.
     def dischargeBattery():
         
         pass
     
-    #Setup the ship stats according to the selected ship type and variation.
-    #Note: used during generation at the start of game.
-    def initialiseShip(self, front, centre, rear):
+    #  Setup the ship stats according to the selected ship type and variation.
+    #  Note: used during generation at the start of game.
+    def initialiseShip(self, front, center, rear):
         if front == 1:
             self.name = "Heavy "
             self.gunMax = 2
@@ -238,14 +238,14 @@ class Ship(object):
             self.maxFuel = 200
             self.hullMax = 100
             
-        if centre == 1:
+        if center == 1:
             self.name = self.name + "Shuttle "
             self.gunMax = self.gunMax + 3
             self.mass = self.mass + 501
             self.maxFuel = self.maxFuel + 350
             self.cargo = self.cargo+50
             self.hullMax = self.hullMax + 700
-        elif centre == 2:
+        elif center == 2:
             self.name = self.name + "Assault "
             self.gunMax = self.gunMax + 4
             self.mass = self.mass + 668

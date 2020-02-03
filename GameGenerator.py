@@ -25,38 +25,49 @@ class Generator(object):
         self.crewSelectStage = 1  #  Indicates what type of crew we are selecting.
         self.shipCreator = pygame.image.load("Graphics_Assets\\char.png")
         self.shipCreatorScaled = pygame.transform.scale(self.shipCreator, (g.width, g.height))
+        self.shipCreatorScaled.set_colorkey(g.BLACK)
     
         self.crewSelector = pygame.image.load("Graphics_Assets\\char2.png")
         self.crewSelectorScaled = pygame.transform.scale(self.crewSelector, (g.width, g.height))
+        self.crewSelectorScaled.set_colorkey(g.BLACK)
         
         #  Load ship tiles.
         
         self.frontHeavy = pygame.image.load("Graphics_Assets\\IS_F_HEAVY.png")
-        self.frontHeavyScaled = pygame.transform.scale(self.frontHeavy, (g.width, g.height))
+        self.frontHeavyScaled = pygame.transform.scale(self.frontHeavy, ( int((g.width/320)*self.frontHeavy.get_width()), int((g.height/200)*self.frontHeavy.get_height())))
+        self.frontHeavyScaled.set_colorkey(g.BLACK)
         
         self.frontLight = pygame.image.load("Graphics_Assets\\IS_F_LIGHT.png")
-        self.frontLightScaled = pygame.transform.scale(self.frontLight, (g.width, g.height))
+        self.frontLightScaled = pygame.transform.scale(self.frontLight, ( int((g.width/320)*self.frontLight.get_width()), int((g.height/200)*self.frontLight.get_height())))
+        self.frontLightScaled.set_colorkey(g.BLACK)
         
         self.frontStrategic = pygame.image.load("Graphics_Assets\\IS_F_STRATEGIC.png")
-        self.frontLightStrategic = pygame.transform.scale(self.frontStrategic, (g.width, g.height))
+        self.frontStrategicScaled = pygame.transform.scale(self.frontStrategic, ( int((g.width/320)*self.frontStrategic.get_width()), int((g.height/200)*self.frontStrategic.get_height())))
+        self.frontStrategicScaled.set_colorkey(g.BLACK)
         
         self.centerShuttle = pygame.image.load("Graphics_Assets\\IS_C_SHUTTLE.png")
-        self.centerShuttleScaled = pygame.transform.scale(self.centerShuttle, (g.width, g.height))
+        self.centerShuttleScaled = pygame.transform.scale(self.centerShuttle, ( int((g.width/320)*self.centerShuttle.get_width()), int((g.height/200)*self.centerShuttle.get_height())))
+        self.centerShuttleScaled.set_colorkey(g.BLACK)
         
         self.centerAssault = pygame.image.load("Graphics_Assets\\IS_C_ASSAULT.png")
-        self.centerAssaultScaled = pygame.transform.scale(self.centerAssault, (g.width, g.height))
+        self.centerAssaultScaled = pygame.transform.scale(self.centerAssault, ( int((g.width/320)*self.centerAssault.get_width()), int((g.height/200)*self.centerAssault.get_height())))
+        self.centerAssaultScaled.set_colorkey(g.BLACK)
         
         self.centerStorm = pygame.image.load("Graphics_Assets\\IS_C_STORM.png")
-        self.centerStormScaled = pygame.transform.scale(self.centerStorm, (g.width, g.height))
+        self.centerStormScaled = pygame.transform.scale(self.centerStorm, ( int((g.width/320)*self.centerStorm.get_width()), int((g.height/200)*self.centerStorm.get_height())))
+        self.centerStormScaled.set_colorkey(g.BLACK)
         
         self.rearTransport = pygame.image.load("Graphics_Assets\\IS_R_TRANSPORT.png")
-        self.rearTransportScaled = pygame.transform.scale(self.rearTransport, (g.width, g.height))
+        self.rearTransportScaled = pygame.transform.scale(self.rearTransport, ( int((g.width/320)*self.rearTransport.get_width()), int((g.height/200)*self.rearTransport.get_height())))
+        self.rearTransportScaled.set_colorkey(g.BLACK)
         
         self.rearFrigate = pygame.image.load("Graphics_Assets\\IS_R_FRIGATE.png")
-        self.rearFrigateScaled = pygame.transform.scale(self.rearFrigate, (g.width, g.height))
+        self.rearFrigateScaled = pygame.transform.scale(self.rearFrigate, ( int((g.width/320)*self.rearFrigate.get_width()), int((g.height/200)*self.rearFrigate.get_height())))
+        self.rearFrigateScaled.set_colorkey(g.BLACK)
         
         self.rearCruiser = pygame.image.load("Graphics_Assets\\IS_R_CRUISER.png")
-        self.rearCruiserScaled = pygame.transform.scale(self.rearCruiser, (g.width, g.height))
+        self.rearCruiserScaled = pygame.transform.scale(self.rearCruiser, ( int((g.width/320)*self.rearCruiser.get_width()), int((g.height/200)*self.rearCruiser.get_height())))
+        self.rearCruiserScaled.set_colorkey(g.BLACK)
         
         #  define button positions for a 640x480 screen.
         #  Note: expect this to be very buggy!  Placeholder class in effect.
@@ -76,10 +87,10 @@ class Generator(object):
         
         #  Button positions and handler objects.
         #  Positional buttons for the screen options.
-        self.accept = buttons.Button(15, 60,(559, 317)) # Based on 640x480
+        self.accept = buttons.Button(15, 60, (559, 317)) # Based on 640x480
         self.reject = buttons.Button(15, 60, (559, 337))
         self.up = buttons.Button(9, 24, (566, 359))
-        self.down = buttons.Button(9, 24 (566, 394))
+        self.down = buttons.Button(9, 24, (566, 394))
         
         #  Generate planetary systems.
         planets.loadPlanetarySystems()
@@ -87,7 +98,7 @@ class Generator(object):
         planets.populatePlanetarySystems()
         
     def loadPortraits(self, number=32, file="Graphics_Assets\\image", fileType=".png"):
-        self.portraits.append("dummy") # dummy entry.
+        self.portraits.append("dummy") #  dummy entry.
         for image in range(1,number+1):
             if image < 10:
                 self.portraits.append(pygame.image.load(file+'0'+str(image)+fileType))
@@ -129,7 +140,7 @@ class Generator(object):
                 
                 shipFront = self.frontLightScaled
                 
-            elif self.ship.frontHull == 4:
+            elif self.ship.frontHull == 3:
                 
                 shipFront = self.frontStrategicScaled
             else:
@@ -145,7 +156,7 @@ class Generator(object):
                 
                 shipCenter = self.centerAssaultScaled
                 
-            elif self.ship.centerHull == 4:
+            elif self.ship.centerHull == 3:
                 
                 shipCenter = self.centerStormScaled            
             else:
@@ -161,7 +172,7 @@ class Generator(object):
                 
                 shipRear = self.rearFrigateScaled
                 
-            elif self.ship.rearHull == 4:
+            elif self.ship.rearHull == 3:
                 
                 shipRear = self.rearCruiserScaled
             else:
@@ -224,12 +235,57 @@ class Generator(object):
                 
                 self.crewSelectStage -= 1
             
-        elif self.up.within(currentPosition):  #  Quit game viciously.
+        elif self.up.within(currentPosition):
             
+            if self.shipSelectStage == 1:
+                
+                if self.ship.frontHull <= 2:
+                    self.ship.frontHull += 1
+                else:
+                    self.ship.frontHull = 1
+                
+            elif self.shipSelectStage == 2:
+                
+                if self.ship.centerHull <= 2:
+                    self.ship.centerHull += 1
+                else:
+                    self.ship.centerHull = 1
+            
+            elif  self.shipSelectStage == 3:
+                
+                if self.ship.rearHull <= 2:
+                    self.ship.rearHull += 1
+                else:
+                    self.ship.rearHull = 1
+                
+            #  Fall through and check crew selection.
+                
             
             
         elif self.down.within(currentPosition):
             
+            if self.shipSelectStage == 1:
+                    
+                if self.ship.frontHull == 1:
+                    self.ship.frontHull = 3
+                else:
+                    self.ship.frontHull -= 1
+                
+            elif self.shipSelectStage == 2:
+                
+                if self.ship.centerHull == 1:
+                    self.ship.centerHull = 3
+                else:
+                    self.ship.centerHull -= 1
+            
+            elif  self.shipSelectStage == 3:
+                
+                if self.ship.rearHull == 1:
+                    self.ship.rearHull = 3
+                else:
+                    self.ship.rearHull -= 1
+                
+            #  Fall through and check crew selection.
         
         return self.systemState
     
