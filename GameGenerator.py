@@ -14,13 +14,12 @@ import io, pygame, crew, ship, items, planets, random, global_constants as g
 import buttons
 
 class Generator(object):
-    def __init__(self, ship, crew):
-        self.currentShip = ship #  Should initialise to default start values.
+    def __init__(self, givenShip, givenCrew):
+        self.currentShip = givenShip #  Should be initialised to default start values.
         self.systemState = 1 #  By default, the game Generator points at itself.
         self.generationStage = 0 #  The stage of generation are we at.
         self.portraits = []
-        self.crew = crew
-        self.ship = ship
+        self.crew = givenCrew
         self.shipSelectStage = 1  #  Indicates if we are selecting Front, Center or rear segments.
         self.crewSelectStage = 1  #  Indicates what type of crew we are selecting.
         self.shipCreator = pygame.image.load("Graphics_Assets\\char.png")
@@ -89,8 +88,8 @@ class Generator(object):
         #  Positional buttons for the screen options.
         self.accept = buttons.Button(15, 60, (559, 317)) # Based on 640x480
         self.reject = buttons.Button(15, 60, (559, 337))
-        self.up = buttons.Button(9, 24, (566, 359))
-        self.down = buttons.Button(9, 24, (566, 394))
+        self.up = buttons.Button(20, 24, (566, 359))
+        self.down = buttons.Button(20, 24, (566, 394))
         
         #  Generate planetary systems.
         planets.loadPlanetarySystems()
@@ -129,62 +128,53 @@ class Generator(object):
         shipFront = self.frontHeavyScaled
         shipCenter = self.centerShuttleScaled
         shipRear = self.rearTransportScaled
-        
-        if self.shipSelectStage == 1:  #  Front.
-        
-            if self.ship.frontHull == 1:
-                
-                shipFront = self.frontHeavyScaled
-            
-            elif self.ship.frontHull == 2:
-                
-                shipFront = self.frontLightScaled
-                
-            elif self.ship.frontHull == 3:
-                
-                shipFront = self.frontStrategicScaled
-            else:
-                pass
-        
-        elif self.shipSelectStage == 2:  #  Center,
 
-            if self.ship.centerHull == 1:
-                
-                shipCenter = self.centerShuttleScaled
+        if self.currentShip.frontHull == 1:
             
-            elif self.ship.centerHull == 2:
-                
-                shipCenter = self.centerAssaultScaled
-                
-            elif self.ship.centerHull == 3:
-                
-                shipCenter = self.centerStormScaled            
-            else:
-                pass
-            
-        elif self.shipSelectStage == 3:  #  Rear.
-            
-            if self.ship.rearHull == 1:
-                
-                shipRear = self.rearTransportScaled
-            
-            elif self.ship.rearHull == 2:
-                
-                shipRear = self.rearFrigateScaled
-                
-            elif self.ship.rearHull == 3:
-                
-                shipRear = self.rearCruiserScaled
-            else:
-                pass
-            
-        else:
-            
-            pass #  We're done.
+            shipFront = self.frontHeavyScaled
         
+        elif self.currentShip.frontHull == 2:
+            
+            shipFront = self.frontLightScaled
+            
+        elif self.currentShip.frontHull == 3:
+            
+            shipFront = self.frontStrategicScaled
+        else:
+            pass
+    
+        if self.currentShip.centerHull == 1:
+            
+            shipCenter = self.centerShuttleScaled
+        
+        elif self.currentShip.centerHull == 2:
+            
+            shipCenter = self.centerAssaultScaled
+            
+        elif self.currentShip.centerHull == 3:
+            
+            shipCenter = self.centerStormScaled            
+        else:
+            pass
+            
+        if self.currentShip.rearHull == 1:
+            
+            shipRear = self.rearTransportScaled
+        
+        elif self.currentShip.rearHull == 2:
+            
+            shipRear = self.rearFrigateScaled
+            
+        elif self.currentShip.rearHull == 3:
+            
+            shipRear = self.rearCruiserScaled
+        else:
+            pass
+            
+        displaySurface.fill(g.BLACK)
         displaySurface.blit(shipFront, ((g.width/320)*121, (g.height/200)*13))
-        displaySurface.blit(shipCenter, ((g.width/320)*196, (g.height/200)*13))
-        displaySurface.blit(shipRear, ((g.width/320)*271, (g.height/200)*13))
+        displaySurface.blit(shipCenter, ((g.width/320)*179, (g.height/200)*13))
+        displaySurface.blit(shipRear, ((g.width/320)*237, (g.height/200)*13))
         displaySurface.blit(self.shipCreatorScaled, (0, 0))        
         
     
@@ -239,24 +229,24 @@ class Generator(object):
             
             if self.shipSelectStage == 1:
                 
-                if self.ship.frontHull <= 2:
-                    self.ship.frontHull += 1
+                if self.currentShip.frontHull <= 2:
+                    self.currentShip.frontHull += 1
                 else:
-                    self.ship.frontHull = 1
+                    self.currentShip.frontHull = 1
                 
             elif self.shipSelectStage == 2:
                 
-                if self.ship.centerHull <= 2:
-                    self.ship.centerHull += 1
+                if self.currentShip.centerHull <= 2:
+                    self.currentShip.centerHull += 1
                 else:
-                    self.ship.centerHull = 1
+                    self.currentShip.centerHull = 1
             
             elif  self.shipSelectStage == 3:
                 
-                if self.ship.rearHull <= 2:
-                    self.ship.rearHull += 1
+                if self.currentShip.rearHull <= 2:
+                    self.currentShip.rearHull += 1
                 else:
-                    self.ship.rearHull = 1
+                    self.currentShip.rearHull = 1
                 
             #  Fall through and check crew selection.
                 
@@ -266,24 +256,24 @@ class Generator(object):
             
             if self.shipSelectStage == 1:
                     
-                if self.ship.frontHull == 1:
-                    self.ship.frontHull = 3
+                if self.currentShip.frontHull == 1:
+                    self.currentShip.frontHull = 3
                 else:
-                    self.ship.frontHull -= 1
+                    self.currentShip.frontHull -= 1
                 
             elif self.shipSelectStage == 2:
                 
-                if self.ship.centerHull == 1:
-                    self.ship.centerHull = 3
+                if self.currentShip.centerHull == 1:
+                    self.currentShip.centerHull = 3
                 else:
-                    self.ship.centerHull -= 1
+                    self.currentShip.centerHull -= 1
             
             elif  self.shipSelectStage == 3:
                 
-                if self.ship.rearHull == 1:
-                    self.ship.rearHull = 3
+                if self.currentShip.rearHull == 1:
+                    self.currentShip.rearHull = 3
                 else:
-                    self.ship.rearHull -= 1
+                    self.currentShip.rearHull -= 1
                 
             #  Fall through and check crew selection.
         
