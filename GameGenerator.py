@@ -10,8 +10,9 @@ are saved to disk as a savegame file.
 @author: Nuke Bloodaxe
 """
 
-import io, pygame, crew, ship, items, planets, random, global_constants as g
-import buttons
+import io, pygame, crew, ship, items, planets, random, buttons
+import global_constants as g
+import helper_functions as h
 
 class Generator(object):
     def __init__(self, givenShip, givenCrew):
@@ -153,7 +154,7 @@ class Generator(object):
             
         elif self.currentShip.centerHull == 3:
             
-            shipCenter = self.centerStormScaled            
+            shipCenter = self.centerStormScaled
         else:
             pass
             
@@ -170,11 +171,16 @@ class Generator(object):
             shipRear = self.rearCruiserScaled
         else:
             pass
+        
+        # 119, 99 - Text 0,0 position.
+        
             
         displaySurface.fill(g.BLACK)
         displaySurface.blit(shipFront, ((g.width/320)*121, (g.height/200)*13))
         displaySurface.blit(shipCenter, ((g.width/320)*179, (g.height/200)*13))
         displaySurface.blit(shipRear, ((g.width/320)*237, (g.height/200)*13))
+        h.renderText([self.currentShip.name], g.font, displaySurface, g.WHITE, 0, (g.width/320)*119, (g.height/200)*99)
+        
         displaySurface.blit(self.shipCreatorScaled, (0, 0))        
         
     
@@ -292,6 +298,7 @@ class Generator(object):
                 
         #  Ship generator.
         elif self.generationStage == 1:
+            self.currentShip.initialiseShip()
             self.drawShip(displaySurface)
         
         #  Crew Selection.
