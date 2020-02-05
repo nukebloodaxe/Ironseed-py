@@ -26,6 +26,10 @@ class Generator(object):
         self.shipCreator = pygame.image.load("Graphics_Assets\\char.png")
         self.shipCreatorScaled = pygame.transform.scale(self.shipCreator, (g.width, g.height))
         self.shipCreatorScaled.set_colorkey(g.BLACK)
+        self.shipStatisticsNames = ["Gun Emplacements", "Maximum Fuel",
+                                    "Cargo Capacity", "Ship Mass",
+                                    "Max Acceleration", "Maximum Hull Points"]
+        self.shipStatistics = []  #  Used later for drawing routine.
     
         self.crewSelector = pygame.image.load("Graphics_Assets\\char2.png")
         self.crewSelectorScaled = pygame.transform.scale(self.crewSelector, (g.width, g.height))
@@ -174,14 +178,51 @@ class Generator(object):
         
         # 119, 99 - Text 0,0 position.
         
-            
+
         displaySurface.fill(g.BLACK)
-        displaySurface.blit(shipFront, ((g.width/320)*121, (g.height/200)*13))
-        displaySurface.blit(shipCenter, ((g.width/320)*179, (g.height/200)*13))
-        displaySurface.blit(shipRear, ((g.width/320)*237, (g.height/200)*13))
-        h.renderText([self.currentShip.name], g.font, displaySurface, g.WHITE, 0, (g.width/320)*119, (g.height/200)*99)
+        displaySurface.blit(shipFront, ((g.width/320)*121, (g.height/200)*14))
+        displaySurface.blit(shipCenter, ((g.width/320)*179, (g.height/200)*14))
+        displaySurface.blit(shipRear, ((g.width/320)*237, (g.height/200)*14))
         
-        displaySurface.blit(self.shipCreatorScaled, (0, 0))        
+        #  Highlight the area of the ship being changed.
+        #  This is not canon, but I accidentally made a better ship constructor.
+        #  Which is what happens when you're coding something up from memory
+        #  before checking the original game itself.
+        if self.shipSelectStage == 1:
+            rectangle = ((g.width/320)*121, (g.height/200)*14, (g.width/320)*58, (g.height/200)*75)
+            pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
+            
+        elif self.shipSelectStage == 2:
+            rectangle = ((g.width/320)*179, (g.height/200)*14, (g.width/320)*58, (g.height/200)*75)
+            pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)            
+        
+        elif self.shipSelectStage == 3:
+            rectangle = ((g.width/320)*237, (g.height/200)*14, (g.width/320)*58, (g.height/200)*75)
+            pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)            
+        
+        else:
+            pass
+        #  Print what we are doing.
+        h.renderText(["Ship Selection"], g.font, displaySurface, g.WHITE, 0, (g.width/320)*179, (g.height/200)*99, True)
+        
+        #  Render the array containing the ship stat info.
+        
+        #  Ship Name/Type.
+        h.renderText([self.currentShip.name], g.font, displaySurface, g.WHITE, 0, (g.width/320)*130, (g.height/200)*120, True)
+        
+        #  Render left column of text.
+        h.renderText(self.shipStatisticsNames, g.font, displaySurface, g.WHITE, 20, (g.width/320)*3, (g.height/200)*140)
+        
+        #  Render right column of values.
+        self.shipStatistics = [str(self.currentShip.gunMax),
+                               str(self.currentShip.maxFuel) + " KG",
+                               str(self.currentShip.cargoMax) + " Units",
+                               str(self.currentShip.mass) + " Mt",
+                               str(self.currentShip.acceleration) + " M/S Sqr",
+                               str(self.currentShip.hullMax) + " Pts"]
+        h.renderText(self.shipStatistics, g.font, displaySurface, g.WHITE, 20, (g.width/320)*180, (g.height/200)*140)
+        
+        displaySurface.blit(self.shipCreatorScaled, (0, 0))
         
     
     #  On end, save the data that has been generated to a filename of users choice.

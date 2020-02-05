@@ -247,7 +247,7 @@ class IronseedIntro(object):
     #  Crafty:  We will cheat by drawing the bars first, and then drawing the
     #  Comm screen over the top...
     #  Transmission lines are supposed to draw every 2 seconds.
-    # TODO: Green lights go red on Encode load.
+    #  TODO: Green lights go red on Encode load.
     def loadEncodes(self, surface):
         finished = False
         currentTimer = 0
@@ -710,7 +710,7 @@ class IronseedIntro(object):
         #  Ironseed crew under attack initiate crash landing on second planet
         #  of the OBAN system.
         if self.introStage == 15:
-            finished = h.ironseedCrash(g.width, g.height, displaySurface, self.count)
+            finished = self.ironseedCrash(g.width, g.height, displaySurface, self.count)
             self.count +=1
             pygame.time.wait(100)
             if finished:
