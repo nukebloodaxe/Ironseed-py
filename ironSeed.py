@@ -7,7 +7,7 @@ Handles the main render and tick loop.
 """
 import pygame, sys, time, random, numpy, pygame.sndarray, intro_main
 import ship, crew, items, planets, weaponsAndShields, PlanetScanner
-import mainMenu
+import mainMenu, saveAndLoad, EGOSynthManipulator
 import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
@@ -15,7 +15,7 @@ import helper_functions as h
 
 class IronSeed(object):
     def __init__(self):
-        self.state = 3 # Initilise with intro set.
+        self.state = 3 # Initilise with intro set, normally 3.
 
         self.creditText = ["1994 Channel 7, Destiny: Virtual",
                           "Released Under GPL V3.0 in 2013 by Jeremy D Stanton of IronSeed.net",
@@ -31,7 +31,7 @@ class IronSeed(object):
         pygame.display.set_caption(self.versionText[0]+' '+self.versionText[1])
         
         # Initialise game objects
-        g.starDate = [2,3,3784,8,75] #M,D,Y,H,M.
+        g.starDate = [2, 3, 3784, 8, 75] #M,D,Y,H,M.
         # Populate Item dictionaries
         print("Loading Items")
         items.loadItemData()
@@ -59,6 +59,8 @@ class IronSeed(object):
         self.crewCom = crewC.crewComm(self.crew) #  Needs to have crew data set.
         print("Planet Scanner Objects")
         self.planetScanner = PlanetScanner.PlanetScanner()
+        print("EGO Synth Manipulation System")
+        self.EGOManipulation = EGOSynthManipulator.EGOManipulator(self.crew)
         print("Creating Main Menu")
         self.mainMenu = mainMenu.MainMenu()
         
@@ -70,7 +72,7 @@ class IronSeed(object):
                        6:"Communications", #  Comms between ships/planets
                        7:"Combat", #  Normal and simulated combat.
                        8:self.crewCom.update, #  "talk" with crew members.
-                       9:"EGO", #   Placeholder for ego-synth manipulation.
+                       9:self.EGOManipulation.update, #   Ego-synth manipulation.
                        10:"ORBIT", #  Placeholder for generic orbit screen.
                        11: "Load Game",
                        12: "Save Game" }
@@ -83,7 +85,7 @@ class IronSeed(object):
                             6:"Communications",
                             7:"Combat",
                             8:self.crewCom.interact,
-                            9:"EGO",
+                            9:self.EGOManipulation.interact,
                             10:"Orbit",
                             11:"Load Game",
                             12:"Save Game"}
