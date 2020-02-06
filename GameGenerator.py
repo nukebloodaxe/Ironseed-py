@@ -19,7 +19,6 @@ class Generator(object):
         self.currentShip = givenShip #  Should be initialised to default start values.
         self.systemState = 1 #  By default, the game Generator points at itself.
         self.generationStage = 0 #  The stage of generation are we at.
-        self.portraits = []
         self.crew = givenCrew
         self.crewArray = 0  #  Where we are in the crew array.
         #  Note: we only commit the crew to the crew member structure when
@@ -87,22 +86,27 @@ class Generator(object):
         self.rearCruiserScaled = pygame.transform.scale(self.rearCruiser, ( int((g.width/320)*self.rearCruiser.get_width()), int((g.height/200)*self.rearCruiser.get_height())))
         self.rearCruiserScaled.set_colorkey(g.BLACK)
         
-        #  define button positions for a 640x480 screen.
-        #  Note: expect this to be very buggy!  Placeholder class in effect.
+        #  Load ball animation and resize all frames into 30 frame array.
+        self.ballSurface = pygame.image.load("Graphics_Assets\\charani.png")
+        self.ballFrames = []
+        self.prepareBallFrames()
         
         #  Set music state, needs to be reset to false on exit.
         self.musicState = False
         
         #  Animations in effect
+        #  Note:  These only take effect between stages.  Lower then raise.
         self.raiseBall = False
-        self.raiseBallFrame = 0
+        self.raiseBallFrame = 0  #  Max 30
         self.lowerBall = False
-        self.lowerBallFrame = 0
+        self.lowerBallFrame = 0  #  Max 30.
         
         self.changePortrait = False
         self.oldPortrait = 0
         self.newPortrait = 0
         
+        #  define button positions for a 640x480 screen.
+        #  Note: expect this to be very buggy!  Placeholder class in effect.
         #  Button positions and handler objects.
         #  Positional buttons for the screen options.
         self.accept = buttons.Button(15, 60, (559, 317)) # Based on 640x480
@@ -114,15 +118,28 @@ class Generator(object):
         planets.loadPlanetarySystems()
         planets.initialisePlanets()
         planets.populatePlanetarySystems()
-        
-    def loadPortraits(self, number=32, file="Graphics_Assets\\image", fileType=".png"):
-        self.portraits.append("dummy") #  dummy entry.
-        for image in range(1,number+1):
-            if image < 10:
-                self.portraits.append(pygame.image.load(file+'0'+str(image)+fileType))
-            else:
-                self.portraits.append(pygame.image.load(file+str(image)+fileType))
     
+    #  take the loaded ball texture and divide it into its component frames,
+    #  Assigning them to the animation array.
+    #  Note:  Original uses more sensible data array file.
+    def prepareBallFrames(self):
+        #  6 units Wide.  5 Units high.
+        for y in range(0, 5):
+            
+            for x in range(0, 6):
+                
+                #  Top and bottom border of 1 pixel.
+                #  Right border of 1 pixel.
+                #  Each frame 49 pixels wide.
+                #  Each frame 33 pixels high.
+                sourceRectangle = ((x*50),(y*35), 49, 33 )
+                frame = pygame.Surface((48, 33))
+                frame.blit(self.ballSurface,(0, 0), sourceRectangle)
+                #  The resizing procedure does introduce innaccuracy, but
+                #  unavoidable right now.
+                resizeFrame = pygame.transform.scale(frame, ( int((g.width/320)*frame.get_width()), int((g.height/200)*frame.get_height())))
+                self.ballFrames.append(resizeFrame)
+            
     #  Draw a portrait of a crewmember, if the swap animation is in effect we
     #  draw the old portrait being changed to the new one.
     def drawPortrait(self, portrait):
@@ -176,7 +193,30 @@ class Generator(object):
         #  Render crewmember image.
         displaySurface.blit(crew.CrewData[self.crewArray].resizedImage, ((g.width/320)*13, (g.height/200)*7))
         
+    #  Draw the ball, raising or lowering.
+    def drawBall(self, displaySurface):
         
+        if self.lowerBall:
+            displaySurface.blit(self.ballFrames[self.lowerBallFrame], ((g.width/320)*22, (g.height/200)*81))
+            self.lowerBallFrame += 1
+            
+            if self.lowerBallFrame >= 30:
+                self.lowerBall = False
+                self.raiseBall = True
+                self.lowerBallFrame = 0
+            
+        elif self.raiseBall:
+            displaySurface.blit(self.ballFrames[29 - self.raiseBallFrame], ((g.width/320)*22, (g.height/200)*81))
+            self.raiseBallFrame += 1
+            
+            if self.raiseBallFrame >= 30:
+                self.raiseBall = False
+                self.raiseBallFrame = 0
+                
+        else:  #  Just draw the raised ball; default underlying image.
+            pass
+    
+    
     #  Draw the sine-wave status line.
     #  I have a feeling the randomness in Python is much higher than that in
     #  the pascal implementation, which is making it difficult to produce a
@@ -374,6 +414,10 @@ class Generator(object):
     #  Handle mouse events for user interaction.
     def interact(self, mouseButton):
         
+        #  Turn off mouse interaction during transition animation.
+        if self.raiseBall == True or self.lowerBall == True:
+            return self.systemState
+        
         currentPosition = pygame.mouse.get_pos()
         
         if self.accept.within(currentPosition):
@@ -385,6 +429,7 @@ class Generator(object):
                 if self.shipSelectStage == 4:
                     
                     self.generationStage += 1
+                    self.lowerBall = True
             
             elif self.crewSelectStage < 7:
 
@@ -416,6 +461,7 @@ class Generator(object):
                 
                 self.generationStage -= 1
                 self.shipSelectStage = 1
+                self.lowerBall = True
                 
             elif self.crewSelectStage > 1:
                 
@@ -491,15 +537,33 @@ class Generator(object):
                 self.generationStage += 1
                 
         #  Ship generator.
-        elif self.generationStage == 1:
+        elif self.generationStage == 1 and self.lowerBall == False:
             self.currentShip.initialiseShip()
             self.drawShip(displaySurface)
-        
-        #  Crew Selection.
-        elif self.generationStage == 2:
-            self.drawCrew(displaySurface)
+            self.drawBall(displaySurface)
             #  Run slow!
-            pygame.time.wait(100)
+            pygame.time.wait(50)
+            
+        elif self.generationStage == 1 and self.lowerBall:
+            
+            self.drawCrew(displaySurface)
+            self.drawBall(displaySurface)
+            #  Run slow!
+            pygame.time.wait(50)
+        
+        elif self.generationStage == 2 and self.lowerBall:
+            
+            self.drawShip(displaySurface)
+            self.drawBall(displaySurface)
+            #  Run slow!
+            pygame.time.wait(50)
+            
+        #  Crew Selection.
+        elif self.generationStage == 2 and self.lowerBall == False:
+            self.drawCrew(displaySurface)
+            self.drawBall(displaySurface)
+            #  Run slow!
+            pygame.time.wait(50)
         
         #  Roguelike game initialisation.
         elif self.generationStage == 3:
@@ -512,8 +576,8 @@ class Generator(object):
         #  Save game.
         elif self.generationStage == 4:
             
-            
-            self.systemState = 12
+            self.systemState = 10  #  We jump right into the game for testing!
+            #self.systemState = 12  #  Save Game.
             
         else:
             self.musicState = False
