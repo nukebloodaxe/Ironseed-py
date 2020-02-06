@@ -36,6 +36,12 @@ class PlanetScanner(object):
         self.lifeforms = ["Avian", "Monoped", "Biped", "Triped", "Quadraped",
                           "Octaped", "Aquatics", "Fungi", "Carniferns",
                           "Crystalline", "Symbiots", "Floaters"]
+        
+        #  Planet Scanner related graphics layers.
+        self.scanInterface = pygame.image.load("Graphics_Assets\\landform.png")
+        self.scanInterfaceScaled = pygame.transform.scale(self.scanInterface, (g.width, g.height))
+        self.scanInterfaceScaled.set_colorkey(g.BLACK)
+        
         self.systemState = 5
         
     # Launch probots for a scan
