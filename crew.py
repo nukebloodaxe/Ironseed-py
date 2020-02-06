@@ -4,7 +4,7 @@ Created on Mon Nov 25 19:12:22 2019
 Crewmember Datastructure
 @author: Nuke Bloodaxe
 """
-#TODO: Levelup messaging system, and crew messages in general.
+#  TODO: Levelup messaging system, and crew messages in general.
 
 import io, pygame, random, global_constants as g
 
@@ -12,10 +12,10 @@ levelData ={0:0,1:1000,2:3000,3:7000,4:11000,5:18000,6:29000,7:47000,8:76000,
             9:123000,10:200000,11:350000,12:500000,13:650000,14:800000,
             15:950000,16:1100000,17:1250000,18:1400000,19:1550000,20:1700000}
 
-CrewData = [] #All crew members from disk.
+CrewData = [] #  All crew members from disk.
 
-#Insanity Index :)  Remember kids, don't do drugs.
-# ^ was '+chr(n+64)+'
+#  Insanity Index :)  Remember kids, don't do drugs.
+#  ^ was '+chr(n+64)+'
 insanityIndex = {0:'Out of memory error on brain ^.',
                  1:'Brain ^ not a supported device.',
                  2:'Read error on brain ^ incompatible media.',
@@ -36,7 +36,7 @@ insanityIndex = {0:'Out of memory error on brain ^.',
                  17:'Default settings.',
                  18:'Power fluxuation detected on brain ^.'}
 
-#Base crewmember class, all crew file data ultimately goes here.
+#  Base crewmember class, all crew file data ultimately goes here.
 class CrewMember(object):
     def __init__(self, name="UNNKNOWN", level = 1, sex = "O",
                  position="UNKNOWN", physical=0, mental=0, emotion=0, bio=[""],
@@ -44,23 +44,24 @@ class CrewMember(object):
         self.name = name
         self.experience = levelData[int(level)]
         self.level = int(level)
-        self.sex = sex #Freeform field; some are robots originally.
+        self.sex = sex #  Freeform field; some are robots originally.
         self.position = position
         self.physical = int(physical)
         self.mental = int(mental)
         self.emotion = int(emotion)
         self.bio = bio[:] # Historically 10 lines at 52 chars
-        #I'm sure we can do better than just this...
-        #Although the concept of an ego synth is a little limiting.
+        #  I'm sure we can do better than just this...
+        #  Although the concept of an ego synth is a little limiting.
         self.image = image # hacky, but works ;)
-        #Resizing logic should be handled in another function.
+        #  Resizing logic should be handled in another function.
         if image < 10:
             self.image = pygame.image.load("Graphics_Assets\\image0"+str(image)+".png")
         else:
             self.image = pygame.image.load("Graphics_Assets\\image"+str(image)+".png")
-        self.resizedImage = self.image # placeholder
+        #self.resizedImage = self.image # placeholder
+        self.resizedImage = pygame.transform.scale(self.image, ( int((g.width/320)*self.image.get_width()), int((g.height/200)*self.image.get_height())))
         
-        #Internal calculated parameters: careful, these are fully dynamic!
+        #  Internal calculated parameters: careful, these are fully dynamic!
         self.sanity = self.emotion*0.6 + self.mental*0.4 - self.physical*0.2
         self.performance = self.mental*0.6 + self.physical*0.4 - self.emotion*0.2
         self.skill = self.physical*0.6 + self.emotion*0.4 - self.mental*0.2
@@ -92,7 +93,7 @@ class CrewMember(object):
                 
         return levelUp
     
-    #Add experience and check to see if we leveled up.
+    #  Add experience and check to see if we leveled up.
     def addXP(self, amount):
         levelUp = False
         if self.experience < 25000000:
@@ -102,24 +103,24 @@ class CrewMember(object):
             
         return levelUp
     
-    #Resize the crew graphic according to the provided parameters.
+    #  Resize the crew graphic according to the provided parameters.
     def resizeCrewImage(self, x = g.width, y = g.height):
         self.resizedImage = pygame.transform.scale(self.image, (x, y))
     
-    #Display the resized crew image at given coordinates.
-    #Note: Never display the internal self.image data, it won't be scaled right.
+    #  Display the resized crew image at given coordinates.
+    #  Note: Never display the internal self.image data, it won't be scaled right.
     def displayCrewImage(self, displaySurface, x, y):
         displaySurface.blit(self.resizedImage,(x, y))
         
-    #The temporary insanity system is... odd.
+    #  The temporary insanity system is... odd.
     def tempInsanity(self):
         # there is a 1 in 6 change of this happening.
         if int(random.randint(0,5)) == 0:
             return "" # Nothing happens
         return insanityIndex[random.randrange(0,19)]
     
-    #Ego Synths are a bit "unstable", given they are lacking physical forms.
-    #So, sanity checks are bad news all around, as the EGO is decaying.
+    #  Ego Synths are a bit "unstable", given they are lacking physical forms.
+    #  So, sanity checks are bad news all around, as the EGO is decaying.
     def sanityCheck(self):
         
         if self.sanity > 0:
@@ -141,17 +142,17 @@ class CrewMember(object):
         
         return "" # Nothing special happens.
 
-    #Perform a crewmember skill check, which can also be bad...
-    #returns a boolean declaring skill check success or failure.
-    #Failure causes Ego to decay, like a melting snowflake.
+    #  Perform a crewmember skill check, which can also be bad...
+    #  returns a boolean declaring skill check success or failure.
+    #  Failure causes Ego to decay, like a melting snowflake.
     def skillCheck(self):
         skillSuccess = random.randint(1,80)
         skillCheck = False
         sanityReport = ""
-        # You need to roll under the skill level, like D&D, to be successful.
+        #  You need to roll under the skill level, like D&D, to be successful.
         if skillSuccess > self.skill:
             skillSuccess = random.randint(1,80)
-            #now we roll to see how bad things get.
+            #  Now we roll to see how bad things get.
             if skillSuccess > self.performance:
                 if self.performance > 0: self.performance -= 1
                 
@@ -162,10 +163,10 @@ class CrewMember(object):
                     
                 if self.physical > 0: self.physical -= 1
                 if self.emotion < 99: self.emotion += 1
-            #Check to see if we've lost the plot completely.
+            #  Check to see if we've lost the plot completely.
             if self.performance == 0:
                 sanityReport = self.sanityCheck()
-                #TODO
+                #  TODO
                 if self.skill > 0: self.skill -= 1
                 if self.physical > 1:
                     self.physical -= 2
@@ -177,55 +178,55 @@ class CrewMember(object):
             skillCheck = True
         return skillCheck, sanityReport
     
-    #Crewmember message, add colour parameter later.
+    #  Crewmember message, add colour parameter later.
     def crewMessage(self, message):
         return self.position + ': ' + message
     
-#Crew module for main game, our selected crew members live here, along with
-#all crew game-tick related functions.
+#  Crew module for main game, our selected crew members live here, along with
+#  all crew game-tick related functions.
 class Crew(object):
-    #IronSeed has 6 roles, as given, this could be upped in Mods.
+    #  IronSeed has 6 roles, as given, this could be upped in Mods.
     def __init__(self):
-        self.prime = 0 # Player Role, traditionally Role 0, name "PRIME".
-        #Note: Although IronSeed keeps this anonymous, no reason why we can't
-        #have a player name here.
-        #These are placeholders.
-        self.psychometry = 1 # Role 1 
-        self.engineering = 2 # Role 2
-        self.science = 3 # Role 3
-        self.security = 4 # Role 4
-        self.astrogation = 5 # Role 5
-        self.medical = 6 # Role 6
-        #Placeholder, simpler for numerical random lookups.
+        self.prime = 0 #  Player Role, traditionally Role 0, name "PRIME".
+        #  Note: Although IronSeed keeps this anonymous, no reason why we can't
+        #  have a player name here.
+        #  These are placeholders.
+        self.psychometry = 1 #  Role 1 
+        self.engineering = 2 #  Role 2
+        self.science = 3 #  Role 3
+        self.security = 4 #  Role 4
+        self.astrogation = 5 #  Role 5
+        self.medical = 6 #  Role 6
+        #  Placeholder, simpler for numerical random lookups.
         self.crew = []
-        self.crewMessages = [] # new internal feature, Messages from crew
-                                # members that need printing can be queued
-                                # for display later.
-    #setup the internal objects to the actual crewmember objects we are using.
+        self.crewMessages = [] #  new internal feature, Messages from crew
+                                #  members that need printing can be queued
+                                #  for display later.
+    #  Setup the internal objects to the actual crewmember objects we are using.
     def setCrew(self, psychometry, engineering, science, security, astrogation, medical):
-        self.psychometry = psychometry # Role 1 
-        self.engineering = engineering # Role 2
-        self.science = science # Role 3
-        self.security = security # Role 4
-        self.astrogation = astrogation # Role 5
-        self.medical = medical # Role 6
+        self.psychometry = psychometry #  Role 1 
+        self.engineering = engineering #  Role 2
+        self.science = science #  Role 3
+        self.security = security #  Role 4
+        self.astrogation = astrogation #  Role 5
+        self.medical = medical #  Role 6
         self.crew = [self.psychometry, self.engineering, self.science,
                      self.security, self.astrogation, self.medical]
         
-    # Add a message to the pending messages queue, these are printed onscreen
-    # later.  crewMember is the EGO Synth containment unit number.
+    #  Add a message to the pending messages queue, these are printed onscreen
+    #  later.  crewMember is the EGO Synth containment unit number.
     def addMessage(self, message, crewMember):
         self.crewMessages.append((message, crewMember))
     
-    #Get a message from the pending messages queue.  Returns an empty string
-    #when no messages are pending.
+    #  Get a message from the pending messages queue.  Returns an empty string
+    #  when no messages are pending.
     def getMessage(self):
         if len(self.crewMessages) == 0:
             return ("",-1) # No message.
         return self.crewMessages.pop()
     
-    #EGO sanity failure.  Returns text output of insane EGO, or blank string
-    #if it's still holding it together.
+    #  EGO sanity failure.  Returns text output of insane EGO, or blank string
+    #  if it's still holding it together.
     def sanityFailure(self, crewMember):
         sanityResult = ""
         if (crewMember.mental < 10) or (crewMember.emotion < 10) or (crewMember.physical < 10):
@@ -240,8 +241,8 @@ class Crew(object):
                 
         return sanityResult
     
-    #Perform Sanity Test on crewMember.  This is effectively a D8 roll
-    #with an added difficulty value.
+    #  Perform Sanity Test on crewMember.  This is effectively a D8 roll
+    #  with an added difficulty value.
     def sanityTest(self, crewMember, difficulty):
         sanityResult = False
         sanity = crewMember.sanity
@@ -255,8 +256,8 @@ class Crew(object):
         
         return sanityResult
     
-    #Stress test crewMember.  Failure increments game stress level.
-    #Note: this almost looks like a primative form of the modern game director.
+    #  Stress test crewMember.  Failure increments game stress level.
+    #  Note: this almost looks like a primative form of the modern game director.
     def crewStress(self, crewMember, difficulty):
         diff = difficulty - crewMember.performance
         
@@ -322,25 +323,48 @@ class Crew(object):
     
     
     
-    #Crew update tick function.
+    #  Crew update tick function.
     def update(self):
         
         pass
 
+#  Navigate the CrewData array.  Allows us to go back and forward, safely, by
+#  by a given type of crew member.
+#  Forward, False, by default.  Backward, True.
+def findCrew(crewType, currentIndex, backward = False):
+    notFound = True
     
-#Loads all crew data from the given file location.
-#Note: Crew images are in numerical order for entries in IronPy_crew.tab
+    while notFound:
+    
+        if backward:
+            if currentIndex == 0:
+                currentIndex = len(CrewData) - 1
+            else:
+                currentIndex -= 1
+            
+        else:
+            if currentIndex == len(CrewData) - 1:
+                currentIndex = 0
+            else:
+                currentIndex += 1
+                
+        if CrewData[currentIndex].position == crewType:
+            return currentIndex
+    
+
+#  Loads all crew data from the given file location.
+#  Note: Crew images are in numerical order for entries in IronPy_crew.tab
 def loadCrewData(file="Data_Generators\Other\IronPy_crew.tab"):
     crewFile = io.open(file, "r")
     crewName = ""
     crewDataString = []
     temp = ""
-    count = 1 # image file names start at 01 (e.g. image01.png)
+    count = 1 #  Image file names start at 01 (e.g. image01.png)
     while temp != "ENDF":
         crewName = crewFile.readline().split('\n')[0] #name line
         crewDataString = (crewFile.readline().split('\n')[0]).split('\t') #Data Line line
         temp = crewFile.readline().split('\n')[0]
-        crewBioString = [] #Character Bio
+        crewBioString = [] #  Character Bio
         while temp != "END" and temp != "ENDF":
             crewBioString.append(temp)
             temp = crewFile.readline().split('\n')[0]
@@ -349,8 +373,8 @@ def loadCrewData(file="Data_Generators\Other\IronPy_crew.tab"):
                           crewDataString[1],crewDataString[2],
                           crewBioString, count)
         
-        CrewData.append(crew) # add to global crew data table.
+        CrewData.append(crew) #  add to global crew data table.
         count += 1
-        # A crewmember has now been loaded.
+        #  A crewmember has now been loaded.
 
     crewFile.close()

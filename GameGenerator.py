@@ -21,6 +21,18 @@ class Generator(object):
         self.generationStage = 0 #  The stage of generation are we at.
         self.portraits = []
         self.crew = givenCrew
+        self.crewArray = 0  #  Where we are in the crew array.
+        #  Note: we only commit the crew to the crew member structure when
+        #  the player has confirmed all their choices.
+        #  These are crew.crewData[] array positions.
+        self.psychometry = -1 #  Role 1 
+        self.engineering = -1 #  Role 2
+        self.science = -1 #  Role 3
+        self.security = -1 #  Role 4
+        self.astrogation = -1 #  Role 5
+        self.medical = -1 #  Role 6
+        self.crewPositions = ["", "PSYCHOMETRY", "ENGINEERING", "SCIENCE", "SECURITY", "ASTROGATION", "MEDICAL"]
+        
         self.shipSelectStage = 1  #  Indicates if we are selecting Front, Center or rear segments.
         self.crewSelectStage = 1  #  Indicates what type of crew we are selecting.
         self.shipCreator = pygame.image.load("Graphics_Assets\\char.png")
@@ -31,9 +43,10 @@ class Generator(object):
                                     "Max Acceleration", "Maximum Hull Points"]
         self.shipStatistics = []  #  Used later for drawing routine.
     
-        self.crewSelector = pygame.image.load("Graphics_Assets\\char2.png")
-        self.crewSelectorScaled = pygame.transform.scale(self.crewSelector, (g.width, g.height))
-        self.crewSelectorScaled.set_colorkey(g.BLACK)
+        #self.crewSelector = pygame.image.load("Graphics_Assets\\char2.png")
+        #self.crewSelectorScaled = pygame.transform.scale(self.crewSelector, (g.width, g.height))
+        #self.crewSelectorScaled.set_colorkey(g.BLACK)
+        self.crewSelectorScaled = self.shipCreatorScaled
         
         #  Load ship tiles.
         
@@ -117,7 +130,47 @@ class Generator(object):
     
     #  Draw all crew related surfaces.
     def drawCrew(self, displaySurface):
-        displaySurface.blit(self.crewSelectorScaled,(0,0))        
+        
+        crewType = "Stowaway"  #  This should not happen!
+        
+        if self.crewSelectStage == 1:
+            
+            crewType = "Psychometry"
+        elif self.crewSelectStage == 2:
+            
+            crewType = "Engineering"
+        elif self.crewSelectStage == 3:
+            
+            crewType = "Science"
+        elif self.crewSelectStage == 4:
+            
+            crewType = "Security"
+        elif self.crewSelectStage == 5:
+            
+            crewType = "Astrogation"
+        elif self.crewSelectStage == 6:
+            
+            crewType = "Medical"
+        else:
+            pass
+        
+        displaySurface.fill(g.BLACK)
+        
+        #  Print what we are doing.
+        h.renderText(["Crew Selection", crewType], g.font, displaySurface, g.WHITE, 15, (g.width/320)*179, (g.height/200)*99, True)
+        
+        #  Render the array containing the ship stat info.
+        
+        #  Name of Potential Crewmember.
+        h.renderText([crew.CrewData[self.crewArray].name], g.font, displaySurface, g.WHITE, 0, (g.width/320)*3, (g.height/200)*120)
+        
+        #  Render Bio column of text.
+        h.renderText(crew.CrewData[self.crewArray].bio, g.font, displaySurface, g.WHITE, 15, (g.width/320)*3, (g.height/200)*135)
+        
+        displaySurface.blit(self.crewSelectorScaled, (0, 0))        
+        
+        #  Render crewmember image.
+        displaySurface.blit(crew.CrewData[self.crewArray].resizedImage, ((g.width/320)*13, (g.height/200)*7))
         
     #  Draw the sine-wave status line.
     def drawStatusLine(self, crewMember, displaySurface):
@@ -226,6 +279,9 @@ class Generator(object):
         
     
     #  On end, save the data that has been generated to a filename of users choice.
+    #  Note:  This is actually stored by slot, with a dump of object memory into
+    #  a file per object.  Restoration should be a case of loading each object into memory,
+    #  overwriting the current binary object in each case.
     def saveData(self, fileName="Default"):
         
         pass
@@ -233,6 +289,27 @@ class Generator(object):
     #  Update function for main game loop.
     def update(self, displaySurface):
         return self.runGenerator(displaySurface)
+    
+    #  Adjust a given crewmember assignment based on selection stage.
+    def assignCrew(self):
+        
+        if self.crewSelectStage == 1:
+            self.psychometry = self.crewArray
+        
+        elif self.crewSelectStage == 2:
+            self.engineering = self.crewArray
+        
+        elif self.crewSelectStage == 3:
+            self.science = self.crewArray
+            
+        elif self.crewSelectStage == 4:
+            self.security = self.crewArray
+            
+        elif self.crewSelectStage == 5:
+            self.astrogation = self.crewArray
+            
+        elif self.crewSelectStage == 6:
+            self.medical = self.crewArray
     
     #  Handle mouse events for user interaction.
     def interact(self, mouseButton):
@@ -249,9 +326,13 @@ class Generator(object):
                     
                     self.generationStage += 1
             
-            if self.crewSelectStage < 7:
-                
+            elif self.crewSelectStage < 7:
+
+                self.assignCrew()
                 self.crewSelectStage += 1
+                
+                if self.crewSelectStage < 7:
+                    self.crewArray = crew.findCrew(self.crewPositions[self.crewSelectStage], self.crewArray, False)
                 
                 if self.crewSelectStage == 7:
                     
@@ -271,6 +352,7 @@ class Generator(object):
             elif self.crewSelectStage > 1:
                 
                 self.crewSelectStage -= 1
+                self.crewArray = crew.findCrew(self.crewPositions[self.crewSelectStage], self.crewArray, False)
             
         elif self.up.within(currentPosition):
             
@@ -296,7 +378,8 @@ class Generator(object):
                     self.currentShip.rearHull = 1
                 
             #  Fall through and check crew selection.
-                
+            if self.generationStage == 2:
+                self.crewArray = crew.findCrew(self.crewPositions[self.crewSelectStage], self.crewArray, False)
             
             
         elif self.down.within(currentPosition):
@@ -322,8 +405,10 @@ class Generator(object):
                 else:
                     self.currentShip.rearHull -= 1
                 
-            #  Fall through and check crew selection.
-        
+            #  Fall through and check crew selection.    
+            if self.generationStage == 2:
+                self.crewArray = crew.findCrew(self.crewPositions[self.crewSelectStage], self.crewArray, True)
+                
         return self.systemState
     
     #  Main generator game loop.
@@ -349,7 +434,7 @@ class Generator(object):
         #  Roguelike game initialisation.
         elif self.generationStage == 3:
         
-            pass
+            self.generationStage += 1 #  TODO - Variable gen.
     
         #  Save game.
         elif self.generationStage == 4:
