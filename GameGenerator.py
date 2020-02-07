@@ -533,6 +533,7 @@ class Generator(object):
             if self.musicState == False:
                 pygame.mixer.music.load("sound\\CHARGEN.OGG")
                 pygame.mixer.music.play()
+                self.systemState = 1
                 self.musicState = True
                 self.generationStage += 1
                 
@@ -576,11 +577,18 @@ class Generator(object):
         #  Save game.
         elif self.generationStage == 4:
             
-            self.systemState = 10  #  We jump right into the game for testing!
-            #self.systemState = 12  #  Save Game.
+            #self.systemState = 9  #  We jump right into a game class for testing!
+            self.musicState = False
+            self.crewSelectStage = 0
+            self.shipSelectStage = 0
+            self.generationStage = 0
+            self.systemState = 12  #  Save Game.
             
         else:
             self.musicState = False
+            self.crewSelectStage = 0
+            self.shipSelectStage = 0
+            self.generationStage = 0
             return 2  #  Go to main menu.
         
         return self.systemState
