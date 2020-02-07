@@ -13,6 +13,7 @@ class MainMenu(object):
         self.menuStage = 0  #  Current menu state.
         self.rollingStarfield = 0  #  Pixel index for the background starfield.
         self.starField = pygame.image.load("Graphics_Assets\\cloud.png")
+        self.musicState = False
         
         #  Prepare starfield for blitting.
         self.starFieldScaled = pygame.transform.scale(self.starField, (g.width, g.height))
@@ -34,9 +35,11 @@ class MainMenu(object):
         currentPosition = pygame.mouse.get_pos()
         if self.newGame.within(currentPosition):
             print("New Game")
+            self.musicState = False
             return 1
         elif self.intro.within(currentPosition):
             print("Rerun Intro")
+            self.musicState = False
             return 3
         elif self.quitGame.within(currentPosition):  #  Quit game viciously.
             print("Exit")
@@ -44,7 +47,10 @@ class MainMenu(object):
             sys.exit()
         elif self.loadGame.within(currentPosition):
             print("Load Game")
-            return 11
+            self.musicState = False
+            return 11  #  Should be 11, others are test values.
+            #  Note:  Running load game after begin game allows all
+            #  necessary data to be setup before testing a different state.
         
         return 3  #  Restart the intro as a failsafe.
     
@@ -57,9 +63,16 @@ class MainMenu(object):
         if self.menuStage == 0:
             pygame.mixer.music.load("sound\\INTRO2.OGG")
             pygame.mixer.music.play()
+            self.musicState = True
             self.menuStage = 1 #  normally 1, use other stages for debug.
             
         if self.menuStage == 1:
+            
+            if self.musicState == False:
+                pygame.mixer.music.load("sound\\INTRO2.OGG")
+                pygame.mixer.music.play()
+                self.musicState = True
+            
             #  Blit starfield.
             
             starFieldBlit = pygame.PixelArray(self.starFieldScaled)
