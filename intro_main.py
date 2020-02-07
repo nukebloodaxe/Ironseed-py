@@ -65,6 +65,7 @@ class IronseedIntro(object):
         #  Prime intro stage checker
         self.introStage = 0
         self.introFinished = False
+        self.musicState = False
         
         #  Prepare counters
         self.count = 1
@@ -139,6 +140,7 @@ class IronseedIntro(object):
         self.encodeStep = 0
         self.introStage = 0
         self.introFinished = False
+        self.musicState = False
     
     def resetCounts(self, stage):
         self.introStage = stage
@@ -523,6 +525,7 @@ class IronseedIntro(object):
     
     # Handle mouse events for user interaction.
     def interact(self, mouseButton):
+        self.resetIntro()
         return 2 # Exit intro and go to main menu.
         
     def update(self, displaySurface):
