@@ -182,6 +182,14 @@ class CrewMember(object):
     def crewMessage(self, message):
         return self.position + ': ' + message
     
+    #  Recalculate the EGO's derived snaity/performace/skill values.
+    #  This needs to be called every time a change is made to the EGO's
+    #  base values.
+    def recalculateStatus(self):
+        self.sanity = self.emotion*0.6 + self.mental*0.4 - self.physical*0.2
+        self.performance = self.mental*0.6 + self.physical*0.4 - self.emotion*0.2
+        self.skill = self.physical*0.6 + self.emotion*0.4 - self.mental*0.2
+    
 #  Crew module for main game, our selected crew members live here, along with
 #  all crew game-tick related functions.
 class Crew(object):
