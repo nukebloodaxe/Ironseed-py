@@ -54,12 +54,19 @@ class crewComm(object):
         pass
     
     def communicate(self,displaySurface):
+        
         displaySurface.blit(self.charComScaled,(0,0)) # Set background.
+        
         #  Start main intro music
         if self.musicState == False:
             pygame.mixer.music.load("sound\\CREWCOMM.OGG")
             pygame.mixer.music.play()
             self.musicState = True
+            
+        # rewind and start music playing again if track end reached.
+        if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.play()
+
         return 8 #  TODO, currently loops communication system for testing.
 
     
