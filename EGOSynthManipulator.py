@@ -30,6 +30,9 @@ class EGOManipulator(object):
         self.EGOInterfaceScaled = pygame.transform.scale(self.EGOInterface, (g.width, g.height))
         self.EGOInterfaceScaled.set_colorkey(g.BLACK)
         
+        # Gradient as a list of tuples.
+        self.redBar = h.colourLine(int((g.width/320)*63), g.RED)
+        
         #  Image and evaluate toggle
         self.imageShow = True  #  When image is not showing we see the
                                 #  Heartbeat style EGO status line.
@@ -56,7 +59,7 @@ class EGOManipulator(object):
         self.previous = buttons.Button(15, 35, (525, 100))
         self.next = buttons.Button(15, 35, (574, 100))
         self.exit = buttons.Button(42, 19, (597, 378))
-        #  encode button required, but needs save faciliy.
+        #  TODO: encode button required, but needs save facility.
         
     def update(self, displaySurface):
         return self.EGOInterfaceLoop(displaySurface)
@@ -124,6 +127,22 @@ class EGOManipulator(object):
             oldXY = (x, randY)
     
         random.seed()  #  Make random random again ;)
+    
+    #  Draw the bars indicating the points total for each of the crew member's
+    #  attributes.
+    def drawAttributeBars(self, displaySurface):
+        # 179 x,y 20,y 28,y 36,y 62 wide.
+        barWidthRatio = ((g.width/320)*62)/100
+        
+        
+        growingBar = h.createBar(self.redBar, int(barWidthRatio*self.crewPointer.skill), int((g.height/200)*3)+1)
+        displaySurface.blit(growingBar, (int((g.width/320)*179), int((g.height/200)*20)))
+        
+        growingBar = h.createBar(self.redBar, int(barWidthRatio*self.crewPointer.performance), int((g.height/200)*3)+1)
+        displaySurface.blit(growingBar, (int((g.width/320)*179), int((g.height/200)*28)))
+        
+        growingBar = h.createBar(self.redBar, int(barWidthRatio*self.crewPointer.sanity), int((g.height/200)*3)+1)
+        displaySurface.blit(growingBar, (int((g.width/320)*179), int((g.height/200)*36)))
     
     #  Mouse handling routines, handles all button press logic.
     #  The original did not have support for scrolling, but it could
@@ -263,6 +282,7 @@ class EGOManipulator(object):
     def drawInterface(self, displaySurface):
         
         displaySurface.fill(g.BLACK)
+        self.drawAttributeBars(displaySurface)
         displaySurface.blit(self.EGOInterfaceScaled, (0, 0))
         if self.imageShow:
             displaySurface.blit(self.crewPointer.resizedImage, ((g.width/320)*210, (g.height/200)*110))
@@ -286,6 +306,7 @@ class EGOManipulator(object):
         
         elif self.manipulationStage == 1:
             
+            self.crewPointer.recalculateStatus()
             self.drawInterface(displaySurface)
             #  Run slow!
             pygame.time.wait(50)
