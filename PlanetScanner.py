@@ -42,6 +42,9 @@ class PlanetScanner(object):
         self.scanInterfaceScaled = pygame.transform.scale(self.scanInterface, (g.width, g.height))
         self.scanInterfaceScaled.set_colorkey(g.BLACK)
         
+        #  Music/Sound handlers.
+        self.musicState = False
+        
         self.systemState = 5
         
     # Launch probots for a scan
@@ -60,8 +63,8 @@ class PlanetScanner(object):
         pass
     
     def update(self, displaySurface):
-        self.runScanner(displaySurface)
-        pass
+        
+        return self.runScanner(displaySurface)
     
     # Handle mouse events for user interaction.
     def interact(self, mouseButton):
@@ -69,4 +72,18 @@ class PlanetScanner(object):
     
     def runScanner(self, displaySurface):
         
-        pass
+        #  System setup.
+        if self.scannerStage == 0:
+            
+            #  Start scanner music
+            if self.musicState == False:
+                pygame.mixer.music.load("sound\\SCANNER.OGG")
+                pygame.mixer.music.play()
+                self.musicState = True
+                self.scannerStage += 1
+        
+        # rewind and start music playing again if track end reached.
+        if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.play()
+
+        return self.systemState

@@ -73,6 +73,10 @@ class MainMenu(object):
                 pygame.mixer.music.play()
                 self.musicState = True
             
+            # rewind and start music playing again if track end reached.
+            if not pygame.mixer.music.get_busy():
+                pygame.mixer.music.play()
+            
             #  Blit starfield.
             
             starFieldBlit = pygame.PixelArray(self.starFieldScaled)

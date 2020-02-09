@@ -529,7 +529,7 @@ class Generator(object):
     def runGenerator(self, displaySurface):
         #  Preparation routine
         if self.generationStage == 0:
-            #  Start main intro music
+            #  Start generator screen music
             if self.musicState == False:
                 pygame.mixer.music.load("sound\\CHARGEN.OGG")
                 pygame.mixer.music.play()
@@ -590,6 +590,10 @@ class Generator(object):
             self.shipSelectStage = 0
             self.generationStage = 0
             return 2  #  Go to main menu.
+        
+        # rewind and start music playing again if track end reached.
+        if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.play()
         
         return self.systemState
     
