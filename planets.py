@@ -520,7 +520,7 @@ class Planet(object):
         step = 0
         technologyLevel = self.getTechLevel()
         #print("Technology Level is: ", technologyLevel)
-        for index in range(300000):  #  Quad canon version.
+        for index in range(600000):  #  8 x canon version.
             step += 1
             currentX = currentX-1+random.randrange(0,3)
             currentY = currentY-1+random.randrange(0,3)
@@ -730,16 +730,16 @@ class Planet(object):
         
         pass
     
-    # Create a Nubula/Cloud Bitmap.
-    # NOTE: Does not work yet.
-    # TODO: Replace algo with something a bit nicer.
+    #  Create a Nubula/Cloud Bitmap.
+    #  NOTE: Does not work yet.
+    #  TODO: Replace algo with something a bit nicer.
     def createCloud(self):
         currentX, currentY = 0
         random.seed(self.seed)
         steps = random.randint(0, 25) + 50
         size = 0
         colours = [0,0,0]
-        # You never know, something might be running in the cloud...
+        #  You never know, something might be running in the cloud...
         #technologyLevel = self.getTechLevel(self.systemName)
         for step in range(steps):
             if step == 1:
@@ -763,9 +763,9 @@ class Planet(object):
                         background = 0
                     currentX = x + xWidth
                     currentY = y + yHeight
-                    # Note: Interact with background here.
-                    # TODO: access background layer.
-                    # Using foreground layer for now.
+                    #  Note: Interact with background here.
+                    #  TODO: access background layer.
+                    #  Using foreground layer for now.
                     if (self.planetTerrain[currentY][currentX] > 143) or (random.randint(0,7) < background):
                         self.planetTerrain[currentY][currentX] = colour | background
                     
@@ -807,7 +807,7 @@ class Planet(object):
         
         glowIndex = 4  #  It's glowing brightly.
         day, month, year, second = 0, 0, 0, 0  #  For rotation calculations.
-        #starDate = [2, 3, 3784, 8, 75] #  M,D,Y,H,M.
+        #  starDate = [2, 3, 3784, 8, 75] #  M,D,Y,H,M.
         adjustedPixel = 0  # to avoid using modulus later.
         #  math.radians(degrees)
         #  width of terrain: len(self.planetTerrain[0][0])
