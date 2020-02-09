@@ -14,9 +14,10 @@ import random, math, io, time
 # This class is essentially a self-contained game called "The planet scanner" ;)
 class PlanetScanner(object):
     
-    def __init__(self):
+    def __init__(self, playerShip):
         
         self.scannerStage = 0 # what we are doing.
+        self.ironSeed = playerShip
         self.scanning = [False, False, False, False, False]
         # lithosphere, hydrosphere, atmosphere, biosphere, anomaly
         
@@ -42,6 +43,38 @@ class PlanetScanner(object):
         self.scanInterfaceScaled = pygame.transform.scale(self.scanInterface, (g.width, g.height))
         self.scanInterfaceScaled.set_colorkey(g.BLACK)
         
+        #  Landform bounding area for planet texture
+        self.mainViewBoundary = (int((g.width/320)*28), int((g.height/200)*13), int((g.width/320)*239), int((g.height/200)*119))
+        
+        #  Zoomed view bounding area for planet texture.
+        self.zoomedViewBoundary = (int((g.width/320)*206), int((g.height/200)*139), int((g.width/320)*59), int((g.height/200)*59))
+        
+        #  Selected zone for zoomedViewBoundary; default = top left corner.
+        self.zoomedViewBoundary = (int((g.width/320)*28), int((g.height/200)*13), int((g.width/320)*59), int((g.height/200)*59))
+        
+        self.zoomLevel = 0  #  The zoom applied to the zoom view.  Max 3.
+        
+        #  bounding for writing graphic = (28, 13, 18, 15)
+        
+        #  define button positions:  Scaling experiment.
+        #  Note: expect this to be very buggy!  Placeholder class in effect.
+        #  Button positions and handler objects.
+        #  Positional buttons for the screen options.
+        self.land = buttons.Button(0, 0, (0, 0))
+        self.sea = buttons.Button(0, 0, (0, 0))
+        self.air = buttons.Button(0, 0, (0, 0))
+        self.life = buttons.Button(0, 0, (0, 0))
+        self.anomaly = buttons.Button(0, 0, (0, 0))
+        self.exit = buttons.Button(0, 0, (0, 0))
+        self.next = buttons.Button(0, 0, (0, 0))
+        self.previous = buttons.Button(0, 0, (0, 0))
+        self.zoomIn = buttons.Button(0, 0, (0, 0))
+        self.zoomOut = buttons.Button(0, 0, (0, 0))
+        self.Retrieve = buttons.Button(0, 0, (0, 0))
+        
+        # Special
+        self.planetMap = buttons.Button(int((g.width/320)*239), int((g.height/200)*119), (int((g.width/320)*28), int((g.height/200)*13)))
+        
         #  Music/Sound handlers.
         self.musicState = False
         
@@ -58,7 +91,7 @@ class PlanetScanner(object):
         pass
     
     # Retrieve anomalies and put into ship cargo.
-    def retrieveAnomalies(self, ship, planet):
+    def retrieveAnomalies(self, planet):
         
         pass
     
@@ -68,6 +101,63 @@ class PlanetScanner(object):
     
     # Handle mouse events for user interaction.
     def interact(self, mouseButton):
+        
+        currentPosition = pygame.mouse.get_pos()
+        
+        if self.land.within(currentPosition):
+            
+            pass
+        
+        elif self.sea.within(currentPosition):
+            
+            pass
+        
+        elif self.air.within(currentPosition):
+            
+            pass
+        
+        elif self.life.within(currentPosition):
+            
+            pass
+        
+        elif self.anomaly.within(currentPosition):
+            
+            pass
+        
+        elif self.exit.within(currentPosition):
+            
+            pass
+        
+        elif self.next.within(currentPosition):
+            
+            pass
+        
+        elif self.previous.within(currentPosition):
+            
+            pass
+        
+        elif self.zoomIn.within(currentPosition):
+            
+            if self.zoomLevel < 3:
+                self.zoomLevel += 1
+        
+        elif self.zoomOut.within(currentPosition):
+            
+            if zoomLevel > 0:
+                self.zoomLevel -= 1
+        
+        elif self.Retrieve.within(currentPosition):
+            
+            pass
+        
+        elif self.planetMap.within(currentPosition):
+            
+            #  Change view point for zoomed view.
+            self.zoomedViewBoundary = (currentPosition[0],
+                                       currentPosition[1],
+                                       self.zoomedViewBoundary[2],
+                                       self.zoomedViewBoundary[3])
+        
         return self.systemState
     
     def runScanner(self, displaySurface):

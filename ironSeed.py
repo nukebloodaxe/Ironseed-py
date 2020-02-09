@@ -58,7 +58,7 @@ class IronSeed(object):
         print("Commnications System Objects")
         self.crewCom = crewC.crewComm(self.crew) #  Needs to have crew data set.
         print("Planet Scanner Objects")
-        self.planetScanner = PlanetScanner.PlanetScanner()
+        self.planetScanner = PlanetScanner.PlanetScanner(self.ship)
         print("EGO Synth Manipulation System")
         self.EGOManipulation = EGOSynthManipulator.EGOManipulator(self.crew)
         print("Creating Main Menu")
