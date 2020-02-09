@@ -33,16 +33,35 @@ class EGOManipulator(object):
         # Gradient as a list of tuples.
         self.redBar = h.colourLine(int((g.width/320)*63), g.RED)
         
+        #  Prepare texture sections for monitor screen shrink and grow.
+        
+        #  Bars for copy: 217, 103, ends at 186
+        
+        self.screenBar = pygame.Surface((1, 84))
+        self.screenBar.blit(self.EGOInterface, (0, 0), (217, 103, 1, 84))
+        self.screenBarScaled = pygame.transform.scale(self.screenBar, (int((g.width/320)), int((g.height/200)*84)))
+        self.screenBarScaled.set_colorkey(g.BLACK)
+        
+        #  movable screen edge: 194, 99 to 217 width.  190 end height.
+        
+        self.screenBracket = pygame.Surface((23, 94))
+        self.screenBracket.blit(self.EGOInterface, (0, 0), (194, 99, 23, 94))
+        self.screenBracketScaled = pygame.transform.scale(self.screenBracket, (int((g.width/320)*23), int((g.height/200)*94)))
+        self.screenBracketScaled.set_colorkey(g.BLACK)
+        
+        #  Blanking rectangle.
+        self.blankRectangle = (int((g.width/320)*127), int((g.height/200)*99), int((g.width/320)*90), int((g.height/200)*94))
+        
         #  Image and evaluate toggle
-        self.imageShow = True  #  When image is not showing we see the
+        self.imageShow = True   #  When image is not showing we see the
                                 #  Heartbeat style EGO status line.
         self.pulseColourCycle = 0
         
+        #  Monitor shrink/grow flags/steps.
         self.extendScreen = False
-        self.extendScreenStep = 0
-        
         self.shrinkScreen = False
-        self.shrinkScreenStep = 0
+        self.screenStep = 0
+        self.maxStep = int((g.width/320)*60)
         
         #  define button positions for a 640x480 screen.
         #  Note: expect this to be very buggy!  Placeholder class in effect.
@@ -63,6 +82,42 @@ class EGOManipulator(object):
         
     def update(self, displaySurface):
         return self.EGOInterfaceLoop(displaySurface)
+    
+    #  Drawing routine for shrinking and growing the in-game monitor screen.
+    def drawMonitorMovement(self, displaySurface):
+        
+        barXY = (int((g.width/320)*217), int((g.height/200)*104))
+        bracketXY = (int((g.width/320)*195), int((g.height/200)*99))
+        
+        #  194, 99  is top-left of monitor panel.
+        
+        if self.extendScreen:
+            
+            if self.screenStep < self.maxStep:
+                
+                self.screenStep += 1
+        
+        elif self.shrinkScreen:
+            
+            if self.shrinkScreen > 0:
+                
+                self.screenStep -= 1
+        
+        if self.screenStep != 0:
+            
+            #  Prepare surface for redraw.
+            displaySurface.fill(g.BLACK, self.blankRectangle)
+        
+            for count in range(self.screenStep):
+                # 217, 103
+                displaySurface.blit(self.screenBarScaled, barXY)
+                barXY = (barXY[0]-1, barXY[1])
+                bracketXY = (bracketXY[0]-1, bracketXY[1])
+            
+        
+            displaySurface.blit(self.screenBracketScaled, bracketXY)
+            
+            
     
     #  Draw the sine-wave status line.
     #  I have a feeling the randomness in Python is much higher than that in
@@ -158,11 +213,13 @@ class EGOManipulator(object):
             
             self.imageShow = True
             self.shrinkScreen = True
+            self.extendScreen = False
             
         elif self.evaluate.within(currentPosition):
             
             self.imageShow = False
             self.extendScreen = True
+            self.shrinkScreen = False
             
         elif self.mentalUp.within(currentPosition):
             
@@ -278,16 +335,23 @@ class EGOManipulator(object):
         
         return self.systemState
     
-    #  TODO:  Checks for extending and shrinking screen.
+    #  TODO:  Checks for extending and shrinking image/heartbeat monitor.
     def drawInterface(self, displaySurface):
         
         displaySurface.fill(g.BLACK)
         self.drawAttributeBars(displaySurface)
         displaySurface.blit(self.EGOInterfaceScaled, (0, 0))
-        if self.imageShow:
+        
+        if self.imageShow and self.screenStep == 0:
+            
             displaySurface.blit(self.crewPointer.resizedImage, ((g.width/320)*210, (g.height/200)*110))
         else:
-            self.drawStatusLine(displaySurface)
+                        
+            self.drawMonitorMovement(displaySurface)
+            
+            if self.screenStep == self.maxStep:
+            
+                self.drawStatusLine(displaySurface)
     
     def EGOInterfaceLoop(self, displaySurface):
         
@@ -305,6 +369,11 @@ class EGOManipulator(object):
                 self.manipulationStage += 1
         
         elif self.manipulationStage == 1:
+            
+            # rewind and start music playing again if track end reached.
+            if not pygame.mixer.music.get_busy():
+                pygame.mixer.music.play()
+
             
             self.crewPointer.recalculateStatus()
             self.drawInterface(displaySurface)
