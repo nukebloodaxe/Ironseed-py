@@ -27,6 +27,18 @@ def colourGradient(length, colour):
     
     return pixels
 
+#  Create a line from the given colour, as a list of tuples.
+#  The colour is expected to be a Tuple: (0, 0, 0)
+#  The return is a list of tuples; provides max compatibility.
+def colourLine(length, colour):
+    pixels = [colour]
+
+    for pixel in range(length):
+        
+        pixels.append(colour)
+    
+    return pixels
+
 #  Create a bar using a colourGradient tuple list.
 #  Length is the required element width from the tuple list.
 #  Height is the amount of times the bar is repeated vertically.
