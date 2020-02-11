@@ -10,7 +10,7 @@ are saved to disk as a savegame file.
 @author: Nuke Bloodaxe
 """
 
-import io, pygame, crew, ship, items, planets, random, buttons
+import io, os, pygame, crew, ship, items, planets, random, buttons
 import global_constants as g
 import helper_functions as h
 
@@ -35,7 +35,7 @@ class Generator(object):
         
         self.shipSelectStage = 1  #  Indicates if we are selecting Front, Center or rear segments.
         self.crewSelectStage = 1  #  Indicates what type of crew we are selecting.
-        self.shipCreator = pygame.image.load("Graphics_Assets\\char.png")
+        self.shipCreator = pygame.image.load(os.path.join('Graphics_Assets', 'char.png'))
         self.shipCreatorScaled = pygame.transform.scale(self.shipCreator, (g.width, g.height))
         self.shipCreatorScaled.set_colorkey(g.BLACK)
         self.shipStatisticsNames = ["Gun Emplacements", "Maximum Fuel",
@@ -50,44 +50,44 @@ class Generator(object):
         
         #  Load ship tiles.
         
-        self.frontHeavy = pygame.image.load("Graphics_Assets\\IS_F_HEAVY.png")
+        self.frontHeavy = pygame.image.load(os.path.join('Graphics_Assets', 'IS_F_HEAVY.png'))
         self.frontHeavyScaled = pygame.transform.scale(self.frontHeavy, ( int((g.width/320)*self.frontHeavy.get_width()), int((g.height/200)*self.frontHeavy.get_height())))
         self.frontHeavyScaled.set_colorkey(g.BLACK)
         
-        self.frontLight = pygame.image.load("Graphics_Assets\\IS_F_LIGHT.png")
+        self.frontLight = pygame.image.load(os.path.join('Graphics_Assets', 'IS_F_LIGHT.png'))
         self.frontLightScaled = pygame.transform.scale(self.frontLight, ( int((g.width/320)*self.frontLight.get_width()), int((g.height/200)*self.frontLight.get_height())))
         self.frontLightScaled.set_colorkey(g.BLACK)
         
-        self.frontStrategic = pygame.image.load("Graphics_Assets\\IS_F_STRATEGIC.png")
+        self.frontStrategic = pygame.image.load(os.path.join('Graphics_Assets', 'IS_F_STRATEGIC.png'))
         self.frontStrategicScaled = pygame.transform.scale(self.frontStrategic, ( int((g.width/320)*self.frontStrategic.get_width()), int((g.height/200)*self.frontStrategic.get_height())))
         self.frontStrategicScaled.set_colorkey(g.BLACK)
         
-        self.centerShuttle = pygame.image.load("Graphics_Assets\\IS_C_SHUTTLE.png")
+        self.centerShuttle = pygame.image.load(os.path.join('Graphics_Assets', 'IS_C_SHUTTLE.png'))
         self.centerShuttleScaled = pygame.transform.scale(self.centerShuttle, ( int((g.width/320)*self.centerShuttle.get_width()), int((g.height/200)*self.centerShuttle.get_height())))
         self.centerShuttleScaled.set_colorkey(g.BLACK)
         
-        self.centerAssault = pygame.image.load("Graphics_Assets\\IS_C_ASSAULT.png")
+        self.centerAssault = pygame.image.load(os.path.join('Graphics_Assets', 'IS_C_ASSAULT.png'))
         self.centerAssaultScaled = pygame.transform.scale(self.centerAssault, ( int((g.width/320)*self.centerAssault.get_width()), int((g.height/200)*self.centerAssault.get_height())))
         self.centerAssaultScaled.set_colorkey(g.BLACK)
         
-        self.centerStorm = pygame.image.load("Graphics_Assets\\IS_C_STORM.png")
+        self.centerStorm = pygame.image.load(os.path.join('Graphics_Assets', 'IS_C_STORM.png'))
         self.centerStormScaled = pygame.transform.scale(self.centerStorm, ( int((g.width/320)*self.centerStorm.get_width()), int((g.height/200)*self.centerStorm.get_height())))
         self.centerStormScaled.set_colorkey(g.BLACK)
         
-        self.rearTransport = pygame.image.load("Graphics_Assets\\IS_R_TRANSPORT.png")
+        self.rearTransport = pygame.image.load(os.path.join('Graphics_Assets', 'IS_R_TRANSPORT.png'))
         self.rearTransportScaled = pygame.transform.scale(self.rearTransport, ( int((g.width/320)*self.rearTransport.get_width()), int((g.height/200)*self.rearTransport.get_height())))
         self.rearTransportScaled.set_colorkey(g.BLACK)
         
-        self.rearFrigate = pygame.image.load("Graphics_Assets\\IS_R_FRIGATE.png")
+        self.rearFrigate = pygame.image.load(os.path.join('Graphics_Assets', 'IS_R_FRIGATE.png'))
         self.rearFrigateScaled = pygame.transform.scale(self.rearFrigate, ( int((g.width/320)*self.rearFrigate.get_width()), int((g.height/200)*self.rearFrigate.get_height())))
         self.rearFrigateScaled.set_colorkey(g.BLACK)
         
-        self.rearCruiser = pygame.image.load("Graphics_Assets\\IS_R_CRUISER.png")
+        self.rearCruiser = pygame.image.load(os.path.join('Graphics_Assets', 'IS_R_CRUISER.png'))
         self.rearCruiserScaled = pygame.transform.scale(self.rearCruiser, ( int((g.width/320)*self.rearCruiser.get_width()), int((g.height/200)*self.rearCruiser.get_height())))
         self.rearCruiserScaled.set_colorkey(g.BLACK)
         
         #  Load ball animation and resize all frames into 30 frame array.
-        self.ballSurface = pygame.image.load("Graphics_Assets\\charani.png")
+        self.ballSurface = pygame.image.load(os.path.join('Graphics_Assets', 'charani.png'))
         self.ballFrames = []
         self.prepareBallFrames()
         
@@ -531,7 +531,7 @@ class Generator(object):
         if self.generationStage == 0:
             #  Start generator screen music
             if self.musicState == False:
-                pygame.mixer.music.load("sound\\CHARGEN.OGG")
+                pygame.mixer.music.load(os.path.join('sound', 'CHARGEN.OGG'))
                 pygame.mixer.music.play()
                 self.systemState = 1
                 self.musicState = True

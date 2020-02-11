@@ -4,7 +4,7 @@ Created on Tue Jan 28 19:25:11 2020
 Ironseed Main Menu.
 @author: Nuke Bloodaxe
 """
-import pygame, buttons, sys
+import pygame, buttons, sys, os
 import helper_functions as h
 import global_constants as g
 
@@ -12,14 +12,14 @@ class MainMenu(object):
     def __init__(self):
         self.menuStage = 0  #  Current menu state.
         self.rollingStarfield = 0  #  Pixel index for the background starfield.
-        self.starField = pygame.image.load("Graphics_Assets\\cloud.png")
+        self.starField = pygame.image.load(os.path.join('Graphics_Assets', 'cloud.png'))
         self.musicState = False
         
         #  Prepare starfield for blitting.
         self.starFieldScaled = pygame.transform.scale(self.starField, (g.width, g.height))
         
         #  Main Menu Graphics
-        self.menuGraphic = pygame.image.load("Graphics_Assets\\intro5.png")
+        self.menuGraphic = pygame.image.load(os.path.join('Graphics_Assets', 'intro5.png'))
         
         #  Prepare menu graphic for blitting
         self.menuGraphicScaled = pygame.transform.scale(self.menuGraphic, (g.width, g.height))
@@ -61,7 +61,7 @@ class MainMenu(object):
     def MainMenuLoop(self, displaySurface):
         #  Start main intro music
         if self.menuStage == 0:
-            pygame.mixer.music.load("sound\\INTRO2.OGG")
+            pygame.mixer.music.load(os.path.join('sound', 'INTRO2.OGG'))
             pygame.mixer.music.play()
             self.musicState = True
             self.menuStage = 1 #  normally 1, use other stages for debug.
@@ -69,7 +69,7 @@ class MainMenu(object):
         if self.menuStage == 1:
             
             if self.musicState == False:
-                pygame.mixer.music.load("sound\\INTRO2.OGG")
+                pygame.mixer.music.load(os.path.join('sound', 'INTRO2.OGG'))
                 pygame.mixer.music.play()
                 self.musicState = True
             

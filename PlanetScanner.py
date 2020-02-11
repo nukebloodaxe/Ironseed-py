@@ -8,8 +8,9 @@ Planet Scanner
 # This requires rather a lot of things to be working beforehand.
 # However, it also is the best way to test the planet related code.
 
-import buttons, planets, pygame, items, ship, global_constants as g, helper_functions as h
-import random, math, io, time
+import random, math, io, time, os, buttons, planets, pygame, items, ship
+import global_constants as g
+import helper_functions as h
 
 # This class is essentially a self-contained game called "The planet scanner" ;)
 class PlanetScanner(object):
@@ -167,7 +168,7 @@ class PlanetScanner(object):
             
             #  Start scanner music
             if self.musicState == False:
-                pygame.mixer.music.load("sound\\SCANNER.OGG")
+                pygame.mixer.music.load(os.path.join('sound', 'SCANNER.OGG'))
                 pygame.mixer.music.play()
                 self.musicState = True
                 self.scannerStage += 1

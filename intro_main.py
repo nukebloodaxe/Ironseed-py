@@ -6,7 +6,7 @@ Intro module
 I know this is as ugly as sin, but I have to start learning somewhere...
 @author: Nuke Bloodaxe
 """
-import pygame, sys, time, random, numpy, pygame.sndarray, ironSeed, planets
+import pygame, sys, os, time, random, numpy, pygame.sndarray, ironSeed, planets
 import helper_functions as h
 import global_constants as g
 
@@ -52,15 +52,15 @@ class IronseedIntro(object):
                            "the Scavengers is to reunite the Kendar,",
                            "an ancient alliance among the free",
                            "worlds."]
-        self.starField = pygame.image.load("Graphics_Assets\\cloud.png")
-        self.channel7Logo = pygame.image.load("Graphics_Assets\\channel7.png")
-        self.mars = pygame.image.load("Graphics_Assets\\world.png")
-        self.charCom = pygame.image.load("Graphics_Assets\\charcom.png")
-        self.battle = pygame.image.load("Graphics_Assets\\battle1.png")
-        self.alienShip = pygame.image.load("Graphics_Assets\\alien.png")
-        self.ship = pygame.image.load("Graphics_Assets\\ship1.png")
-        self.intro5 = pygame.image.load("Graphics_Assets\\intro5.png")
-        self.ironseed = pygame.image.load("Graphics_Assets\\main3.png")
+        self.starField = pygame.image.load(os.path.join('Graphics_Assets', 'cloud.png'))
+        self.channel7Logo = pygame.image.load(os.path.join('Graphics_Assets', 'channel7.png'))
+        self.mars = pygame.image.load(os.path.join('Graphics_Assets', 'world.png'))
+        self.charCom = pygame.image.load(os.path.join('Graphics_Assets', 'charcom.png'))
+        self.battle = pygame.image.load(os.path.join('Graphics_Assets', 'battle1.png'))
+        self.alienShip = pygame.image.load(os.path.join('Graphics_Assets', 'alien.png'))
+        self.ship = pygame.image.load(os.path.join('Graphics_Assets', 'ship1.png'))
+        self.intro5 = pygame.image.load(os.path.join('Graphics_Assets', 'intro5.png'))
+        self.ironseed = pygame.image.load(os.path.join('Graphics_Assets', 'main3.png'))
         
         #  Prime intro stage checker
         self.introStage = 0
@@ -536,7 +536,7 @@ class IronseedIntro(object):
         
         #  Start main intro music
         if self.introStage == 0:
-            pygame.mixer.music.load("sound\\INTRO1.OGG")
+            pygame.mixer.music.load(os.path.join('sound', 'INTRO1.OGG'))
             pygame.mixer.music.play()
             self.introStage = 1 #  normally 1, use other stages for debug.
 

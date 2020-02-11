@@ -6,7 +6,7 @@ Crewmember Datastructure
 """
 #  TODO: Levelup messaging system, and crew messages in general.
 
-import io, pygame, random, global_constants as g
+import io, os, pygame, random, global_constants as g
 
 levelData ={0:0,1:1000,2:3000,3:7000,4:11000,5:18000,6:29000,7:47000,8:76000,
             9:123000,10:200000,11:350000,12:500000,13:650000,14:800000,
@@ -55,9 +55,9 @@ class CrewMember(object):
         self.image = image # hacky, but works ;)
         #  Resizing logic should be handled in another function.
         if image < 10:
-            self.image = pygame.image.load("Graphics_Assets\\image0"+str(image)+".png")
+            self.image = pygame.image.load(os.path.join('Graphics_Assets', 'image0'+str(image)+'.png'))
         else:
-            self.image = pygame.image.load("Graphics_Assets\\image"+str(image)+".png")
+            self.image = pygame.image.load(os.path.join('Graphics_Assets', 'image'+str(image)+'.png'))
         #self.resizedImage = self.image # placeholder
         self.resizedImage = pygame.transform.scale(self.image, ( int((g.width/320)*self.image.get_width()), int((g.height/200)*self.image.get_height())))
         
@@ -362,7 +362,7 @@ def findCrew(crewType, currentIndex, backward = False):
 
 #  Loads all crew data from the given file location.
 #  Note: Crew images are in numerical order for entries in IronPy_crew.tab
-def loadCrewData(file="Data_Generators\Other\IronPy_crew.tab"):
+def loadCrewData(file=os.path.join('Data_Generators', 'Other', 'IronPy_crew.tab')):
     crewFile = io.open(file, "r")
     crewName = ""
     crewDataString = []

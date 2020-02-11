@@ -4,7 +4,8 @@ Created on Mon Nov 25 19:32:51 2019
 Item Datastructures
 @author: Nuke Bloodaxe
 """
-import io, random, global_constants as g
+import io, os, random
+import global_constants as g
 
 itemDictionary = {}
 itemConstructionDictionary = {}
@@ -72,9 +73,9 @@ def findItemInPseudoArray(item):
 # Populate the item and item construction dictionaries.
 # we load from two different data files to do this, tab delimited.
 # Data Order: Name, cargosize, worth, part1, part2, part3, levels
-def loadItemData(file1="Data_Generators\Other\IronPy_items.tab",
-                 file2="Data_Generators\Other\IronPy_itemdata.tab",
-                 file3="Data_Generators\Other\IronPy_iteminfo.tab"):
+def loadItemData(file1=os.path.join('Data_Generators', 'Other', 'IronPy_items.tab'),
+                 file2=os.path.join('Data_Generators', 'Other', 'IronPy_itemdata.tab'),
+                 file3=os.path.join('Data_Generators', 'Other', 'IronPy_iteminfo.tab')):
     itemFile = io.open(file1, "r")
     itemString = itemFile.readline() # title line
     itemString = itemFile.readline() # spacer line

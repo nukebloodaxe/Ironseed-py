@@ -6,7 +6,7 @@ This system allows you to manipulate the EGO synths, shifting stats around
 in an attempt to keep them both stable and productive.
 @author: Nuke Bloodaxe
 """
-import crew, buttons, pygame, random
+import crew, buttons, pygame, random, os
 import global_constants as g
 import helper_functions as h
 
@@ -22,11 +22,9 @@ class EGOManipulator(object):
         self.crewPointer = 0  #  For code sanity!
         self.manipulationStage = 0
         #  Proposed figures from manipulation.
-        self.proposedEmotion = 0
-        self.proposedPhysical = 0
-        self.proposedMental = 0
         self.maxBubbles = 50  #  Historical Max is 50.
-        self.EGOInterface = pygame.image.load("Graphics_Assets\\psyche.png")
+        self.bubbles = []  #  All bubbles for a given character.
+        self.EGOInterface = pygame.image.load(os.path.join('Graphics_Assets', 'psyche.png'))
         self.EGOInterfaceScaled = pygame.transform.scale(self.EGOInterface, (g.width, g.height))
         self.EGOInterfaceScaled.set_colorkey(g.BLACK)
         
@@ -363,7 +361,7 @@ class EGOManipulator(object):
             #  Start main intro music
             if self.musicState == False:
                 
-                pygame.mixer.music.load("sound\\PSYEVAL.OGG")
+                pygame.mixer.music.load(os.path.join('sound', 'PSYEVAL.OGG'))
                 pygame.mixer.music.play()
                 self.musicState = True
                 self.manipulationStage += 1

@@ -7,7 +7,7 @@ Note: * is now used in keywords files to indicate multi-word terms.
 @author: Nuke Bloodaxe
 """
 
-import io, pygame, random, crew
+import io, os, pygame, random, crew
 import global_constants as g
 import helper_functions as h
 
@@ -26,7 +26,7 @@ class crewComm(object):
         self.selectedCrew = 0 #nobody
         self.state = 8
         #  Prepare background image
-        self.charCom = pygame.image.load("Graphics_Assets\\charcom.png")
+        self.charCom = pygame.image.load(os.path.join('Graphics_Assets', 'charcom.png'))
         self.charComScaled = pygame.transform.scale(self.charCom,(g.width,g.height))
         #  Prepare Character communication screen for blitting.
         self.charComScaled = pygame.transform.scale(self.charCom, (g.width, g.height))
@@ -59,7 +59,7 @@ class crewComm(object):
         
         #  Start main intro music
         if self.musicState == False:
-            pygame.mixer.music.load("sound\\CREWCOMM.OGG")
+            pygame.mixer.music.load(os.path.join('sound', 'CREWCOMM.OGG'))
             pygame.mixer.music.play()
             self.musicState = True
             
@@ -76,7 +76,7 @@ class crewComm(object):
 #  Note: We have some advantages with the reposnse lines, as they are written
 #  to the crew terminal character by character, we can take advantage of the
 #  data formatting codes dynamically.
-def loadCrewCommunications(file="Data_Generators\Other\crewcon",count=6,extension=".tab"):
+def loadCrewCommunications(file=os.path.join('Data_Generators', 'Other', 'crewcon'), count=6, extension='.tab'):
     
     for index in range(1,count+1):
         commFile = io.open(file+str(index)+extension, "r")

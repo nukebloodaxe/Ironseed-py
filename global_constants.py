@@ -4,7 +4,7 @@ Created on Sun Nov 24 15:26:54 2019
 Global Constants, used everywhere.
 @author: Nuke Bloodaxe
 """
-import pygame
+import pygame, os
 
 size = width, height = 640, 480  # screen dimensions
 #  Planet texture constants.
@@ -32,7 +32,7 @@ TECH4 = (200, 200, 0)
 TECH5 = (250, 250, 0)
 
 #  Fonts:  this is a temporary google font, get it from them.
-font = pygame.font.Font('Fonts\\NotoSansTC-Regular.otf', 12)
+font = pygame.font.Font(os.path.join('Fonts', 'NotoSansTC-Regular.otf'), 12)
 offset = 20  # for this font.
 
 #  Totals for items

@@ -5,7 +5,7 @@ All classes and methods related to weapons and shields.
 @author: Nuke Bloodaxe
 """
 
-import io
+import io, os
 
 weapons = {}
 shields = {}
@@ -30,7 +30,7 @@ class Shield(Weapon):
                         particleDamage, inertialDamage, energyDamage,
                         weaponRange)
         
-def loadWeaponsAndShields(file="Data_Generators\Other\IronPy_WeaponsAndShields.tab"):
+def loadWeaponsAndShields(file=os.path.join('Data_Generators', 'Other', 'IronPy_WeaponsAndShields.tab')):
     
     weaponShieldFile = io.open(file, "r")
     temp = [""]

@@ -26,8 +26,9 @@ These really deserve their own class and file.
 #  again I believe they will add more class to the game; quite why channel 7 never
 #  used that file is a mystery for now.
 
-import io, pygame, math, random, items
-import helper_functions as h, global_constants as g
+import io, os, pygame, math, random, items
+import helper_functions as h
+import global_constants as g
 
 PlanetarySystems = {} #  Original code indicates these max out at 250.
 
@@ -1087,7 +1088,7 @@ class PlanetarySystem(object):
 
 #  Note: Original code had name of planet based on orbit.
 #  ALPHA, BETA, GAMMA, DELTA, EPISILON, ZETA, ETA, THETA
-def initialisePlanets(planetNamesFile="Data_Generators\Other\IronPy_PlanetNames.tab"):
+def initialisePlanets(planetNamesFile=os.path.join('Data_Generators', 'Other', 'IronPy_PlanetNames.tab')):
     #  Load planet files and populate planet structure
 
     planetsFile = io.open(planetNamesFile, "r")
@@ -1175,7 +1176,7 @@ def renderPlanet(width, height, planetType, surface, step=0):
 #  This makes Ironseed somewhat roguelike, making no game the same twice.
 #  Note: Might be interesting to see if we can implement the travelling salesman
 #  Algo for working out shortest distance between systems on the starmap.
-def loadPlanetarySystems(planetarySystemsFile="Data_Generators\Other\IronPy_SystemData.tab"):
+def loadPlanetarySystems(planetarySystemsFile=os.path.join('Data_Generators', 'Other', 'IronPy_SystemData.tab')):
     systemsFile = io.open(planetarySystemsFile, "r")
     systemDataString = (systemsFile.readline().split('\n')[0]).split('\t') #Data Line line
     while systemDataString[0] != "ENDF":
@@ -1266,7 +1267,7 @@ def populatePlanetarySystems():
             break
 
 # Load in scanData, used during planet scans.
-def loadScanData(scannerFile="Data_Generators\Other\IronPy_scandata.tab"):
+def loadScanData(scannerFile=os.path.join('Data_Generators', 'Other', 'IronPy_scandata.tab')):
     scanFile = io.open(scannerFile, "r")
     scanDataString = (scanFile.readline().split('\n')[0]).split('\t') #Data Line line
     while scanDataString[0] != "ENDF":

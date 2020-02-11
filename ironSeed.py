@@ -5,7 +5,7 @@ Game state machine.
 Handles the main render and tick loop.
 @author: Nuke Bloodaxe
 """
-import pygame, sys, time, random, numpy, pygame.sndarray, intro_main
+import pygame, os, sys, time, random, numpy, pygame.sndarray, intro_main
 import ship, crew, items, planets, weaponsAndShields, PlanetScanner
 import mainMenu, saveAndLoad, EGOSynthManipulator
 import GameGenerator as gen
