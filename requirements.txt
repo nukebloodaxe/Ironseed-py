@@ -4,6 +4,7 @@
 ###### Requirements without Version Specifiers ######
 pygame
 io
+os
 math
 random
 sys
