@@ -40,7 +40,7 @@ class PlanetScanner(object):
                           "Crystalline", "Symbiots", "Floaters"]
         
         #  Planet Scanner related graphics layers.
-        self.scanInterface = pygame.image.load(os.path('Graphics_Assets', 'landform.png'))
+        self.scanInterface = pygame.image.load(os.path.join('Graphics_Assets', 'landform.png'))
         self.scanInterfaceScaled = pygame.transform.scale(self.scanInterface, (g.width, g.height))
         self.scanInterfaceScaled.set_colorkey(g.BLACK)
         
