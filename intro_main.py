@@ -75,7 +75,7 @@ class IronseedIntro(object):
         
         self.scavengerStep = 0
         
-        self.crashlandingStep = 0
+        self.crashLandingStep = 0
 
         self.centredX = 0.0
         self.centeredY = 0.0
@@ -131,21 +131,29 @@ class IronseedIntro(object):
         self.ironseedScaled = pygame.transform.scale(self.ironseed, (g.width, g.height))
         self.ironseedScaled.set_colorkey(g.BLACK)
         
+        #  Create blue status bar for additive overlay.
+        self.blueBar = h.colourLine((g.width/320)*106, g.BLUE)
+        self.fullBlueBar = h.createBar(self.blueBar, int((g.width/320)*106), int((g.height/200)*10)+1)
+        
+        
+        
     def isIntroFinished(self):
         return self.introFinished
     
     def resetIntro(self):
-        self.count = 0
+        self.count = 1
         self.length = 0
         self.encodeStep = 0
         self.introStage = 0
+        self.scavengerStep = 0
+        self.crashLandingStep = 0
         self.introFinished = False
         self.musicState = False
     
     def resetCounts(self, stage):
         self.introStage = stage
         self.count = 0
-        self.fade.set_alpha(10)        
+        self.fade.set_alpha(10)
     
     #  Create the channel 7 logo atop static background by gradually
     #  bringing lines of pixels onto screen.
@@ -468,7 +476,7 @@ class IronseedIntro(object):
         elif (self.scavengerStep >= 15 and self.scavengerStep <= 270):
             #  No Timer, this needs to be FAST!
             #  TODO:  Fix mysterous bug here!
-            #Note:  Voodoo bug!  Looks to be hardware surface mapping issue!
+            #  Note:  Voodoo bug!  Looks to be hardware surface mapping issue!
             displaySurface.set_colorkey(g.RED)
             displaySurface.fill(g.BLACK)
             displaySurface.set_colorkey(g.BLACK)
@@ -515,11 +523,23 @@ class IronseedIntro(object):
     
     #  Ironseed receives damage, and then crash lands.
     #  Use planet "Icarus" from Oban system for planet to left of main view.
+    #  'Icarus' needs to be displayed at 1/3 size.
     #  Blue bars are used to indicate status as the ship comes under attack.
     def ironseedCrash(self, width, height, displaySurface, count):
         
-        finished = False
+        displaySurface.blit(self.ironseedScaled, (0, 0))
         
+        finished = False
+        #  self.crashLandingStep
+        #  1, 159 - text box location.
+        
+        #  186, 35 - Hull integrity bar.  106 wide, 10 high.
+        
+        #  186, 55 - Primary Power
+        
+        #  186, 75 - Auxiliary power.
+        
+        #  186, 95 - Shield Strength.
         
         return finished
     
@@ -703,7 +723,7 @@ class IronseedIntro(object):
                 
         #  Fade Out
         if self.introStage == 14:
-            print("Stage 14")
+            #print("Stage 14")
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
             self.count +=1
             pygame.time.wait(100)
