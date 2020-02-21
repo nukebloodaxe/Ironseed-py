@@ -132,7 +132,7 @@ class IronseedIntro(object):
         self.ironseedScaled.set_colorkey(g.BLACK)
         
         #  Create blue status bar for additive overlay.
-        self.blueBar = h.colourLine((g.width/320)*106, g.BLUE)
+        self.blueBar = h.colourLine(int((g.width/320)*106), g.BLUE)
         self.fullBlueBar = h.createBar(self.blueBar, int((g.width/320)*106), int((g.height/200)*10)+1)
         
         
@@ -149,6 +149,7 @@ class IronseedIntro(object):
         self.crashLandingStep = 0
         self.introFinished = False
         self.musicState = False
+        self.fade.set_alpha(10)
     
     def resetCounts(self, stage):
         self.introStage = stage
@@ -398,8 +399,8 @@ class IronseedIntro(object):
     def scavengersAttack(self, displaySurface, width, height, step):
         finished = False
         currentTimer = 0
-        lowerThird = int(7*(g.height/10))
-        centerWidth = int(g.width/16)
+        lowerThird = int(6*(g.height/10))
+        centerWidth = int(g.width/16)*2
         #  Show the ship being examined
         
         if self.scavengerStep == 0:
@@ -721,7 +722,7 @@ class IronseedIntro(object):
             if finished:
                 self.resetCounts(14)
                 
-        #  Fade Out
+        #  Fade Out.
         if self.introStage == 14:
             #print("Stage 14")
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
@@ -739,16 +740,25 @@ class IronseedIntro(object):
             if finished:
                 self.resetCounts(16)
         
-        #  Fade Out
+        #  Fade Out, Using RED, quickly.
         if self.introStage == 16:
+            finished = h.fadeOut(g.width, g.height, displaySurface, self.count, g.RED)
+            self.count +=1
+            pygame.time.wait(10)
+            if finished:
+                self.resetCounts(17)
+                
+        #  Fade red to black.
+        if self.introStage == 17:
+
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
             self.count +=1
             pygame.time.wait(100)
             if finished:
-                self.resetCounts(17)
+                self.resetCounts(18)
         
         #  Synopsis of the goal, which is to reunite the Kendar, is given.
-        if self.introStage == 17:
+        if self.introStage == 18:
             
             finished = self.planetTextGenerate(self.introText8, "Icarus",
                                                self.battleScaled,
@@ -758,11 +768,12 @@ class IronseedIntro(object):
             
             self.count +=1
             if finished:
-                self.resetCounts(18)
+                self.resetCounts(19)
 
         #  check to see if we have reached final intro stage here.
-        if self.introStage == 18:
-            self.resetCounts(0)
+        if self.introStage == 19:
+            
+            self.resetIntro()
             return 2  #  Go to game main menu.
         
         return 3 #  Intro is ongoing

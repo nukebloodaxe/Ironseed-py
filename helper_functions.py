@@ -262,7 +262,7 @@ def fadeInText(text, width, height, colour, surface, step=0, darken=False, centr
 
 
 #  Fade out a given surface.
-def fadeOut(width, height, surface, step):
+def fadeOut(width, height, surface, step, fillColour = g.BLACK):
     finished = False
     fade = pygame.Surface(g.size)
     fade.fill(g.BLACK)
@@ -273,7 +273,7 @@ def fadeOut(width, height, surface, step):
     return finished
 
 #  Fade in a given surface.
-def fadeIn(width, height, surface, step):
+def fadeIn(width, height, surface, step, fillColour = g.BLACK):
     finished = False
     fade = pygame.Surface(g.size)
     fade.fill(g.BLACK)
