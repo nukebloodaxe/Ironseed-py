@@ -55,9 +55,12 @@ class CrewMember(object):
         self.image = image # hacky, but works ;)
         #  Resizing logic should be handled in another function.
         if image < 10:
+            
             self.image = pygame.image.load(os.path.join('Graphics_Assets', 'image0'+str(image)+'.png'))
         else:
+            
             self.image = pygame.image.load(os.path.join('Graphics_Assets', 'image'+str(image)+'.png'))
+            
         #self.resizedImage = self.image # placeholder
         self.resizedImage = pygame.transform.scale(self.image, ( int((g.width/320)*self.image.get_width()), int((g.height/200)*self.image.get_height())))
         
@@ -67,6 +70,7 @@ class CrewMember(object):
         self.skill = self.physical*0.6 + self.emotion*0.4 - self.mental*0.2
         
     def printDebug(self):
+        
         print(self.name)
         print(self.experience)
         print(self.level)
@@ -78,24 +82,36 @@ class CrewMember(object):
         print(self.bio)
         
     def checkLevel(self):
+        
         if self.level == 20: return False
+        
         levelUp = False
+        
         if levelData[self.level+1] < self.experience:
             self.level += 1
             levelUp = True
             
             if self.mental < 99:
+                
                 self.mental += 1
+                
             if self.emotion < 99:
+                
                 self.emotion += 1
+                
             if self.physical < 99:
+                
                 self.physical += 1
+                
+            self.recalculateStatus()
                 
         return levelUp
     
     #  Add experience and check to see if we leveled up.
     def addXP(self, amount):
+        
         levelUp = False
+        
         if self.experience < 25000000:
         
             self.experience += amount
@@ -105,18 +121,23 @@ class CrewMember(object):
     
     #  Resize the crew graphic according to the provided parameters.
     def resizeCrewImage(self, x = g.width, y = g.height):
+        
         self.resizedImage = pygame.transform.scale(self.image, (x, y))
     
     #  Display the resized crew image at given coordinates.
     #  Note: Never display the internal self.image data, it won't be scaled right.
     def displayCrewImage(self, displaySurface, x, y):
+        
         displaySurface.blit(self.resizedImage,(x, y))
         
     #  The temporary insanity system is... odd.
     def tempInsanity(self):
+        
         # there is a 1 in 6 change of this happening.
         if int(random.randint(0,5)) == 0:
+            
             return "" # Nothing happens
+        
         return insanityIndex[random.randrange(0,19)]
     
     #  Ego Synths are a bit "unstable", given they are lacking physical forms.
@@ -124,21 +145,31 @@ class CrewMember(object):
     def sanityCheck(self):
         
         if self.sanity > 0:
+            
             self.sanity -= 1
             
         if self.emotion > 1:
+            
             self.emotion -= 2
+            
         else:
+            
             self.emotion = 0
             
         if self.mental > 0:
+            
             self.mental -= 1
         
         if self.physical < 99:
+            
             self.physical += 1
         
+        self.recalculateStatus()
+        
         if random.randint(1,80) > self.sanity:
+            
             return self.tempInsanity()
+        
         
         return "" # Nothing special happens.
 
@@ -149,43 +180,164 @@ class CrewMember(object):
         skillSuccess = random.randint(1,80)
         skillCheck = False
         sanityReport = ""
+        
         #  You need to roll under the skill level, like D&D, to be successful.
         if skillSuccess > self.skill:
+            
             skillSuccess = random.randint(1,80)
+            
             #  Now we roll to see how bad things get.
             if skillSuccess > self.performance:
+                
                 if self.performance > 0: self.performance -= 1
                 
                 if self.mental > 1:
+                    
                     self.mental -= 2
                 else:
                     self.mental = 0
                     
                 if self.physical > 0: self.physical -= 1
                 if self.emotion < 99: self.emotion += 1
+                
             #  Check to see if we've lost the plot completely.
             if self.performance == 0:
+                
                 sanityReport = self.sanityCheck()
                 #  TODO
                 if self.skill > 0: self.skill -= 1
+                
                 if self.physical > 1:
+                    
                     self.physical -= 2
+                    
                 else:
+                    
                     self.physcial = 0
+                    
                 if self.emotion > 0: self.emotion -= 1
                 if self.mental < 99: self.mental += 1 #destroying things is cathartic
         else:
             skillCheck = True
+            
+        self.recalculateStatus()
+            
         return skillCheck, sanityReport
     
     #  Crewmember message, add colour parameter later.
     def crewMessage(self, message):
+        
         return self.position + ': ' + message
     
+    #  Increase Mental by one point.
+    def increaseMental(self):
+        
+        if self.mental == 99 or self.emotion < 2 or self.physical == 99:
+            
+                pass
+            
+        else:
+            self.mental += 1
+            self.physical += 1
+            self.emotion -= 2
+        
+        self.recalculateStatus()
+                
+    #  Decrease Mental by one point.
+    def decreaseMental(self):
+        
+        if self.mental == 0 or self.emotion > 97 or self.physical == 0:
+            
+                pass
+            
+        else:
+            
+            if self.mental > 0:
+                
+                self.mental -= 1
+            
+            if self.physical > 0:
+            
+                self.physical -= 1
+            
+            self.emotion += 2
+        
+        self.recalculateStatus()
+
+    #  Increase Physical by one point.
+    def increasePhysical(self):
+        
+        if self.mental < 2 or self.emotion == 99 or self.physical == 99:
+        
+            pass
+        
+        else:
+            self.mental -= 2
+            self.physical += 1
+            self.emotion += 1
+            
+        self.recalculateStatus()
+            
+    #  Decrease Physical by one point.
+    def decreasePhysical(self):
+        
+        if self.mental > 97 or self.emotion == 0 or self.physical == 0:
+        
+            pass
+        
+        else:
+            self.mental += 2
+            
+            if self.physical > 0:
+            
+                self.physical -= 1
+            
+            if self.emotion > 0:
+                
+                self.emotion -= 1
+        
+        self.recalculateStatus()
+    
+    #  Increase emotion by one point.
+    def increaseEmotion(self):
+        
+        if self.mental == 99 or self.emotion == 99 or self.physical < 2:
+            
+            pass
+        
+        else:
+            
+            self.mental += 1
+            self.physical -= 2
+            self.emotion += 1
+        
+        self.recalculateStatus()
+
+    #  Decrease emotion by one point.
+    def decreaseEmotion(self):
+        
+        if self.mental == 0 or self.emotion == 0 or self.physical > 97:
+            
+            pass
+        
+        else:
+            if self.mental > 0:
+                
+                self.mental -= 1
+            
+            self.physical += 2
+            
+            if self.emotion > 0:
+                
+                self.emotion -= 1
+                
+        self.recalculateStatus()
+
     #  Recalculate the EGO's derived snaity/performace/skill values.
     #  This needs to be called every time a change is made to the EGO's
     #  base values.
     def recalculateStatus(self):
+        
         self.sanity = self.emotion*0.6 + self.mental*0.4 - self.physical*0.2
         self.performance = self.mental*0.6 + self.physical*0.4 - self.emotion*0.2
         self.skill = self.physical*0.6 + self.emotion*0.4 - self.mental*0.2
@@ -212,6 +364,7 @@ class Crew(object):
                                 #  for display later.
     #  Setup the internal objects to the actual crewmember objects we are using.
     def setCrew(self, psychometry, engineering, science, security, astrogation, medical):
+        
         self.psychometry = psychometry #  Role 1 
         self.engineering = engineering #  Role 2
         self.science = science #  Role 3
@@ -224,28 +377,43 @@ class Crew(object):
     #  Add a message to the pending messages queue, these are printed onscreen
     #  later.  crewMember is the EGO Synth containment unit number.
     def addMessage(self, message, crewMember):
+        
         self.crewMessages.append((message, crewMember))
     
     #  Get a message from the pending messages queue.  Returns an empty string
     #  when no messages are pending.
     def getMessage(self):
+        
         if len(self.crewMessages) == 0:
+            
             return ("",-1) # No message.
+        
         return self.crewMessages.pop()
     
     #  EGO sanity failure.  Returns text output of insane EGO, or blank string
     #  if it's still holding it together.
     def sanityFailure(self, crewMember):
         sanityResult = ""
+        
         if (crewMember.mental < 10) or (crewMember.emotion < 10) or (crewMember.physical < 10):
+            
             sanityResult = crewMember.tempInsanity()
+            
         d8Roll = random.randint(1,8)
+        
         if (d8Roll == 1) and (crewMember.mental > 0):
+            
             crewMember.mental -= 1
+            
         elif (d8Roll == 2) and (crewMember.physical > 0):
+            
             crewMember.physcial -= 1
+            
         elif (d8Roll == 4) and (crewMember.emotion > 0):
+            
             crewMember.emotion -= 1
+            
+        crewMember.recalculateStatus()
                 
         return sanityResult
     
@@ -255,11 +423,17 @@ class Crew(object):
         sanityResult = False
         sanity = crewMember.sanity
         diff = difficulty
+        
         if crewMember.sanity <= 5:
+            
             sanity = 5
+            
         if diff <= 0:
+            
             diff = 1
+            
         if random.randint(1,sanity+diff) < sanity:
+            
             sanityResult = True
         
         return sanityResult
@@ -267,65 +441,101 @@ class Crew(object):
     #  Stress test crewMember.  Failure increments game stress level.
     #  Note: this almost looks like a primative form of the modern game director.
     def crewStress(self, crewMember, difficulty):
+        
         diff = difficulty - crewMember.performance
         
         if not self.sanityTest(crewMember,diff):
+            
             if g.gameStatus < 99:
+                
                 g.gameStatus += 1
     
     def performanceTest(self, crewMember, difficulty):
+        
         perf = crewMember.performance
         diff = difficulty
         performanceResult = False
+        
         if perf <= 5:
+            
             perf = 5
+            
         if diff <= 0:
+            
             diff = 1
+            
         if random.randint(1,perf+diff) < perf:
+            
             performanceResult = True
         
         return performanceResult
 
 
     def performanceRange(self, crewMember, difficulty):
+        
         perf = crewMember.performance
         diff = difficulty
+        
         if perf <= 5:
+            
             perf = 5
+            
         if diff <= 0:
+            
             diff = 1
         
         return random.randint(1,perf) - random.randint(1,diff)
     
     
     def skillTest(self, crewMember, difficulty, learn):
+        
         skillResult = False
         skill = crewMember.skill
         diff = difficulty
+        
         if skill <= 5:
+            
             skill = 5
+            
         if diff <= 0:
+            
             diff = 1
+            
         if random.randint(1,skill+diff) < skill:
+            
             skillResult = True
             self.crewStress(crewMember, 0)
+            
         else:
             self.crewStress(crewMember,abs(diff-skill))
+            
         if random.randint(1,1000) < learn:
+            
             if crewMember.addXP(difficulty):
+                
                 self.addMessage(crewMember.crewMessage('Increased knowledge base.'))
+                
         return skillResult
     
     def skillRange(self, crewMember, difficulty, learn):
+        
         skill = crewMember.skill
         diff = difficulty
+        
         if skill <= 5:
+            
             skill = 5
+            
         if diff <= 0:
+            
             diff = 1
+            
         if random.randint(1,1000) < learn:
+            
             if crewMember.addXP(difficulty):
+                
                 self.addMessage(crewMember.crewMessage('Increased knowledge base.'))
+                
         self.crewStress(crewMember,(100*diff)/skill)
         return random.randint(1,skill)-random.randint(1,diff)
     
@@ -340,6 +550,7 @@ class Crew(object):
 #  by a given type of crew member.
 #  Forward, False, by default.  Backward, True.
 def findCrew(crewType, currentIndex, backward = False):
+    
     notFound = True
     
     while notFound:
@@ -363,19 +574,25 @@ def findCrew(crewType, currentIndex, backward = False):
 #  Loads all crew data from the given file location.
 #  Note: Crew images are in numerical order for entries in IronPy_crew.tab
 def loadCrewData(file=os.path.join('Data_Generators', 'Other', 'IronPy_crew.tab')):
+    
     crewFile = io.open(file, "r")
     crewName = ""
     crewDataString = []
     temp = ""
     count = 1 #  Image file names start at 01 (e.g. image01.png)
+    
     while temp != "ENDF":
+        
         crewName = crewFile.readline().split('\n')[0] #name line
         crewDataString = (crewFile.readline().split('\n')[0]).split('\t') #Data Line line
         temp = crewFile.readline().split('\n')[0]
         crewBioString = [] #  Character Bio
+        
         while temp != "END" and temp != "ENDF":
+            
             crewBioString.append(temp)
             temp = crewFile.readline().split('\n')[0]
+            
         crew = CrewMember(crewName,crewDataString[3],crewDataString[5],
                           crewDataString[4],crewDataString[0],
                           crewDataString[1],crewDataString[2],

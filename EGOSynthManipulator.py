@@ -221,89 +221,27 @@ class EGOManipulator(object):
             
         elif self.mentalUp.within(currentPosition):
             
-            if self.crewPointer.mental == 99 or self.crewPointer.emotion < 2 or self.crewPointer.physical == 99:
-            
-                pass
-            
-            else:
-                self.crewPointer.mental += 1
-                self.crewPointer.physical += 1
-                self.crewPointer.emotion -= 2
+            self.crewPointer.increaseMental()
                 
         elif self.mentalDown.within(currentPosition):
             
-            if self.crewPointer.mental == 0 or self.crewPointer.emotion > 97 or self.crewPointer.physical == 0:
-            
-                pass
-            
-            else:
-                
-                if self.crewPointer.mental > 0:
-                    
-                    self.crewPointer.mental -= 1
-                
-                if self.crewPointer.physical > 0:
-                
-                    self.crewPointer.physical -= 1
-                
-                self.crewPointer.emotion += 2
+            self.crewPointer.decreaseMental
                     
         elif self.physicalUp.within(currentPosition):
             
-            if self.crewPointer.mental < 2 or self.crewPointer.emotion == 99 or self.crewPointer.physical == 99:
-            
-                pass
-            
-            else:
-                self.crewPointer.mental -= 2
-                self.crewPointer.physical += 1
-                self.crewPointer.emotion += 1
+            self.crewPointer.increasePhysical()
             
         elif self.physicalDown.within(currentPosition):
             
-            if self.crewPointer.mental > 97 or self.crewPointer.emotion == 0 or self.crewPointer.physical == 0:
-            
-                pass
-            
-            else:
-                self.crewPointer.mental += 2
-                
-                if self.crewPointer.physical > 0:
-                
-                    self.crewPointer.physical -= 1
-                
-                if self.crewPointer.emotion > 0:
-                    
-                    self.crewPointer.emotion -= 1
+            self.crewPointer.decreasePhysical()
             
         elif self.emotionalUp.within(currentPosition):
             
-            if self.crewPointer.mental == 99 or self.crewPointer.emotion == 99 or self.crewPointer.physical < 2:
-            
-                pass
-            
-            else:
-                
-                self.crewPointer.mental += 1
-                self.crewPointer.physical -= 2
-                self.crewPointer.emotion += 1
+            self.crewPointer.increaseEmotion()
                     
         elif self.emotionalDown.within(currentPosition):
             
-            if self.crewPointer.mental == 0 or self.crewPointer.emotion == 0 or self.crewPointer.physical > 97:
-            
-                pass
-            
-            else:
-                if self.crewPointer.mental > 0:
-                    
-                    self.crewPointer.mental -= 1
-                
-                self.crewPointer.physical += 2
-                
-                if self.crewPointer.emotion > 0:
-                    
-                    self.crewPointer.emotion -= 1
+            self.crewPointer.decreaseEmotion()
                     
         elif self.previous.within(currentPosition):
             
@@ -370,13 +308,13 @@ class EGOManipulator(object):
             
             # rewind and start music playing again if track end reached.
             if not pygame.mixer.music.get_busy():
+                
                 pygame.mixer.music.play()
-
             
-            self.crewPointer.recalculateStatus()
             self.drawInterface(displaySurface)
             #  Run slow!
             pygame.time.wait(50)
+            
         else:
             self.musicState = False
             self.manipulationStage = 0
