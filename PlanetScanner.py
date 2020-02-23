@@ -144,7 +144,7 @@ class PlanetScanner(object):
         
         elif self.zoomOut.within(currentPosition):
             
-            if zoomLevel > 0:
+            if self.zoomLevel > 0:
                 self.zoomLevel -= 1
         
         elif self.Retrieve.within(currentPosition):
