@@ -68,6 +68,8 @@ class Planet(object):
         #  Planet texture related data
         self.planetTexture = pygame.Surface((g.planetWidth, g.planetHeight), 0)
         self.planetTexture.set_colorkey(g.BLACK)
+        self.planetTextureExists = False  #  Have we generated the planet?
+        
         #  self.createPlanet()
         #  Note: if you see a system with a star called 'UNKNOWN',
         #        then you have a serious problem.
@@ -797,6 +799,94 @@ class Planet(object):
             
         return eclipseCoverage
 
+    #  Generate the planet texture which is used for sphere mapping.
+    def generatePlanetTexture(self):
+        
+        if self.planetTextureExists:
+            return
+        
+        adjustedPixel = 0  # to avoid using modulus later.
+        #  math.radians(degrees)
+        #  width of terrain: len(self.planetTerrain[0][0])
+        #  Height of surface sphereSurface.get_height()
+        tempPlanet = pygame.Surface((g.planetWidth, g.planetHeight), 0)
+        tempPlanet.set_colorkey(g.BLACK)
+        tempPlanet2 = pygame.PixelArray(tempPlanet)
+        #  360 degrees in a circle.
+        
+        #print("Width: ", g.planetWidth, "Height: ", g.planetHeight)
+        #print("Array Height: ", len(self.planetTerrain))
+        #print("Array Width: ", len(self.planetTerrain[0]))
+        #print("Surface Height: ", len(tempPlanet2))
+        #print("Surface Width: ", len(tempPlanet2[0]))
+        
+        for x in range(0, g.planetWidth):
+            #print("X: ", x)
+            for y in range(0, g.planetHeight):
+                #print("Y: ", y)
+                if self.water > self.planetTerrain[y][x]:
+                    #print("water")
+                    #  Water depth support...
+                    #  TODO : preliminary support
+                    #  Current blue is based on difference between water level and terrain
+                    tempPlanet2[x][y] = (0,
+                                         0,
+                                         (self.water-self.planetTerrain[y][x]))
+
+                #  Check for technology, if pixel = technology, then put bright
+                #  yellow pixel.  This is based on tech level.
+                
+                elif self.planetTerrain[y][x] == 255:
+                    #print("technology")
+                    Technology = self.getTechLevel()
+                
+                    if Technology <= 1:
+                        if Technology > 0:
+                            tempPlanet2[x][y] = g.TECH1
+                            
+                    elif Technology <= 2:
+                        tempPlanet2[x][y] = g.TECH2
+                            
+                    elif Technology <= 3:
+                        tempPlanet2[x][y] = g.TECH3
+                            
+                    elif Technology <= 4:
+                        tempPlanet2[x][y] = g.TECH4
+                            
+                    elif Technology <= 5:
+                        tempPlanet2[x][y] = g.TECH5
+                            
+                    else:
+                        tempPlanet2[x][y] = g.YELLOW
+                            
+                #  TODO : Green pixels based on life present.
+                elif self.planetTerrain[y][x] < self.vegitationLevel[1]:
+                    #print("Vegitation")
+                    tempPlanet2[x][y] = (0,
+                                         self.planetTerrain[y][x],
+                                         0)
+
+                
+                else:
+                    # TODO:  Add the correct colours.
+                    #print("Terrain")
+                    #  Stop land being transparent.
+                    if self.planetTerrain[y][x] == 0:
+                        tempPlanet2[x][y] = ((self.planetTerrain[y][x])+1,
+                                             (self.planetTerrain[y][x])+1,
+                                             (self.planetTerrain[y][x])+1)
+                    else:
+                        tempPlanet2[x][y] = (self.planetTerrain[y][x],
+                                             self.planetTerrain[y][x],
+                                             self.planetTerrain[y][x])
+
+        tempPlanet2.close()
+        
+        #  Test texture surface, have a look at it when it is flat.
+        self.planetTexture = tempPlanet
+        self.planetTextureExists = True
+        
+
     #  Wrap a flat surface to a pseudo sphere.
     #  The idea is that we can take a defined area of a planet, a flat surface,
     #  and convert it into a "sphere" which we can rotate every so often.
@@ -829,7 +919,7 @@ class Planet(object):
                     #  TODO : preliminary support
                     #  Current blue is based on difference between water level and terrain
                     if safeX <= eclipseMask:
-                        tempPlanet2[y][safeX] = (0,
+                        tempPlanet2[safeX][y] = (0,
                                                  0,
                                                  (self.water-self.planetTerrain[y][bitmapSafeX]))
                     else:
@@ -838,7 +928,7 @@ class Planet(object):
                         if adjustedPixel >= 255:
                             adjustedPixel = 254
                         
-                        tempPlanet2[y][safeX] = (0,
+                        tempPlanet2[safeX][y] = (0,
                                                  0,
                                                  adjustedPixel)
                     #print("What should be here: ", str((0, 0, self.water-self.planetTerrain[y][bitmapSafeX])))
@@ -852,27 +942,27 @@ class Planet(object):
                 
                     if Technology <= 1:
                         if Technology > 0:
-                            tempPlanet2[y][safeX] = g.TECH1
+                            tempPlanet2[safeX][y] = g.TECH1
                             
                     elif Technology <= 2:
-                        tempPlanet2[y][safeX] = g.TECH2
+                        tempPlanet2[safeX][y] = g.TECH2
                             
                     elif Technology <= 3:
-                        tempPlanet2[y][safeX] = g.TECH3
+                        tempPlanet2[safeX][y] = g.TECH3
                             
                     elif Technology <= 4:
-                        tempPlanet2[y][safeX] = g.TECH4
+                        tempPlanet2[safeX][y] = g.TECH4
                             
                     elif Technology <= 5:
-                        tempPlanet2[y][safeX] = g.TECH5
+                        tempPlanet2[safeX][y] = g.TECH5
                             
                     else:
-                        tempPlanet2[y][safeX] = g.YELLOW
+                        tempPlanet2[safeX][y] = g.YELLOW
                             
                 #  TODO : Green pixels based on life present.
                 elif self.planetTerrain[y][bitmapSafeX] < self.vegitationLevel[1]:
                     if safeX <= eclipseMask:
-                        tempPlanet2[y][safeX] = (0,
+                        tempPlanet2[safeX][y] = (0,
                                                  self.planetTerrain[y][bitmapSafeX],
                                                  0)
                     else:
@@ -881,7 +971,7 @@ class Planet(object):
                         if adjustedPixel >= 255:
                             adjustedPixel = 254
                         
-                        tempPlanet2[y][safeX] = (0,
+                        tempPlanet2[safeX][y] = (0,
                                                  adjustedPixel,
                                                  0)
                 
@@ -894,11 +984,11 @@ class Planet(object):
                     if safeX <= eclipseMask:
                         #  Stop land being transparent.
                         if self.planetTerrain[y][bitmapSafeX] == 0:
-                            tempPlanet2[y][safeX] = (self.planetTerrain[y][bitmapSafeX]+1,
+                            tempPlanet2[safeX][y] = (self.planetTerrain[y][bitmapSafeX]+1,
                                                      self.planetTerrain[y][bitmapSafeX]+1,
                                                      self.planetTerrain[y][bitmapSafeX]+1)
                         else:
-                            tempPlanet2[y][safeX] = (self.planetTerrain[y][bitmapSafeX],
+                            tempPlanet2[safeX][y] = (self.planetTerrain[y][bitmapSafeX],
                                                      self.planetTerrain[y][bitmapSafeX],
                                                      self.planetTerrain[y][bitmapSafeX])
                     else:
@@ -907,10 +997,10 @@ class Planet(object):
                         if adjustedPixel >= 255:
                             adjustedPixel = 254
                         
-                        tempPlanet2[y][safeX] = (adjustedPixel,
+                        tempPlanet2[safeX][y] = (adjustedPixel,
                                                  adjustedPixel,
                                                  adjustedPixel)
-                    #tempPlanet2[y][safeX] = (0,self.planetTerrain[y][bitmapSafeX],0)
+                    #tempPlanet2[safeX][y] = (0,self.planetTerrain[y][bitmapSafeX],0)
                     
         """       
         if tempPlanet.get_height() < 180:
@@ -946,7 +1036,7 @@ class Planet(object):
                 
                 try:
                     xLocus, yLocus = h.map(x, y, g.planetHeight, g.planetHeight)
-                    tempPlanet4[yLocus][xLocus] = tempPlanet2[y][x]
+                    tempPlanet4[xLocus][yLocus] = tempPlanet2[x][y]
                     #count += 1
                 except:
                     exceptions += 1
@@ -957,9 +1047,11 @@ class Planet(object):
         #  Test texture surface, have a look at it when it is flat.
         #  Note: scale will be incorrect as target is smaller.  This is okay.
         self.planetTexture = tempPlanet
+        self.planetTextureExists = False  #  Flat planet texture clobbered.
         #self.planetTexture.blit(tempPlanet,(0,0))
         #  I know, but this is something that needs investigating further.
-        sphereSurface.blit(pygame.transform.rotate(tempPlanet3, 90), (0,0))
+        #sphereSurface.blit(pygame.transform.rotate(tempPlanet3, 90), (0,0))
+        sphereSurface.blit(tempPlanet3, (0,0))
         return tempPlanet3
         #  That's it!
         # Alternative approach finish.
@@ -1079,12 +1171,52 @@ class PlanetarySystem(object):
         self.visits += 1 # It is HIGHLY unlikely we'll roll this over...
         self.dateMonth = g.starDate[0]
         self.dateYear = g.starDate[2]
+    
+    #  Return the planet object at a given orbit.
+    #  False on failure.
+    def getPlanetAtOrbit(self, orbit):
+        
+        #print("Looking for orbit: ", orbit)
+        
+        for planet in self.planets:
+            
+            #print("Checking Orbit: ", planet.orbit)
+            
+            if planet.orbit == orbit:
+                
+                return planet
+        
+        return False
         
     #  A trick to show the name as "UNKNOWN" when a system has not been visited.
     def getName(self):
         if self.visits > 0:
             return self.systemName
         return "UNKNOWN"
+
+#  Find a planetary system associated with a given set of coordinates.
+def findPlanetarySystem(X = 0.0, Y = 0.0, Z = 0.0):
+        
+    #print("Given Values: ", X, Y, Z)
+    
+    for pSystem in PlanetarySystems:
+        
+        #print(PlanetarySystems[pSystem].positionX, PlanetarySystems[pSystem].positionY, PlanetarySystems[pSystem].positionZ)
+        
+        system = PlanetarySystems[pSystem]
+        
+        if system.positionX == X:
+            
+            if system.positionY == Y:
+                
+                if system.positionZ == Z:
+                    
+                    #print("I has System: ", system.systemName)
+                    
+                    return system
+    
+    return False  #  This can work ;)
+                    
 
 #  Note: Original code had name of planet based on orbit.
 #  ALPHA, BETA, GAMMA, DELTA, EPISILON, ZETA, ETA, THETA
@@ -1136,7 +1268,7 @@ def transformCheckPlanet(planet):
     # chance of transformation.
     #TODO
     #BIG ALGO HERE
-    Planets[planet] = (name,state,grade)
+    Planets[planet] = (name, state, grade)
     
 """
 # Render a planet using an approximation of the old IronSeed Algorithm.
@@ -1189,8 +1321,10 @@ def loadPlanetarySystems(planetarySystemsFile=os.path.join('Data_Generators', 'O
     #  Populate the Planetary Systems Dictionary.
     
     for system in SystemData:
-        PlanetarySystems[system[0]] = PlanetarySystem(system[0], system[1],
-                                                      system[2], system[3])
+        PlanetarySystems[system[0]] = PlanetarySystem(system[0],
+                                                      system[1],
+                                                      system[2],
+                                                      system[3])
 
     systemsFile.close()
 
@@ -1238,10 +1372,13 @@ def populatePlanetarySystems():
                 
                 if orbit == 1:
                     
+                    Planets[count].water = 0
+                    Planets[count].seed = 7007                    
                     Planets[count].state = 2
                     Planets[count].grade = 3
                     Planets[count].orbit = 2
                     Planets[count].age = 2000
+                    Planets[count].createPlanet()
                 
                 elif orbit == 2:
 
@@ -1249,6 +1386,7 @@ def populatePlanetarySystems():
                     Planets[count].grade = 3
                     Planets[count].orbit = 4
                     Planets[count].age = 2000
+                    Planets[count].createPlanet()
                     
             system.planets.append(Planets[count])
             
