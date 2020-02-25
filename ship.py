@@ -46,10 +46,10 @@ class Ship(object):
         #self.Crew() # debating about storing this here...
         
         #  Planetary System related variables: initialised to New Game values.
-        self.orbiting = 1
-        self.positionX = 166
-        self.positionY = 226
-        self.positionZ = 33
+        self.orbiting = 2  #  Icarus.
+        self.positionX = 16.6
+        self.positionY = 22.6
+        self.positionZ = 3.3
         
         #  Engineering related variables
         self.systemDamage = [25, 15, 2, 3, 16, 55, 22]#New game start values.
@@ -83,10 +83,19 @@ class Ship(object):
         #  Ship messages that need printing, not role specific.
         self.shipMessages = []
     
+    #  Get our current position as x,y,z values.
+    def getPosition(self):
+        return self.positionX, self.positionY, self.positionZ
+    
+    #  Get our orbit.
+    def getOrbit(self):
+        return self.orbiting
+    
     #  Add a message to the pending messages queue, these are printed onscreen
     #  later.  CrewMember is the EGO Synth containment unit number.
     def addMessage(self, message, crewMember):
         self.shipMessages.append((message, crewMember))
+        
     
     #  Get a message from the pending messages queue.  Returns an empty string
     #  when no messages are pending.
