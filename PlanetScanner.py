@@ -76,6 +76,9 @@ class PlanetScanner(object):
         # Special
         self.planetMap = buttons.Button(int((g.width/320)*239), int((g.height/200)*119), (int((g.width/320)*28), int((g.height/200)*13)))
         
+        #  The planet object.
+        self.thePlanet = "placeholder"
+        
         #  Music/Sound handlers.
         self.musicState = False
         
@@ -87,12 +90,12 @@ class PlanetScanner(object):
         pass
     
     # The planet we will scan for anomalies etc.
-    def scanPlanet(self, planet):
+    def scanPlanet(self):
         
         pass
     
     # Retrieve anomalies and put into ship cargo.
-    def retrieveAnomalies(self, planet):
+    def retrieveAnomalies(self):
         
         pass
     
@@ -161,6 +164,12 @@ class PlanetScanner(object):
         
         return self.systemState
     
+    def drawInterface(self, displaySurface):
+        
+        displaySurface.fill(g.BLACK)
+        displaySurface.blit(self.scanInterfaceScaled, (0, 0))
+        displaySurface.blit(self.thePlanet.planetTexture, self.mainViewBoundary)
+    
     def runScanner(self, displaySurface):
         
         #  System setup.
@@ -172,9 +181,22 @@ class PlanetScanner(object):
                 pygame.mixer.music.play()
                 self.musicState = True
                 self.scannerStage += 1
+                
+            #  Establish ship position and planet.
+            X, Y, Z = self.ironSeed.getPosition()
+            self.thePlanet = planets.findPlanetarySystem(X, Y, Z).getPlanetAtOrbit(self.ironSeed.getOrbit())
+            
+            if self.thePlanet.planetTextureExists == False:
+                self.thePlanet.generatePlanetTexture()
         
-        # rewind and start music playing again if track end reached.
-        if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.play()
+        if self.scannerStage == 1:
+            
+            self.drawInterface(displaySurface)
+            
+        
+            # rewind and start music playing again if track end reached.
+            if not pygame.mixer.music.get_busy():
+                    
+                pygame.mixer.music.play()
 
         return self.systemState
