@@ -20,7 +20,9 @@ class RepairTeam(object):
 #  At this level we use game start values.  On game load all of this is expected
 #  to be overwritten with the conents of the save file.
 class Ship(object):
+    
     def __init__(self):
+        
         self.name = "De Bug"
         self.gunNodes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.gunMax = 0
@@ -85,23 +87,29 @@ class Ship(object):
     
     #  Get our current position as x,y,z values.
     def getPosition(self):
+        
         return self.positionX, self.positionY, self.positionZ
     
     #  Get our orbit.
     def getOrbit(self):
+        
         return self.orbiting
     
     #  Add a message to the pending messages queue, these are printed onscreen
     #  later.  CrewMember is the EGO Synth containment unit number.
     def addMessage(self, message, crewMember):
+        
         self.shipMessages.append((message, crewMember))
         
     
     #  Get a message from the pending messages queue.  Returns an empty string
     #  when no messages are pending.
     def getMessage(self):
+        
         if len(self.shipMessages) == 0:
+            
             return ("",-1) # No message.
+        
         return self.shipMessages.pop()
     
     #  Add an item to cargo, different to original.
@@ -110,38 +118,55 @@ class Ship(object):
     #  random loss of a cargo type if we overfill the hold.
     #  Returns cargo added success as boolean, alongside the remainder.
     def addCargo(self, itemName, quantity):
+        
         cargoAdded = False
         itemWeight = items.itemDictionary[itemName].cargoSize
         totalWeight = itemWeight * quantity
         usedCargo = self.totalCargoSize()
         quantityLeft = quantity
+        
         #  TODO: Force Artifacts to add regardless of size.
         if usedCargo + totalWeight > self.cargoMax:
+            
             while usedCargo + itemWeight <= self.cargoMax:
                 
                 #  Try to add as many possible into cargo hold.
                 try:
+                    
                     self.cargo[itemName][1] += 1
+                    
                 except:
+                    
                     self.cargo[itemName] = [itemName, 1]
+                    
                 usedCargo = self.totalCargoSize()
                 quantityLeft -= 1
                 cargoAdded = True
+                
         else:
+            
             try:
+                
                 self.cargo[itemName][1] += quantity
+                
             except:
+                
                 self.cargo[itemName] = [itemName, quantity]
+                
             cargoAdded = True
             quantityLeft = 0
         
         if quantityLeft > 0:
+            
             quantity = quantityLeft # Experiment.
+            
             if cargoAdded == False:
+                
                 self.addMessage("Cargo Full!", 2)
                 self.addMessage(str(usedCargo)+'/'+str(self.cargoMax)+' used.', 2)
             
             else:
+                
                 self.addMessage("Cargo Filled During Transfer!", 2)
                 self.addMessage(str(usedCargo)+'/'+str(self.cargoMax)+' used.', 2)
                 self.addMessage(str(quantity)+" units were left behind!", 2)
@@ -151,16 +176,22 @@ class Ship(object):
     #  Remove a quantity of cargo, returning True and the quantity remaining on
     #  success, else False and quantity removed.
     def removeCargo(self, itemName, quantity ):
+        
         cargoRemoved = False
         quantityLeft = quantity
         items = 0
+        
         try:
+            
             items = self.cargo[itemName][1]
+            
         except:
+            
             self.cargo[itemName] = [itemName, 0]
             items = 0
         
         if items >= quantity:
+            
             quantityLeft = items - quantity
             cargoRemoved = True
             
@@ -168,41 +199,68 @@ class Ship(object):
             
             self.addMessage("No " + itemName + " found in cargo!", 2)
             quantityLeft = 0
+            
         else:
+            
             quantityLeft -= self.cargo[itemName][1]
             self.cargo[itemName][1] = 0
         
         return cargoRemoved, quantityLeft
+    
+    #  Get Item Count for a given item possibly in cargo.
+    def getItemQuantity(self, itemName):
         
+        try:
+            
+            return self.cargo[itemName][1]
+        
+        except:
+            
+            self.addMessage("No " + itemName + " found in cargo!", 2)
+            return 0
         
     #  Find total cubic meters of all cargo in hold.
     def totalCargoSize(self):
+        
         totalSize = 0
+        
         for item in self.cargo:
+            
             if item[1] >= 1:
+                
                 count = item[1]
+                
                 while count > 0:
+                    
                     totalSize += items.itemDictionary[item[0]].cargoSize
                     count -= 1
+                    
         return totalSize  #  This function does not judge...
     
     #  Check to see if we are overweight.  Background switch determines
     #  if this is in the lower left corner log window, or somewhere else.
     def checkOverweight(self, background = False):
+        
         overweight = False
         #  Role 2 for messages.
         weight = self.totalCargoSize()
         #  Print a big dialogue message if it happens in the background.
         #  As to how that would happen... Tribbles?
+        
         if weight > self.cargoMax:
+            
             #  Big dialogue box!
             if background:
+                
                 #  TODO: Big Box functionality.
                 pass
+            
             else:
+                
                 self.addMessage("Cargo Full!", 2)
                 self.addMessage(str(weight)+'/'+str(self.cargoMax)+' used.', 2)
                 self.addMessage('Must Jettison cargo.', 2)
+                
             overweight = True
             
         return overweight #  This function does judge...
@@ -235,6 +293,7 @@ class Ship(object):
         self.hullMax = 0
         
         if self.frontHull == 1:
+            
             self.name = "Heavy "
             self.gunMax = 2
             self.mass = 334
@@ -242,13 +301,16 @@ class Ship(object):
             self.hullMax = 200
             
         elif self.frontHull == 2:
+            
             self.name = "Light "
             self.gunMax = 1
             self.mass = 334
             self.maxFuel = 250
             self.cargoMax = 50
-            self.hullMax = 150            
+            self.hullMax = 150
+            
         else:
+            
             self.name = "Strategic "
             self.gunMax = 3
             self.mass = 501
@@ -257,20 +319,25 @@ class Ship(object):
             self.cargoMax = 0
             
         if self.centerHull == 1:
+            
             self.name += "Shuttle "
             self.gunMax += 3
             self.mass += 501
             self.maxFuel += 350
             self.cargoMax += 50
             self.hullMax += 700
+            
         elif self.centerHull == 2:
+            
             self.name += "Assault "
             self.gunMax += 4
             self.mass += 668
             self.maxFuel += 300
             self.cargoMax += 100
             self.hullMax += 600
+            
         else:
+            
             self.name += "Storm "
             self.gunMax += 5
             self.mass += 835
@@ -279,17 +346,22 @@ class Ship(object):
             self.hullMax += 600
             
         if self.rearHull == 1:
+            
             self.name += "Transport"
             self.gunMax += 0  #  ?
             self.cargoMax += 100
-            self.hullMax += 100            
+            self.hullMax += 100
+            
         elif self.rearHull == 2:
+            
             self.name += "Frigate"
             self.gunMax += 1
             self.mass += 167
             self.cargoMax += 50
             self.hullMax += 100
+            
         else:
+            
             self.name += "Cruiser"
             self.gunMax += 2
             self.mass += 330
@@ -301,4 +373,5 @@ class Ship(object):
     #  Recalculate the ship stats, normally used when checking after mass
     #  changes or the application of upgrades.
     def recalculateShipStats(self):
+        
         pass
