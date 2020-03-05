@@ -121,22 +121,31 @@ class PlanetScanner(object):
         #  Landform bounding area for planet texture
         self.mainViewBoundary = (int((g.width/320)*28),
                                  int((g.height/200)*13),
-                                 int((g.width/320)*239),
-                                 int((g.height/200)*119))
+                                 int((g.width/320)*267),
+                                 int((g.height/200)*132))
         
-        #  Zoomed view bounding area for planet texture.
+        #  Zoomed view bounding area for zoomed planet texture.
         self.zoomedViewBoundary = (int((g.width/320)*206),
-                                   int((g.height/200)*139),
-                                   int((g.width/320)*59),
-                                   int((g.height/200)*59))
+                                   int((g.height/200)*140),
+                                   int((g.width/320)*265),
+                                   int((g.height/200)*198))
         
         #  Selected zone for zoomedViewBoundary; default = top left corner.
-        self.zoomedViewBoundary = (int((g.width/320)*28),
+        self.zoomedViewSelected = (int((g.width/320)*28),
                                    int((g.height/200)*13),
                                    int((g.width/320)*59),
                                    int((g.height/200)*59))
         
-        self.zoomLevel = 0  #  The zoom applied to the zoom view.  Max 3.
+        self.zoomLevel = 1  #  The zoom applied to the zoom view.  Max 3.
+        
+        #  Zoom texture for showing zoomed area of landmass.
+        self.zoomTexture = pygame.Surface((int((g.width/320)*59),
+                                           int((g.height/200)*59)),
+                                          0)
+        
+        self.zoomTextureScaled = pygame.transform.scale(self.zoomTexture,
+                                                        (int((g.width/320)*59),
+                                                         int((g.height/200)*59)))
         
         #  bounding for writing graphic = (28, 13, 18, 15)
         
@@ -186,6 +195,28 @@ class PlanetScanner(object):
         
         return self.runScanner(displaySurface)
     
+    #  Regenerate the texture for the zoomed in area of land.
+    def setZoomTexture(self):
+        
+        self.zoomTexture.blit(self.thePlanet.planetTexture,
+                              (0, 0),
+                              self.zoomedViewSelected)
+        
+        #  Generate the zoom texture according to zoom level.
+     
+        tempTexture = pygame.transform.scale(self.zoomTexture,
+                                             ((int((g.width/320)*59)*self.zoomLevel),
+                                             (int((g.height/200)*59)*self.zoomLevel)))
+        
+        self.zoomTextureScaled = pygame.transform.scale(tempTexture,
+                                                        (int((g.width/320)*59),
+                                                         int((g.height/200)*59)))
+        
+        self.zoomTextureScaled.blit(tempTexture, 
+                                    (0, 0), 
+                                    (0, 0, int((g.width/320)*59), int((g.height/200)*59)))
+        
+    
     # Handle mouse events for user interaction.
     def interact(self, mouseButton):
         
@@ -227,11 +258,14 @@ class PlanetScanner(object):
             
             if self.zoomLevel < 3:
                 self.zoomLevel += 1
+                self.setZoomTexture()
         
         elif self.zoomOut.within(currentPosition):
             
-            if self.zoomLevel > 0:
+            if self.zoomLevel > 1:
                 self.zoomLevel -= 1
+                self.setZoomTexture()
+        
         
         elif self.Retrieve.within(currentPosition):
             
@@ -240,10 +274,11 @@ class PlanetScanner(object):
         elif self.planetMap.within(currentPosition):
             
             #  Change view point for zoomed view.
-            self.zoomedViewBoundary = (currentPosition[0],
+            self.zoomedViewSelected = (currentPosition[0],
                                        currentPosition[1],
-                                       self.zoomedViewBoundary[2],
-                                       self.zoomedViewBoundary[3])
+                                       currentPosition[0]+int((g.width/320)*59),
+                                       currentPosition[1]+int((g.height/200)*59))
+            self.setZoomTexture()
         
         return self.systemState
     
@@ -282,7 +317,9 @@ class PlanetScanner(object):
         displaySurface.fill(g.BLACK)
         displaySurface.blit(self.scanInterfaceScaled, (0, 0))
         displaySurface.blit(self.thePlanet.planetTexture, self.mainViewBoundary)
+        displaySurface.blit(self.zoomTextureScaled, self.zoomedViewBoundary)
         
+            
         #  I know this looks strange, but it is efficient.
         
         if self.probotCount >= 1:
