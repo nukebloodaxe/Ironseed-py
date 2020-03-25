@@ -12,22 +12,27 @@ import random, math, io, time, os, buttons, planets, pygame, items, ship
 import global_constants as g
 import helper_functions as h
 
-# This class is essentially a self-contained game called "The planet scanner" ;)
+# This class is essentially a mini-game called "The planet scanner" ;)
 class PlanetScanner(object):
     
     def __init__(self, playerShip):
         
-        self.scannerStage = 0 # what we are doing.
+        self.scannerStage = 0  # what we are doing.
         self.ironSeed = playerShip
         self.probotCount = self.ironSeed.getItemQuantity("Probot")
         self.scanning = [False, False, False, False, False]
         # lithosphere, hydrosphere, atmosphere, biosphere, anomaly
+        self.scanned = [0, 0, 0, 0, 0]  # Historically 0 to 2.
+        # lithosphere, hydrosphere, atmosphere, biosphere, anomaly
         
         # Up to 4 probots can be partaking in a scan
-        self.probot1 = [0,0] # red dot position
-        self.probot2 = [0,0]
-        self.probot3 = [0,0]
-        self.probot4 = [0,0]
+        self.probot1 = [0, 0]  # red dot position
+        self.probot2 = [0, 0]
+        self.probot3 = [0, 0]
+        self.probot4 = [0, 0]
+        
+        self.probotLaunched = False
+        self.probotRetrieve = False
         
         self.probotStatus = [1, 1, 1, 1]
         #  Status, in order from 0:
@@ -166,7 +171,9 @@ class PlanetScanner(object):
         self.Retrieve = buttons.Button(0, 0, (0, 0))
         
         # Special
-        self.planetMap = buttons.Button(int((g.width/320)*239), int((g.height/200)*119), (int((g.width/320)*28), int((g.height/200)*13)))
+        self.planetMap = buttons.Button(int((g.height/200)*119),
+                                        int((g.width/320)*239),
+                                        (int((g.width/320)*28), int((g.height/200)*13)))
         
         #  The planet object.
         self.thePlanet = "placeholder"
@@ -273,11 +280,28 @@ class PlanetScanner(object):
         
         elif self.planetMap.within(currentPosition):
             
+            # The position on the screen needs to be adjusted for the relative
+            # texture position.
+            
+            AdjustedPositionX = currentPosition[0] - self.mainViewBoundary[0]
+            AdjustedPositionY = currentPosition[1] - self.mainViewBoundary[1]
+            
+            #  Check the selected area is still within the bounds of the map.
+            #  If not, restrict position into bounding area.
+            if (currentPosition[0] + int((g.width/320)*59)) > self.mainViewBoundary[2]:
+                
+                AdjustedPositionX = self.mainViewBoundary[2] - int((g.width/320)*59)
+
+            if (currentPosition[1] + int((g.height/200)*59)) > self.mainViewBoundary[3]:
+                
+                AdjustedPositionY = self.mainViewBoundary[3] - int((g.height/200)*59)
+                
             #  Change view point for zoomed view.
-            self.zoomedViewSelected = (currentPosition[0],
-                                       currentPosition[1],
-                                       currentPosition[0]+int((g.width/320)*59),
-                                       currentPosition[1]+int((g.height/200)*59))
+            self.zoomedViewSelected = (AdjustedPositionX,
+                                       AdjustedPositionY,
+                                       int((g.width/320)*59),
+                                       int((g.height/200)*59))
+            
             self.setZoomTexture()
         
         return self.systemState
@@ -287,70 +311,77 @@ class PlanetScanner(object):
     #  destination is a pygame rect
     #  TODO:  transit, complex planet resize required.
     def drawProbotMonitor(self, displaySurface, stage, destination):
-        
+
         if stage == 0:
-            
+
             displaySurface.blit(self.probotScanningScaled, destination)
-            
+
         elif stage == 1:
-            
+
             displaySurface.blit(self.probotDockedScaled, destination)
-        
+
         elif stage == 2:
-            
+
             displaySurface.blit(self.probotRefuelScaled, destination)
-            
+
         elif stage == 3:
-            
+
             displaySurface.blit(self.probotTransitScaled, destination)
-            
+
         elif stage == 4:
-            
+
             displaySurface.blit(self.probotTransitScaled, destination)
-            
+
         else:
-            
+
              displaySurface.blit(self.probotEmptyScaled, destination)
-    
+
     def drawInterface(self, displaySurface):
-        
+
         displaySurface.fill(g.BLACK)
         displaySurface.blit(self.scanInterfaceScaled, (0, 0))
         displaySurface.blit(self.thePlanet.planetTexture, self.mainViewBoundary)
         displaySurface.blit(self.zoomTextureScaled, self.zoomedViewBoundary)
         
-            
+        #  Draw bounding rectangle on map view.
+        rectangle = (self.zoomedViewSelected[0] + self.mainViewBoundary[0],
+                     self.zoomedViewSelected[1] + self.mainViewBoundary[1],
+                     self.zoomedViewSelected[2],
+                     self.zoomedViewSelected[3])
+        pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
+
+
         #  I know this looks strange, but it is efficient.
-        
+
         if self.probotCount >= 1:
-            
+
             self.drawProbotMonitor(displaySurface,
                                    self.probotStatus[0],
                                    self.probot1BoundingBoxScaled)
         else:
-            
+
             self.drawProbotMonitor(displaySurface,
                                    99,
                                    self.probot1BoundingBoxScaled)
-        
+
         if self.probotCount >= 2:
-            
+
             self.drawProbotMonitor(displaySurface,
                                    self.probotStatus[1],
                                    self.probot2BoundingBoxScaled)
         else:
-            
+
             self.drawProbotMonitor(displaySurface,
                                    99,
                                    self.probot2BoundingBoxScaled)
-            
+
         if self.probotCount >= 3:
-            
+
             self.drawProbotMonitor(displaySurface,
                                    self.probotStatus[2],
                                    self.probot3BoundingBoxScaled)
         else:
-            
+
             self.drawProbotMonitor(displaySurface,
                                    99,
                                    self.probot3BoundingBoxScaled)
@@ -389,6 +420,7 @@ class PlanetScanner(object):
                 
             #  Sort out Probot count.
             self.probotCount = self.ironSeed.getItemQuantity("Probot")
+            self.setZoomTexture()
         
         if self.scannerStage == 1:
             
