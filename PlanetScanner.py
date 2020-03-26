@@ -291,10 +291,12 @@ class PlanetScanner(object):
             if (currentPosition[0] + int((g.width/320)*59)) > self.mainViewBoundary[2]:
                 
                 AdjustedPositionX = self.mainViewBoundary[2] - int((g.width/320)*59)
+                AdjustedPositionX -= self.mainViewBoundary[0]
 
             if (currentPosition[1] + int((g.height/200)*59)) > self.mainViewBoundary[3]:
                 
                 AdjustedPositionY = self.mainViewBoundary[3] - int((g.height/200)*59)
+                AdjustedPositionY -= self.mainViewBoundary[1]
                 
             #  Change view point for zoomed view.
             self.zoomedViewSelected = (AdjustedPositionX,
