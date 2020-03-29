@@ -8,9 +8,94 @@ Planet Scanner
 # This requires rather a lot of things to be working beforehand.
 # However, it also is the best way to test the planet related code.
 
-import random, math, io, time, os, buttons, planets, pygame, items, ship
+import random, math, io, time, os, buttons, planets, pygame, items, ship, crew
 import global_constants as g
 import helper_functions as h
+
+# To encapsulate most probot logic
+class Probot(object):
+    
+    def __init__(self, x, y, xEnd, yEnd):
+        
+        self.probotLaunched = False
+        self.probotDestroyed = False
+        self.probotRetrieving = False
+        self.haveCargo = False
+        self.planetPosition = [0, 0]  # Red dot position on scanner
+
+        #  Status, in order from 0:
+        #  Docked, Deployed, Orbiting, Gathering, Analyzing, Returning,
+        #  Refueling.
+        self.status = 0
+        
+        #  Probot timer for current runtime.
+        #  Could use stopwatch, but results might be "unrealistic."
+        self.timer = 0
+        
+        #  Operation times, based on frames for the moment.
+        self.timeLimit = 30
+        
+        #  Probots have 4 acivity monitors on main screen, these are the
+        #  bounding-box positions.
+        self.probotBoundingBox = (x, y, xEnd, yEnd)
+
+        self.probotBoundingBoxScaled = (int((g.width/320)*x),
+                                        int((g.height/200)*y),
+                                        int((g.width/320)*xEnd),
+                                        int((g.height/200)*yEnd))
+
+        # Descriptors
+        self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Analyzing",
+                               "Gathering", "Returning", "Refueling",
+                               "Destroyed"]
+
+    # reset the timer.
+    def resetTimer(self):
+        
+        self.timer = 0
+
+    #  Perform probot tick related functions.
+    def tick(self):
+        
+        if self.probotLaunched:
+        
+            self.timer += 1
+        
+            if self.timer == 30:
+            
+                if self.status == 6:
+                
+                    self.status = 2
+                    
+                else:
+                    
+                    self.status += 1
+                    
+                self.timer = 0
+            
+        if self.probotRetrieving:
+            
+            self.timer += 1
+            
+            if self.timer == 30:
+                
+                if self.status == 4:
+                    
+                    self.haveCargo = True
+                    self.status = 5
+                    
+                    
+                elif self.status == 6:
+                        
+                    self.status = 0
+                    self.probotRetrieving = False
+                    
+                else:
+                    
+                    self.status += 1
+                
+                self.timer = 0
+        
 
 # This class is essentially a mini-game called "The planet scanner" ;)
 class PlanetScanner(object):
@@ -35,6 +120,7 @@ class PlanetScanner(object):
         self.probotRetrieve = False
         
         self.probotStatus = [1, 1, 1, 1]
+        self.probotTimer = [0, 0, 0, 0]  # Timer for each stage.
         #  Status, in order from 0:
         #  Scanning, Docked, Refueling, Transit To, Transit Back.
         
@@ -186,7 +272,42 @@ class PlanetScanner(object):
     # Launch probots for a scan
     def launchProbots(self):
         
-        pass
+        self.probotStatus[3, 3, 3, 3]
+        
+    # Run an update tick of the probot timer logic.
+    def probotTick(self):
+        
+        if self.probotStatus[0] not 1:
+            
+            self.probotTimer[0] += 1
+        
+        if self.probotStatus[1] not 1:
+            
+            self.probotTimer[1] += 1
+            
+        if self.probotStatus[2] not 1:
+            
+            self.probotTimer[2] += 1
+            
+        if self.probotStatus[3] not 1:
+            
+            self.probotTimer[3] += 1
+            
+    # Destroy a quantity of Probots.
+    #  TODO:  Make more elaborate with big popup box and report on how it was
+    #  destroyed.
+    def destroyProbot(self, quantity):
+        
+        self.ironSeed.removeCargo("Probot", quantity)
+        self.probotCount = self.ironSeed.getItemQuantity("Probot")
+        
+        if quantity > 1:
+            
+            self.ironseed.addMessage( str(quantity) + " Probots Destroyed!", 3)
+                
+        else:
+            
+            self.ironseed.addMessage( "Probot Destroyed!", 3)
     
     # The planet we will scan for anomalies etc.
     def scanPlanet(self):
@@ -426,6 +547,7 @@ class PlanetScanner(object):
         
         if self.scannerStage == 1:
             
+            self.probotTick() # Run a tick update for the probots.
             self.drawInterface(displaySurface)
             
         
