@@ -542,6 +542,11 @@ class IronseedIntro(object):
         
         #  186, 95 - Shield Strength.
         
+        #  Placeholder
+        if count == 200:
+            
+            finished = True
+        
         return finished
     
     # Handle mouse events for user interaction.
