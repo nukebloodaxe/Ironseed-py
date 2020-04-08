@@ -13,6 +13,7 @@ import global_constants as g
 import helper_functions as h
 
 # To encapsulate most probot logic
+# Having launch and retrieve here allows for asynchronous operations.
 class Probot(object):
     
     def __init__(self, x, y, xEnd, yEnd):
@@ -24,7 +25,7 @@ class Probot(object):
         self.planetPosition = [0, 0]  # Red dot position on scanner
 
         #  Status, in order from 0:
-        #  Docked, Deployed, Orbiting, Gathering, Analyzing, Returning,
+        #  Docked, Deployed, Orbiting, Analyzing, Gathering, Returning,
         #  Refueling.
         self.status = 0
         
@@ -37,9 +38,9 @@ class Probot(object):
         
         #  Probots have 4 acivity monitors on main screen, these are the
         #  bounding-box positions.
-        self.probotBoundingBox = (x, y, xEnd, yEnd)
+        self.BoundingBox = (x, y, xEnd, yEnd)
 
-        self.probotBoundingBoxScaled = (int((g.width/320)*x),
+        self.BoundingBoxScaled = (int((g.width/320)*x),
                                         int((g.height/200)*y),
                                         int((g.width/320)*xEnd),
                                         int((g.height/200)*yEnd))
@@ -111,60 +112,11 @@ class PlanetScanner(object):
         # lithosphere, hydrosphere, atmosphere, biosphere, anomaly
         
         # Up to 4 probots can be partaking in a scan
-        self.probot1 = [0, 0]  # red dot position
-        self.probot2 = [0, 0]
-        self.probot3 = [0, 0]
-        self.probot4 = [0, 0]
-        
-        self.probotLaunched = False
-        self.probotRetrieve = False
-        
-        self.probotStatus = [1, 1, 1, 1]
-        self.probotTimer = [0, 0, 0, 0]  # Timer for each stage.
-        #  Status, in order from 0:
-        #  Scanning, Docked, Refueling, Transit To, Transit Back.
-        
-        #  Probots have 4 acivity monitors on main screen, these are the
-        #  bounding-box positions.
-        self.probot1BoundingBox = (281,
-                                  18,
-                                  312,
-                                  43)
+        self.probot = [Probot(281, 18, 312, 43),
+                       Probot(281, 58, 312, 83),
+                       Probot(281, 98, 312, 83),
+                       Probot(281, 138, 312, 163)]
 
-        self.probot2BoundingBox = (281,
-                                  58,
-                                  312,
-                                  83)
-
-        self.probot3BoundingBox = (281,
-                                  98,
-                                  312,
-                                  123)
-        
-        self.probot4BoundingBox = (281,
-                                  138,
-                                  312,
-                                  163)
-        
-        self.probot1BoundingBoxScaled = (int((g.width/320)*281),
-                                        int((g.height/200)*18),
-                                        int((g.width/320)*312),
-                                        int((g.height/200)*43))
-        
-        self.probot2BoundingBoxScaled = (int((g.width/320)*281),
-                                        int((g.height/200)*58),
-                                        int((g.width/320)*312),
-                                        int((g.height/200)*83))
-        
-        self.probot3BoundingBoxScaled = (int((g.width/320)*281),
-                                        int((g.height/200)*98),
-                                        int((g.width/320)*312),
-                                        int((g.height/200)*123))
-        
-        self.probot4BoundingBoxScaled = (int((g.width/320)*281),
-                                        int((g.height/200)*138),
-                                        int((g.width/320)*312),
-                                        int((g.height/200)*163))
         
         # Descriptors
         self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Gathering",
@@ -190,20 +142,21 @@ class PlanetScanner(object):
         #  Launched and in transit.  281, 138:301, 160.
         #  When no probot present, blank area of unit with black square.
         
+        
         self.probotScanning = pygame.Surface((31, 24), 0)
-        self.probotScanning.blit(self.scanInterface, (0, 0), self.probot1BoundingBox )
+        self.probotScanning.blit(self.scanInterface, (0, 0), self.probot[0].BoundingBox )
         self.probotScanningScaled = pygame.transform.scale(self.probotScanning, (int((g.width/320)*31), int((g.height/200)*24)))
         
         self.probotDocked = pygame.Surface((31, 24), 0)
-        self.probotDocked.blit(self.scanInterface, (0, 0), self.probot2BoundingBox )
+        self.probotDocked.blit(self.scanInterface, (0, 0), self.probot[1].BoundingBox )
         self.probotDockedScaled = pygame.transform.scale(self.probotDocked, (int((g.width/320)*30), int((g.height/200)*24)))
         
         self.probotRefuel = pygame.Surface((31, 24), 0)
-        self.probotRefuel.blit(self.scanInterface, (0, 0), self.probot3BoundingBox )
+        self.probotRefuel.blit(self.scanInterface, (0, 0), self.probot[2].BoundingBox )
         self.probotRefuelScaled = pygame.transform.scale(self.probotRefuel, (int((g.width/320)*31), int((g.height/200)*24)))
         
         self.probotTransit = pygame.Surface((31, 24), 0)
-        self.probotTransit.blit(self.scanInterface, (0, 0), self.probot4BoundingBox )
+        self.probotTransit.blit(self.scanInterface, (0, 0), self.probot[3].BoundingBox )
         self.probotTransitScaled = pygame.transform.scale(self.probotTransit, (int((g.width/320)*31), int((g.height/200)*24)))
         
         self.probotEmpty = pygame.Surface((31, 24), 0)
@@ -272,26 +225,18 @@ class PlanetScanner(object):
     # Launch probots for a scan
     def launchProbots(self):
         
-        self.probotStatus[3, 3, 3, 3]
+        for bot in self.probot:
+            
+            bot.status = 1  #  Deployed
         
     # Run an update tick of the probot timer logic.
     def probotTick(self):
         
-        if self.probotStatus[0] not 1:
+        for bot in self.probot:
             
-            self.probotTimer[0] += 1
-        
-        if self.probotStatus[1] not 1:
-            
-            self.probotTimer[1] += 1
-            
-        if self.probotStatus[2] not 1:
-            
-            self.probotTimer[2] += 1
-            
-        if self.probotStatus[3] not 1:
-            
-            self.probotTimer[3] += 1
+            if bot.status != 0:
+                
+                bot.timer += 1
             
     # Destroy a quantity of Probots.
     #  TODO:  Make more elaborate with big popup box and report on how it was
@@ -432,29 +377,40 @@ class PlanetScanner(object):
     #  Draw a probot status monitor.
     #  stage is the probot frame to draw.
     #  destination is a pygame rect
+    #  Status, in order from 0:
+    #  Docked, Deployed, Orbiting, Analyzing, Gathering, Returning,
+    #  Refueling.
     #  TODO:  transit, complex planet resize required.
     def drawProbotMonitor(self, displaySurface, stage, destination):
 
         if stage == 0:
-
-            displaySurface.blit(self.probotScanningScaled, destination)
-
-        elif stage == 1:
-
+            
             displaySurface.blit(self.probotDockedScaled, destination)
 
-        elif stage == 2:
+        elif stage == 1:
+            
+            displaySurface.blit(self.probotTransitScaled, destination)
 
-            displaySurface.blit(self.probotRefuelScaled, destination)
+        elif stage == 2:
+            
+            displaySurface.blit(self.probotTransitScaled, destination)
 
         elif stage == 3:
-
-            displaySurface.blit(self.probotTransitScaled, destination)
+            
+            displaySurface.blit(self.probotScanningScaled, destination)
 
         elif stage == 4:
 
+            displaySurface.blit(self.probotScanningScaled, destination)
+            
+        elif stage == 5:
+            
             displaySurface.blit(self.probotTransitScaled, destination)
-
+            
+        elif stage == 6:
+            
+            displaySurface.blit(self.probotRefuelScaled, destination)
+            
         else:
 
              displaySurface.blit(self.probotEmptyScaled, destination)
@@ -473,53 +429,21 @@ class PlanetScanner(object):
                      self.zoomedViewSelected[3])
         pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
 
-
-        #  I know this looks strange, but it is efficient.
-
-        if self.probotCount >= 1:
-
-            self.drawProbotMonitor(displaySurface,
-                                   self.probotStatus[0],
-                                   self.probot1BoundingBoxScaled)
-        else:
-
-            self.drawProbotMonitor(displaySurface,
-                                   99,
-                                   self.probot1BoundingBoxScaled)
-
-        if self.probotCount >= 2:
-
-            self.drawProbotMonitor(displaySurface,
-                                   self.probotStatus[1],
-                                   self.probot2BoundingBoxScaled)
-        else:
-
-            self.drawProbotMonitor(displaySurface,
-                                   99,
-                                   self.probot2BoundingBoxScaled)
-
-        if self.probotCount >= 3:
-
-            self.drawProbotMonitor(displaySurface,
-                                   self.probotStatus[2],
-                                   self.probot3BoundingBoxScaled)
-        else:
-
-            self.drawProbotMonitor(displaySurface,
-                                   99,
-                                   self.probot3BoundingBoxScaled)
+        count = 1
+        
+        for bot in self.probot:
             
-        if self.probotCount >= 4:
-            
-            self.drawProbotMonitor(displaySurface,
-                                   self.probotStatus[3],
-                                   self.probot4BoundingBoxScaled)
-        else:
-            
-            self.drawProbotMonitor(displaySurface,
-                                   99,
-                                   self.probot4BoundingBoxScaled)
-    
+            if count <= self.probotCount:
+                
+                self.drawProbotMonitor(displaySurface,
+                                       bot.status,
+                                       bot.BoundingBoxScaled)
+            else:
+                
+                self.drawProbotMonitor(displaySurface,
+                                       99,
+                                       bot.BoundingBoxScaled)
+
     def runScanner(self, displaySurface):
         
         #  System setup.
