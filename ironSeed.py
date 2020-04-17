@@ -14,8 +14,10 @@ import global_constants as g
 import helper_functions as h
 
 class IronSeed(object):
+    
     def __init__(self):
-        self.state = 3 # Initilise with intro set, normally 3.
+        
+        self.state = 3  # Initilise with intro set, normally 3.
 
         self.creditText = ["1994 Channel 7, Destiny: Virtual",
                           "Released Under GPL V3.0 in 2013 by Jeremy D Stanton of IronSeed.net",
@@ -31,7 +33,10 @@ class IronSeed(object):
         pygame.display.set_caption(self.versionText[0]+' '+self.versionText[1])
         
         # Initialise game objects
-        g.starDate = [2, 3, 3784, 8, 75] #M,D,Y,H,M.
+        print("Initilising IronSeed Game Time")
+        g.starDate = [2, 3, 3784, 8, 75] # M,D,Y,H,M.
+        gameDate = h.IronSeedTime()
+        
         # Populate Item dictionaries
         print("Loading Items")
         items.loadItemData()
@@ -54,9 +59,9 @@ class IronSeed(object):
         print("Intro Objects")
         self.intro = intro_main.IronseedIntro()
         print("Game Generator Objects")
-        self.generator = gen.Generator(self.ship, self.crew) #  Settings at new-game state.
+        self.generator = gen.Generator(self.ship, self.crew)  # Settings at new-game state.
         print("Commnications System Objects")
-        self.crewCom = crewC.crewComm(self.crew) #  Needs to have crew data set.
+        self.crewCom = crewC.crewComm(self.crew)  # Needs to have crew data set.
         print("Planet Scanner Objects")
         self.planetScanner = PlanetScanner.PlanetScanner(self.ship)
         print("EGO Synth Manipulation System")
@@ -64,16 +69,16 @@ class IronSeed(object):
         print("Creating Main Menu")
         self.mainMenu = mainMenu.MainMenu()
         
-        self.states = {1:self.generator.update, #  The crew + ship selection system.
-                       2:self.mainMenu.update, #  Main menu.
-                       3:self.intro.update, #  Game Intro - quite useful for testing.
-                       4:"cargo", #  Ship cargo system, includes item assembly.
-                       5:self.planetScanner.update, #Planet surveys and drone ops.
-                       6:"Communications", #  Comms between ships/planets
-                       7:"Combat", #  Normal and simulated combat.
-                       8:self.crewCom.update, #  "talk" with crew members.
-                       9:self.EGOManipulation.update, #   Ego-synth manipulation.
-                       10:"ORBIT", #  Placeholder for generic orbit screen.
+        self.states = {1:self.generator.update,  # The crew + ship selection system.
+                       2:self.mainMenu.update,  # Main menu.
+                       3:self.intro.update,  # Game Intro - quite useful for testing.
+                       4:"cargo",  # Ship cargo system, includes item assembly.
+                       5:self.planetScanner.update,  # Planet surveys and drone ops.
+                       6:"Communications",  # Comms between ships/planets
+                       7:"Combat",  # Normal and simulated combat.
+                       8:self.crewCom.update,  # "talk" with crew members.
+                       9:self.EGOManipulation.update,  # Ego-synth manipulation.
+                       10:"ORBIT",  # Placeholder for generic orbit screen.
                        11: "Load Game",
                        12: "Save Game" }
         
@@ -104,13 +109,19 @@ class IronSeed(object):
 
         # enter main state and logic loop.
         while 1:
+            
             for evt in pygame.event.get():
+                
                 if evt.type == pygame.QUIT:
+                    
                     pygame.quit()
                     sys.exit()
+                    
                 # Handle mouse input.
                 elif evt.type == pygame.MOUSEBUTTONDOWN:
+                    
                     self.state = self.interactive[self.state](evt.button)
+                    
             self.state = self.states[self.state](self.displaySurface)
             # self.state(self.displaySurface)
             pygame.display.update()
