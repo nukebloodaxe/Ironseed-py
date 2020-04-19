@@ -18,6 +18,7 @@ numpy
 #coverage != 3.5             # Version Exclusion. Anything except version 3.5
 #Mopidy-Dirble ~= 1.1        # Compatible release. Same as >= 1.1, == 1.*
 #
+python >= 3.0
 ###### Refer to other requirements files ######
 #-r other-requirements.txt
 #
