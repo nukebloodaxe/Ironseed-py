@@ -35,7 +35,7 @@ class IronSeed(object):
         # Initialise game objects
         print("Initilising IronSeed Game Time")
         g.starDate = [2, 3, 3784, 8, 75] # M,D,Y,H,M.
-        gameDate = h.IronSeedTime()
+        g.gameDate = h.IronSeedTime()
         
         # Populate Item dictionaries
         print("Loading Items")

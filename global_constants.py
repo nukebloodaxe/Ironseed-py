@@ -2,6 +2,7 @@
 """
 Created on Sun Nov 24 15:26:54 2019
 Global Constants, used everywhere.
+Note:  The constant bit refers to the naming...
 @author: Nuke Bloodaxe
 """
 import pygame, os
@@ -54,3 +55,4 @@ eventFlags = []  #  Having as event list of flags makes things much simpler
 systemsVisited = []
 
 starDate = [2, 3, 3784, 8, 75]  #M,D,Y,H,M, Default entry here is for new game.
+gameDate = "Placeholder"  #  The game time needs to be accessible everywhere.

@@ -303,19 +303,45 @@ class IronSeedTime(object):
                       Day=False, Hour=False, Minute=False):
         
         if Year:
+            
             self.starDateYear += 1
         
         if Month:
+            
             self.starDateMonth += 1
             
-        if Day:
+            if self.starDateMonth > 12:
+                
+                self.starDateMonth = 0
+                self.incrementTime(True)
+            
+        if Day: #  Do this very simple, 30 days in the month.
+            
             self.starDateDay += 1
             
+            if self.starDateDay > 30:
+                
+                self.starDateDay = 0
+                self.incrementTime(False, True)
+            
         if Hour:
+            
             self.starDateHour += 1
             
+            if self.starDateHour > 24:
+                
+                self.starDateHour = 0
+                self.incrementTime(False, False, True)
+            
         if Minute:
+            
             self.starDateMinute += 1
+            
+            if self.starDateMinute > 59:
+                
+                self.starDateMinute = 0
+                self.incrementTime(False, False, False, True)
+                
 
 
 #  Check event flags to see if the event has been tripped.
