@@ -24,7 +24,10 @@ class Probot(object):
         self.probotRetrieving = False
         self.haveCargo = False
         self.planetPosition = [0, 0]  # Red dot position on scanner
+        self.travelDirection = [0, 0] #  Stop movement jitter.
         self.landBoundary = landBoundary
+        self.dataGathered = 0  # 100% = 1000
+        self.fuel = 50  # 100% = 50, can be set on landing.
 
         #  Status, in order from 0:
         #  Docked, Deployed, Orbiting, Analyzing, Gathering, Returning,
@@ -36,7 +39,7 @@ class Probot(object):
         self.timer = 0
         
         #  Operation times, based on frames for the moment.
-        self.timeLimit = 2400
+        self.timeLimit = 1200
         
         #  Probots have 4 acivity monitors on main screen, these are the
         #  bounding-box positions.
@@ -65,8 +68,11 @@ class Probot(object):
         self.probotRetrieving = False
         self.haveCargo = False
         self.planetPosition = [0, 0]  # Red dot position on scanner
+        self.travelDirection = [0, 0]
         self.status = 0
         self.timer = 0
+        self.dataGathered = 0
+        self.fuel = 50
 
     #  Check to see if the probot needs to be drawn on the planet view.
     def shouldDraw(self):
@@ -86,35 +92,45 @@ class Probot(object):
         if self.probotRetrieving:  # Move towards target.
             
             pass
-            
-        else:  #  Drunken Farmer ;)
-            
-            target = [random.choices((-1, 0, 1))[0], random.choices((-1, 0, 1))[0]]
-            
-            applied = [self.planetPosition[0] + target[0],
-                       self.planetPosition[1] + target[1]]
-            
-            #  We are wrapping from the edges, this is a planet, not a sheet
-            #  with walls.
-            
-            if applied[0] > self.landBoundary[2]:
-                
-                applied = [self.landBoundary[0], applied[1]]
-                
-            elif applied[0] < self.landBoundary[0]:
-                
-                applied = [self.landBoundary[2], applied[1]]
-                
-            if applied[1] > self.landBoundary[3]:
-                
-                applied = [applied[0], self.landBoundary[1]]
-                
-            elif applied[1] < self.landBoundary[1]:
-                
-                applied = [applied[0], self.landBoundary[3]]
-            
-            self.planetPosition = applied
         
+        #  Change direction.  Drunken Farmer ;)
+        elif (self.timeLimit/(self.timer+1)) in h.frange(0.0, 10.0, 0.5):
+            
+            self.travelDirection = [random.choices((-1, 0, 1))[0],
+                                    random.choices((-1, 0, 1))[0]]
+            
+        applied = [self.planetPosition[0] + self.travelDirection[0],
+                   self.planetPosition[1] + self.travelDirection[1]]
+        
+        #  We are wrapping from the edges, this is a planet, not a sheet
+        #  with walls.
+        
+        if applied[0] > self.landBoundary[2]:
+            
+            applied = [self.landBoundary[0], applied[1]]
+            
+        elif applied[0] < self.landBoundary[0]:
+            
+            applied = [self.landBoundary[2], applied[1]]
+            
+        if applied[1] > self.landBoundary[3]:
+            
+            applied = [applied[0], self.landBoundary[1]]
+            
+        elif applied[1] < self.landBoundary[1]:
+            
+            applied = [applied[0], self.landBoundary[3]]
+        
+        #  Don't move when gathering.
+        if self.status == 3:
+        
+            # Make movement potentially slower.
+            if random.choice((True, False)):
+                
+                self.planetPosition = applied
+                
+        #  Use fuel
+        self.fuel -= 1
 
     #  Perform probot tick related functions.
     def tick(self):
@@ -167,6 +183,13 @@ class Probot(object):
                 self.move()        
 
 # This class is essentially a mini-game called "The planet scanner" ;)
+# The original game logic is relatively sophisticated, analysing individual
+# pixels the probot is examining, looking to see if they match the "right"
+# type of data the probot is seeking + how rich the data is.
+# To support the above, the Planet class in planets.py needs to be expanded,
+# so that individual pixels can be tested via targetted procedural generation.
+# Note:  The original code is not too creative with "interference" from the
+# "natives", I believe here is a lot of potential there; Roswell? ;)
 class PlanetScanner(object):
     
     def __init__(self, playerShip):
@@ -178,7 +201,7 @@ class PlanetScanner(object):
         # lithosphere, hydrosphere, atmosphere, biosphere, anomaly
         self.scanning = [False, False, False, False, False]
         self.scanned = [0, 0, 0, 0, 0]  # Historically 0 to 2
-
+        self.dataCollected = [0, 0, 0, 0, 0]  # Historically 1000 per point.
         
         # Descriptors
         self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Gathering",
@@ -286,8 +309,8 @@ class PlanetScanner(object):
         self.anomaly = buttons.Button(int((g.height/200)*8),
                                       int((g.width/320)*21),
                                       (int((g.width/320)*1), int((g.height/200)*57)))
-        self.exit = buttons.Button(int((g.height/200)*119),
-                                        int((g.width/320)*20),
+        self.exit = buttons.Button(int((g.height/200)*20),
+                                        int((g.width/320)*11),
                                         (int((g.width/320)*11), int((g.height/200)*66)))
         self.next = buttons.Button(int((g.height/200)*18),
                                    int((g.width/320)*7),
@@ -359,11 +382,44 @@ class PlanetScanner(object):
         
         pass
     
+    #  Synchronise data with planet.
+    def planetSynchronise(self):
+
+        self.thePlanet.lithosphere = self.scanned[0]
+        self.thePlanet.hydrosphere = self.scanned[1]
+        self.thePlanet.atmosphere = self.scanned[2]
+        self.thePlanet.biosphere = self.scanned[3]
+        self.thePlanet.anomaly = self.scanned[4]
+    
+    # Increment the scandata arrays according to the amount of data found
+    # by a probot.
+    # Datatype refers to the array position for that data type (0 to 5)
+    # Amount refers to the data collected, in points.
+    # 1000 points = 50% of total data collected for dataType, +1 to scanned.
+    def incrementScanData(self, dataType, amount):
+        
+        self.dataCollected[dataType] += amount
+        
+        if self.dataCollected[dataType] >= 1000:
+            
+            if self.dataCollected[dataType] >= 2000:
+                
+                self.scanned[dataType] = 2
+                self.scanning[dataType] = False
+                
+            else:
+                self.scanned[dataType] = 1
+        
+        self.planetSynchronise()
+        
+    
     def update(self, displaySurface):
         
         return self.runScanner(displaySurface)
     
     #  Regenerate the texture for the zoomed in area of land.
+    #  Note:  Multiply the zoom by 2, divide target by value.
+    #  Result should provide x and y of top left corner if centered.
     def setZoomTexture(self):
         
         self.zoomTexture.blit(self.planetTextureScaled,
@@ -385,7 +441,39 @@ class PlanetScanner(object):
                                     (0, 0, int((g.width/320)*59), int((g.height/200)*59)))
         
     
+    #  Set the bounding of the zoomed graphic texture and it's entries in memory.
+    def setZoomBoundaries(self, currentPosition):
+                 
+        AdjustedPositionX = currentPosition[0]
+        AdjustedPositionY = currentPosition[1]
+            
+        #  Determine bounding rectangle size based on zoom level.
+        rectangle = (self.zoomedViewSelected[0] + self.mainViewBoundary[0],
+                     self.zoomedViewSelected[1] + self.mainViewBoundary[1],
+                     int(self.zoomedViewSelected[2] / self.zoomLevel),
+                     int(self.zoomedViewSelected[3] / self.zoomLevel))
+                    
+        #  Check the selected area is still within the bounds of the map.
+        #  If not, restrict position into bounding area.
+        if (currentPosition[0] + self.mainViewBoundary[0] + rectangle[2]) > self.mainViewBoundary[2]:
+            
+            AdjustedPositionX = self.mainViewBoundary[2] - rectangle[2]
+            AdjustedPositionX -= self.mainViewBoundary[0]
+
+        if (currentPosition[1] + self.mainViewBoundary[1] + rectangle[3]) > self.mainViewBoundary[3]:
+                
+            AdjustedPositionY = self.mainViewBoundary[3] - rectangle[3]
+            AdjustedPositionY -= self.mainViewBoundary[1]
+                
+        #  Change view point for zoomed view.
+        self.zoomedViewSelected = (AdjustedPositionX,
+                                   AdjustedPositionY,
+                                   int((g.width/320)*59),
+                                   int((g.height/200)*59))
+    
     #  Check if Scanning and launch probots if not.
+    #  Also check to make sure we are not launching Probots if we already
+    #  have data.
     def scanAndLaunch(self, scanType):
         
         isScanning = False
@@ -466,12 +554,14 @@ class PlanetScanner(object):
             
             if self.zoomLevel < 3:
                 self.zoomLevel += 1
+                self.setZoomBoundaries(self.zoomedViewSelected)
                 self.setZoomTexture()
         
         elif self.zoomOut.within(currentPosition):
             
             if self.zoomLevel > 1:
                 self.zoomLevel -= 1
+                self.setZoomBoundaries(self.zoomedViewSelected)
                 self.setZoomTexture()
         
         
@@ -487,24 +577,7 @@ class PlanetScanner(object):
             AdjustedPositionX = currentPosition[0] - self.mainViewBoundary[0]
             AdjustedPositionY = currentPosition[1] - self.mainViewBoundary[1]
             
-            #  Check the selected area is still within the bounds of the map.
-            #  If not, restrict position into bounding area.
-            if (currentPosition[0] + int((g.width/320)*59)) > self.mainViewBoundary[2]:
-                
-                AdjustedPositionX = self.mainViewBoundary[2] - int((g.width/320)*59)
-                AdjustedPositionX -= self.mainViewBoundary[0]
-
-            if (currentPosition[1] + int((g.height/200)*59)) > self.mainViewBoundary[3]:
-                
-                AdjustedPositionY = self.mainViewBoundary[3] - int((g.height/200)*59)
-                AdjustedPositionY -= self.mainViewBoundary[1]
-                
-            #  Change view point for zoomed view.
-            self.zoomedViewSelected = (AdjustedPositionX,
-                                       AdjustedPositionY,
-                                       int((g.width/320)*59),
-                                       int((g.height/200)*59))
-            
+            self.setZoomBoundaries([AdjustedPositionX, AdjustedPositionY])
             self.setZoomTexture()
         
         return self.systemState
@@ -549,10 +622,15 @@ class PlanetScanner(object):
         else:
 
              displaySurface.blit(self.probotEmptyScaled, destination)
+
+    #  Draw planet summary information;  this is drawn after all data
+    #  from the planet is collected.
+    def drawPlanetDataSummary(self, displaySurface):
+        
+        pass
              
     #  Draw the red dots for deployed Probots on Planets Surface.
-    
-    
+
 
     def drawInterface(self, displaySurface):
 
@@ -632,6 +710,18 @@ class PlanetScanner(object):
             #  Sort out Probot count.
             self.probotCount = self.ironSeed.getItemQuantity("Probot")
             self.setZoomTexture()
+            
+            #  Syncronise our scan data with the planet.
+            self.scanned[0] = self.thePlanet.lithosphere
+            self.scanned[1] = self.thePlanet.hydrosphere
+            self.scanned[2] = self.thePlanet.atmosphere
+            self.scanned[3] = self.thePlanet.biosphere
+            self.scanned[4] = self.thePlanet.anomaly
+            
+            for dataValue in range(0,5):
+                
+                self.scanned[dataValue] = 1000 * self.scanned[dataValue]
+            
         
         if self.scannerStage == 1:
             
