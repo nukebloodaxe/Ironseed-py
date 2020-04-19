@@ -14,7 +14,7 @@ import helper_functions as h
 
 # To encapsulate most probot logic
 # Having launch and retrieve here allows for asynchronous operations.
-#  Note:  We assume the bounding box has already been scaled.
+# Note:  We assume the bounding box has already been scaled.
 class Probot(object):
     
     def __init__(self, x, y, xEnd, yEnd, landBoundary):
@@ -24,19 +24,23 @@ class Probot(object):
         self.probotRetrieving = False
         self.haveCargo = False
         self.planetPosition = [0, 0]  # Red dot position on scanner
-        self.travelDirection = [0, 0] #  Stop movement jitter.
+        self.travelDirection = [0, 0]  #  Stop movement jitter.
+        self.dataTarget = [0, 0]  # Target point for investigation.
         self.landBoundary = landBoundary
         self.dataGathered = 0  # 100% = 1000
         self.fuel = 50  # 100% = 50, can be set on landing.
 
         #  Status, in order from 0:
-        #  Docked, Deployed, Orbiting, Analyzing, Gathering, Returning,
+        #  Docked, Deployed, Orbiting, Gathering, Analyzing, Returning,
         #  Refueling.
         self.status = 0
         
         #  Probot timer for current runtime.
         #  Could use stopwatch, but results might be "unrealistic."
         self.timer = 0
+        
+        #  Time limit for current stage, semi-random.
+        self.stageTimeLimit = 0
         
         #  Operation times, based on frames for the moment.
         self.timeLimit = 1200
@@ -69,10 +73,10 @@ class Probot(object):
         self.haveCargo = False
         self.planetPosition = [0, 0]  # Red dot position on scanner
         self.travelDirection = [0, 0]
-        self.status = 0
-        self.timer = 0
         self.dataGathered = 0
         self.fuel = 50
+        self.status = 0
+        self.timer = 0
 
     #  Check to see if the probot needs to be drawn on the planet view.
     def shouldDraw(self):
@@ -85,20 +89,41 @@ class Probot(object):
             
         return yes
         
+    #  Set a data target
+    def setDataTarget(self):
+        
+        self.dataTarget = [random.randint(28, 267),
+                           random.randint(13, 132)] #  TODO: Add real values.
+    
     #  Make the red dot for the probot move around.
     #  Use retrieve check, if True then use retrieval logic.
     def move(self):
         
-        if self.probotRetrieving:  # Move towards target.
+        if self.planetPosition[0] > self.dataTarget[0]:
+                
+            self.travelDirection[0] = -1
             
-            pass
+        elif self.planetPosition[0] < self.dataTarget[0]:
+            
+            self.travelDirection[0] = 1
+            
+        else:
+            
+            self.travelDirection[0] = 0
         
-        #  Change direction.  Drunken Farmer ;)
-        elif (self.timeLimit/(self.timer+1)) in h.frange(0.0, 10.0, 0.5):
+        
+        if self.planetPosition[1] > self.dataTarget[1]:
             
-            self.travelDirection = [random.choices((-1, 0, 1))[0],
-                                    random.choices((-1, 0, 1))[0]]
+            self.travelDirection[1] = -1
+        
+        elif self.planetPosition[1] < self.dataTarget[1]:
             
+            self.travelDirection[1] = 1
+            
+        else:
+            
+            self.travelDirection[1] = 0            
+        
         applied = [self.planetPosition[0] + self.travelDirection[0],
                    self.planetPosition[1] + self.travelDirection[1]]
         
@@ -120,14 +145,17 @@ class Probot(object):
         elif applied[1] < self.landBoundary[1]:
             
             applied = [applied[0], self.landBoundary[3]]
-        
-        #  Don't move when gathering.
+
         if self.status == 3:
         
-            # Make movement potentially slower.
-            if random.choice((True, False)):
-                
-                self.planetPosition = applied
+            self.planetPosition = applied
+        
+        #  Don't move when Analysing.
+        if (applied == self.dataTarget) and (self.status != 4):
+            
+            #  Analysis time is semi-random
+            self.stageTimeLimit = 80 + random.randrange(0, 50)
+            self.status = 4
                 
         #  Use fuel
         self.fuel -= 1
@@ -155,6 +183,10 @@ class Probot(object):
                 
                 self.move()
             
+            else:
+            
+                self.setDataTarget()  #  Temp, until better targetting.
+            
         if self.probotRetrieving:
             
             self.timer += 1
@@ -180,7 +212,11 @@ class Probot(object):
                 
             if self.status == 3 or self.status == 4:
                 
-                self.move()        
+                self.move()
+            
+            else:
+            
+                self.setDataTarget()  #  Temp, until better targetting.
 
 # This class is essentially a mini-game called "The planet scanner" ;)
 # The original game logic is relatively sophisticated, analysing individual
@@ -273,6 +309,7 @@ class PlanetScanner(object):
         self.probotScanning = pygame.Surface((31, 24), 0)
         self.probotScanning.blit(self.scanInterface, (0, 0), self.probot[0].BoundingBox )
         self.probotScanningScaled = pygame.transform.scale(self.probotScanning, (int((g.width/320)*31), int((g.height/200)*24)))
+        self.probotScanningScaled.set_colorkey(g.BLACK)
         
         self.probotDocked = pygame.Surface((31, 24), 0)
         self.probotDocked.blit(self.scanInterface, (0, 0), self.probot[1].BoundingBox )
@@ -285,6 +322,7 @@ class PlanetScanner(object):
         self.probotTransit = pygame.Surface((31, 24), 0)
         self.probotTransit.blit(self.scanInterface, (0, 0), self.probot[3].BoundingBox )
         self.probotTransitScaled = pygame.transform.scale(self.probotTransit, (int((g.width/320)*31), int((g.height/200)*24)))
+        #self.probotTransitScaled.set_colorkey(g.BLACK)
         
         self.probotEmpty = pygame.Surface((31, 24), 0)
         self.probotEmptyScaled = pygame.transform.scale(self.probotEmpty, (int((g.width/320)*31), int((g.height/200)*24)))
@@ -346,7 +384,10 @@ class PlanetScanner(object):
         
         for bot in self.probot:
             
-            bot.status = 1  #  Deployed
+            if bot.status == 0:
+                
+                bot.status = 1  #  Deployed
+                
             bot.probotLaunched = True
         
     # Run an update tick of the probot timer logic.
@@ -382,7 +423,7 @@ class PlanetScanner(object):
         
         pass
     
-    #  Synchronise data with planet.
+    #  Synchronise scan data with planet.
     def planetSynchronise(self):
 
         self.thePlanet.lithosphere = self.scanned[0]
@@ -488,7 +529,7 @@ class PlanetScanner(object):
                         
                 isScanning = True
         
-        
+        #  Only launch Probots when data remains to be scanned.
         if isScanning:
                 
             if self.scanned[scanType] <= 1 and self.scanning[scanType]:
@@ -500,7 +541,7 @@ class PlanetScanner(object):
             if self.scanned[scanType] <= 1:
             
                 self.scanning[scanType] = True
-                self.launchProbots()        
+                self.launchProbots()
     
     # Handle mouse events for user interaction.
     def interact(self, mouseButton):
@@ -530,7 +571,7 @@ class PlanetScanner(object):
         
         elif self.exit.within(currentPosition):
             
-            self.scannerStage = 0
+            self.scannerStage = 0  # Forces reset when we return to scanner.
             self.musicState = False
             
             # Reset all probots to default state; assume they all get back.
@@ -571,8 +612,8 @@ class PlanetScanner(object):
         
         elif self.planetMap.within(currentPosition):
             
-            # The position on the screen needs to be adjusted for the relative
-            # texture position.
+            # The position clicked on the screen needs to be adjusted for the
+            # relative texture position.
             
             AdjustedPositionX = currentPosition[0] - self.mainViewBoundary[0]
             AdjustedPositionY = currentPosition[1] - self.mainViewBoundary[1]
@@ -582,46 +623,58 @@ class PlanetScanner(object):
         
         return self.systemState
     
+    #  Draw a segment of the landscape texture on a probot monitor.
+    def drawLandscapeProbot(self, displaySurface, bot):
+        
+        displaySurface.blit(self.planetTextureScaled,
+                            bot.BoundingBoxScaled,
+                            (bot.planetPosition[0]-(int(((g.width/320)*31)/2)),
+                             bot.planetPosition[1]-(int(((g.height/200)*24)/2)),
+                             int((g.width/320)*31),
+                             int((g.height/200)*24)))
+    
     #  Draw a probot status monitor.
     #  stage is the probot frame to draw.
     #  destination is a pygame rect
     #  Status, in order from 0:
-    #  Docked, Deployed, Orbiting, Analyzing, Gathering, Returning,
+    #  Docked, Deployed, Orbiting, Gathering, Analyzing, Returning,
     #  Refueling.
     #  TODO:  transit, complex planet resize required.
-    def drawProbotMonitor(self, displaySurface, stage, destination):
+    def drawProbotMonitor(self, displaySurface, bot): #  , stage, destination):
 
-        if stage == 0:
+        if bot.status == 0:
             
-            displaySurface.blit(self.probotDockedScaled, destination)
+            displaySurface.blit(self.probotDockedScaled, bot.BoundingBoxScaled)
 
-        elif stage == 1:
+        elif bot.status == 1:
             
-            displaySurface.blit(self.probotTransitScaled, destination)
+            displaySurface.blit(self.probotTransitScaled, bot.BoundingBoxScaled)
 
-        elif stage == 2:
+        elif bot.status == 2:
             
-            displaySurface.blit(self.probotTransitScaled, destination)
+            displaySurface.blit(self.probotTransitScaled, bot.BoundingBoxScaled)
 
-        elif stage == 3:
-            
-            displaySurface.blit(self.probotScanningScaled, destination)
+        elif bot.status == 3:  #  Overlay on landscape
+        
+            self.drawLandscapeProbot(displaySurface, bot)
+            displaySurface.blit(self.probotScanningScaled, bot.BoundingBoxScaled)
 
-        elif stage == 4:
+        elif bot.status == 4:  #  Overlay on landscape
 
-            displaySurface.blit(self.probotScanningScaled, destination)
+            self.drawLandscapeProbot(displaySurface, bot)
+            displaySurface.blit(self.probotScanningScaled, bot.BoundingBoxScaled)
             
-        elif stage == 5:
+        elif bot.status == 5:
             
-            displaySurface.blit(self.probotTransitScaled, destination)
+            displaySurface.blit(self.probotTransitScaled, bot.BoundingBoxScaled)
             
-        elif stage == 6:
+        elif bot.status == 6:
             
-            displaySurface.blit(self.probotRefuelScaled, destination)
+            displaySurface.blit(self.probotRefuelScaled, bot.BoundingBoxScaled)
             
         else:
 
-             displaySurface.blit(self.probotEmptyScaled, destination)
+             displaySurface.blit(self.probotEmptyScaled, bot.BoundingBoxScaled)
 
     #  Draw planet summary information;  this is drawn after all data
     #  from the planet is collected.
@@ -629,9 +682,9 @@ class PlanetScanner(object):
         
         pass
              
-    #  Draw the red dots for deployed Probots on Planets Surface.
+    #  Draw the red dots for Probots deployed on Planet Surface.
 
-
+    #  Draw the Planet Scanner interface and all current animations.
     def drawInterface(self, displaySurface):
 
         displaySurface.fill(g.BLACK)
@@ -652,9 +705,7 @@ class PlanetScanner(object):
             
             if count <= self.probotCount:
                 
-                self.drawProbotMonitor(displaySurface,
-                                       bot.status,
-                                       bot.BoundingBoxScaled)
+                self.drawProbotMonitor(displaySurface, bot)
                 
                 # Check and draw movement pixel.  (scale?)
                 if bot.shouldDraw():
