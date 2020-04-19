@@ -271,20 +271,20 @@ class IronSeedTime(object):
     def __init__(self):
 
         #  Set stardate from global value.        
-        starDateYear = g.starDate[0]
-        starDateMonth = g.starDate[1]
-        starDateDay = g.starDate[2]
-        starDateHour = g.starDate[3]
-        starDateMinute = g.starDate[4]
+        self.starDateYear = g.starDate[0]
+        self.starDateMonth = g.starDate[1]
+        self.starDateDay = g.starDate[2]
+        self.starDateHour = g.starDate[3]
+        self.starDateMinute = g.starDate[4]
 
     #  Load new values, usually from Save Game.        
     def loadNewDate(self, Year, Month, Day, Hour, Minute):
         
-        starDateYear = Year
-        starDateMonth = Month
-        starDateDay = Day
-        starDateHour = Hour
-        starDateMinute = Minute
+        self.starDateYear = Year
+        self.starDateMonth = Month
+        self.starDateDay = Day
+        self.starDateHour = Hour
+        self.starDateMinute = Minute
 
     #  Retrieve game time as list, for special displays and save game.
     def getGameTime(self):
@@ -376,7 +376,7 @@ def safeWrap(width, step, current):
     return whereAt
 
 #  Render the given text onto a surface.
-def renderText(text, font, Surface, colour, offset, width=0, height=0, centred=False):
+def renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0, centred=False):
     
     position = 0
     
