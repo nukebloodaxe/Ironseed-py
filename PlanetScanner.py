@@ -53,6 +53,9 @@ class Probot(object):
                                         int((g.height/200)*y),
                                         int((g.width/320)*xEnd),
                                         int((g.height/200)*yEnd))
+        
+        self.textPosition = [int((g.width/320)*x),
+                             int((g.height/200)*(yEnd))]
 
         # Descriptors
         self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Analyzing",
@@ -295,7 +298,7 @@ class PlanetScanner(object):
         # Up to 4 probots can be partaking in a scan
         self.probot = [Probot(281, 18, 312, 43, self.mainViewBoundary),
                        Probot(281, 58, 312, 83, self.mainViewBoundary),
-                       Probot(281, 98, 312, 83, self.mainViewBoundary),
+                       Probot(281, 98, 312, 123, self.mainViewBoundary),
                        Probot(281, 138, 312, 163, self.mainViewBoundary)]
         
         #  Probot frames, Frames have following dimensions: 
@@ -313,7 +316,7 @@ class PlanetScanner(object):
         
         self.probotDocked = pygame.Surface((31, 24), 0)
         self.probotDocked.blit(self.scanInterface, (0, 0), self.probot[1].BoundingBox )
-        self.probotDockedScaled = pygame.transform.scale(self.probotDocked, (int((g.width/320)*30), int((g.height/200)*24)))
+        self.probotDockedScaled = pygame.transform.scale(self.probotDocked, (int((g.width/320)*31), int((g.height/200)*24)))
         
         self.probotRefuel = pygame.Surface((31, 24), 0)
         self.probotRefuel.blit(self.scanInterface, (0, 0), self.probot[2].BoundingBox )
@@ -623,15 +626,29 @@ class PlanetScanner(object):
         
         return self.systemState
     
+    #  Draw a micro version of the planet on a probot monitor.
+    def drawMicroPlanet(self, displaySurface, bot):
+        
+        pass
+    
     #  Draw a segment of the landscape texture on a probot monitor.
     def drawLandscapeProbot(self, displaySurface, bot):
         
         displaySurface.blit(self.planetTextureScaled,
                             bot.BoundingBoxScaled,
-                            (bot.planetPosition[0]-(int(((g.width/320)*31)/2)),
-                             bot.planetPosition[1]-(int(((g.height/200)*24)/2)),
+                            (bot.planetPosition[0]-self.mainViewBoundary[0]-(int((g.width/320)*(31/2))),
+                             bot.planetPosition[1]-self.mainViewBoundary[1]-(int((g.height/200)*(24/2))),
                              int((g.width/320)*31),
                              int((g.height/200)*24)))
+    
+    #  Draw text and a graphic on a Probot Monitor.
+    def drawTextAndGraphic(self, displaySurface, graphic, bot):
+        
+        displaySurface.blit(graphic, bot.BoundingBoxScaled)
+        h.renderText([bot.probotFeedback[bot.status]],
+                     g.font, displaySurface, g.WHITE, 0,
+                     bot.textPosition[0],
+                     bot.textPosition[1])
     
     #  Draw a probot status monitor.
     #  stage is the probot frame to draw.
@@ -644,34 +661,22 @@ class PlanetScanner(object):
 
         if bot.status == 0:
             
-            displaySurface.blit(self.probotDockedScaled, bot.BoundingBoxScaled)
+            self.drawTextAndGraphic(displaySurface, self.probotDockedScaled, bot)
 
-        elif bot.status == 1:
+        elif bot.status == 1 or bot.status == 2 or bot.status == 5:
             
-            displaySurface.blit(self.probotTransitScaled, bot.BoundingBoxScaled)
+            #TODO: Scaled planet render on this line.
+            self.drawTextAndGraphic(displaySurface, self.probotTransitScaled, bot)
 
-        elif bot.status == 2:
-            
-            displaySurface.blit(self.probotTransitScaled, bot.BoundingBoxScaled)
-
-        elif bot.status == 3:  #  Overlay on landscape
+        elif bot.status == 3 or bot.status == 4:  #  Overlay on landscape
         
             self.drawLandscapeProbot(displaySurface, bot)
-            displaySurface.blit(self.probotScanningScaled, bot.BoundingBoxScaled)
-
-        elif bot.status == 4:  #  Overlay on landscape
-
-            self.drawLandscapeProbot(displaySurface, bot)
-            displaySurface.blit(self.probotScanningScaled, bot.BoundingBoxScaled)
-            
-        elif bot.status == 5:
-            
-            displaySurface.blit(self.probotTransitScaled, bot.BoundingBoxScaled)
-            
+            self.drawTextAndGraphic(displaySurface, self.probotScanningScaled, bot)
+                         
         elif bot.status == 6:
-            
-            displaySurface.blit(self.probotRefuelScaled, bot.BoundingBoxScaled)
-            
+
+            self.drawTextAndGraphic(displaySurface, self.probotRefuelScaled, bot)
+                         
         else:
 
              displaySurface.blit(self.probotEmptyScaled, bot.BoundingBoxScaled)
