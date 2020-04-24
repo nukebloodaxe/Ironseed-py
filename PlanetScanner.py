@@ -12,6 +12,16 @@ import random, math, io, time, os, buttons, planets, pygame, items, ship, crew
 import global_constants as g
 import helper_functions as h
 
+# Encapsulate the Anomaly logic, it is really a wrapped item class with a 
+# locaion parameter.
+class Anomaly(object):
+    
+    def __init__(self, anomalyItem, x, y):
+        
+        self.item = anomalyItem
+        self.locationX = x
+        self.locationY = y
+
 # To encapsulate most probot logic
 # Having launch and retrieve here allows for asynchronous operations.
 # Note:  We assume the bounding box has already been scaled.
@@ -23,6 +33,7 @@ class Probot(object):
         self.probotDestroyed = False
         self.probotRetrieving = False
         self.haveCargo = False
+        self.anomaly = "placeholder" # For tracking anomaly retrieval.
         self.planetPosition = [0, 0]  # Red dot position on scanner
         self.travelDirection = [0, 0]  #  Stop movement jitter.
         self.dataTarget = [0, 0]  # Target point for investigation.
@@ -242,6 +253,9 @@ class PlanetScanner(object):
         self.scanned = [0, 0, 0, 0, 0]  # Historically 0 to 2
         self.dataCollected = [0, 0, 0, 0, 0]  # Historically 1000 per point.
         
+        # Anomaly items with locations.
+        self.anomalies = []
+        
         # Descriptors
         self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Gathering",
                                "Analyzing", "Returning", "Refueling",
@@ -420,6 +434,128 @@ class PlanetScanner(object):
     def scanPlanet(self):
         
         pass
+    
+    # When a planet is scanned for the first time, we add enough items for a
+    # full cache.  This is assuming we have scanned the planet fully.
+    # Call this only once per planet.  Also populates planet cache, in case
+    # we leave and then come back later.
+    def createAnomalies(self):
+        
+        if self.thePlanet.anomalyGeneration == True:
+            
+            return  #  Exit without doing anyhing.
+        
+        if self.thePlanet.systemName == "EXOPID" and self.thePlanet.orbit == 0:
+
+            if 28 in g.eventFlags:
+                
+                self.anomalies.append(Anomaly("Temporal Anchor", 0, 0))
+                self.anomalies.append(Anomaly("Heavy Corse Grenade", 0, 0))
+                self.anomalies.append(Anomaly("Heavy Corse Grenade", 0, 0))
+                self.anomalies.append(Anomaly("Sling of David", 0, 0))
+                self.anomalies.append(Anomaly("Sling of David", 0, 0))
+                self.anomalies.append(Anomaly("Thynne Vortex", 0, 0))
+                self.anomalies.append(Anomaly("Thynne Vortex", 0, 0))
+                
+        else:
+            
+            # Set random value to planet seed.
+            random.seed(self.thePlanet.seed)
+            
+            for count in range(7):
+                
+                d100 = random.randint(0, 100)
+                randomItem = "placeholder"
+                # The item is determined by the planet state.
+                if self.thePlanet.state == 0:
+                    
+                    if d100 < 25:
+                        
+                        randomItem = items.getRandomItem("MATERIAL",
+                                                         g.totalMaterials)
+                
+                elif self.thePlanet.state == 1 or self.thePlanet.state == 2:
+                    
+                    if d100 < 76:
+                        
+                        randomItem = items.getRandomItem("ELEMENT",
+                                                         g.totalElements)
+                    
+                elif self.thePlanet.state == 3:
+                    
+                    if d100 < 51:
+                        
+                        randomItem = items.getRandomItem("ELEMENT",
+                                                         g.totalElements)
+                    
+                    elif random.choice([True, False]):
+                        
+                        randomItem = items.getRandomItem("MATERIAL",
+                                                         g.totalMaterials)
+                        
+                    else:
+                        
+                        randomItem = items.getRandomItem("COMPONENT",
+                                                         g.totalComponents)
+                    
+                elif self.thePlanet.state == 4:
+                    
+                    if d100 < 41:
+                        
+                        randomItem = items.getRandomItem("ELEMENT",
+                                                         g.totalElements)
+                    
+                    elif d100 < 71:
+                        
+                        randomItem = items.getRandomItem("COMPONENT",
+                                                         g.totalComponents)
+                        
+                    elif d100 == 74 or d100 == 75:
+                        
+                        # TODO Artifact code.
+                        pass
+                    
+                elif self.thePlanet.state == 5:
+                    
+                    if d100 < 66:
+                        
+                        if random.choice([True, False]):
+                        
+                            randomItem = items.getRandomItem("MATERIAL",
+                                                             g.totalMaterials)
+                        
+                        else:
+                        
+                            randomItem = items.getRandomItem("COMPONENT",
+                                                             g.totalComponents)
+                            
+                    elif d100 == 73 or d100 == 74 or d100 == 75:
+                        
+                        # TODO Artiact code.
+                        pass
+                    
+                else:  # Must be 6.
+                    
+                    if d100 < 6:
+                        
+                        # TODO Artifact code.
+                        pass
+            
+        
+        for anomaly in self.anomalies:
+        
+            #  Fill planet cache with generated items.
+            self.thePlanet.addItemToCache(anomaly.item)
+            
+            #  Set their random location
+            anomaly.locationX = random.randint(self.mainViewBoundary[0],
+                                               self.mainViewBoundary[2])
+            anomaly.locationY = random.randint(self.mainViewBoundary[1],
+                                               self.mainViewBoundary[3])
+            
+        # Reset random number seed.
+        random.seed()
+        self.thePlanet.anomalyGeneration = True
     
     # Retrieve anomalies and put into ship cargo.
     def retrieveAnomalies(self):
@@ -703,6 +839,16 @@ class PlanetScanner(object):
                      int(self.zoomedViewSelected[2] / self.zoomLevel),
                      int(self.zoomedViewSelected[3] / self.zoomLevel))
         pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
+
+        #  Draw anomalies on map.
+        perPixel = pygame.PixelArray(displaySurface)
+        
+        for anomaly in self.anomalies:
+            
+            perPixel[anomaly.locationX][anomaly.locationY] = g.ANOMALY
+
+
+        perPixel.close()
 
         count = 1
         
