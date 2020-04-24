@@ -515,6 +515,11 @@ class Planet(object):
         
         self.cache.append(item)
     
+    #  Remove an item from the planet cache
+    def removeItemFromCache(self, item):
+        
+        self.cache.remove(item)
+    
     # Create the planet bitmap, which uses the random pixel height-change
     # method to raise and lower terrain.
     # Areas where technology is present are represented as a bright pixel.
