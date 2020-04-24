@@ -88,7 +88,7 @@ def createBar(tupleList=[], length=0, height=int((g.height/320)*2), rounded=Fals
 #  Note:  No exception correction for math.sqrt(0)
 #  BIG NOTE:  Complexity comes from ridiculous math.sqrt not handling negative
 #             numbers...
-def map(x, y, xWidth, yHeight):
+def sphereMap(x, y, xWidth, yHeight):
     
     #  x * math.sqrt(1 - y * y / 2), y * math.sqrt(1 - x * x / 2)
     #  Determine in which quadrant circle unit value will appear.
