@@ -264,6 +264,19 @@ class Ship(object):
             overweight = True
             
         return overweight #  This function does judge...
+    
+    #  Check to see if adding an item is possible.
+    def willThisFit(self, item):
+        
+        estimate = self.totalCargoSize() + items.itemDictionary[item].cargoSize
+        possible = True
+        
+        if estimate > self.cargoMax:
+            
+            possible = False
+            
+        return possible
+            
         
     #  Apply damage to the ship, mitigating it with the shield first.
     #  if Life Support fails, you die there and then.
