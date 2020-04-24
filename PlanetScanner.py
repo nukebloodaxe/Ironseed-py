@@ -85,6 +85,7 @@ class Probot(object):
         self.probotDestroyed = False
         self.probotRetrieving = False
         self.haveCargo = False
+        self.anomaly = "placeholder"
         self.planetPosition = [0, 0]  # Red dot position on scanner
         self.travelDirection = [0, 0]
         self.dataGathered = 0
@@ -106,8 +107,22 @@ class Probot(object):
     #  Set a data target
     def setDataTarget(self):
         
-        self.dataTarget = [random.randint(28, 267),
-                           random.randint(13, 132)] #  TODO: Add real values.
+        if self.probotRetrieving == True:
+            
+            try:
+                
+                self.dataTarget = [self.anomaly.locationX,
+                                   self.anomaly.locationY]
+            
+            except:
+                
+                print("Exception:Anomaly:setDataTarget: ", str(self.anomaly))
+                self.probotRetrieving = False
+        
+        else:
+            
+            self.dataTarget = [random.randint(28, 267),
+                               random.randint(13, 132)] #TODO: Add real values.
     
     #  Make the red dot for the probot move around.
     #  Use retrieve check, if True then use retrieval logic.
@@ -136,7 +151,7 @@ class Probot(object):
             
         else:
             
-            self.travelDirection[1] = 0            
+            self.travelDirection[1] = 0
         
         applied = [self.planetPosition[0] + self.travelDirection[0],
                    self.planetPosition[1] + self.travelDirection[1]]
@@ -176,6 +191,14 @@ class Probot(object):
 
     #  Perform probot tick related functions.
     def tick(self):
+        
+        if self.fuel == 0:
+            
+            self.status = 5
+            
+        if self.dataGathered == 500:
+            
+            self.status = 5
         
         if self.probotLaunched:
         
@@ -414,6 +437,65 @@ class PlanetScanner(object):
             
             bot.tick()
             
+            if bot.status == 6:
+                
+                if bot.probotRetrieving:
+                    
+                    if bot.haveCargo:
+                        
+                        result = self.ironSeed.addCargo(bot.anomaly.item, 1)
+                        
+                        if result[1] == 0:
+                            
+                            self.thePlanet.removeItemFromCache(bot.anomaly.item)
+                            bot.anomaly = "placeholder"
+                            bot.haveCargo = False
+                            bot.probotRetrieving = False
+                            
+                            #  Cycle through looking for an anomaly that
+                            #  will fit ship, and clear list of those which
+                            #  won't.  They stay in the planet cache.
+                            while len(self.anomalies) >= 1:
+                                
+                                bot.anomaly = self.anomalies.pop()
+                                
+                                if self.ironSeed.willThisFit(bot.anomaly.item):
+                                    
+                                    bot.probotRetrieving = True
+                                    bot.setDataTarget()
+                                    break
+                                
+                                else:
+                                    
+                                    bot.resetProbot()
+                                    
+                        
+                        #  Shouldn't happen!
+                        else:  #  Cargo full!  Put item back in cache.
+                            
+                            #  Assume bot returns it.
+                            bot.anomaly = "placeholder"
+                            #  As this was popped, it won't try again.
+                
+                else:
+                    count = 0
+                
+                    for dataType in self.scanning:
+                    
+                        if dataType:
+                            count += 1
+                            break
+                
+                    if count > 0:
+                    
+                        self.incrementScanData(count-1, bot.dataGathered)
+                        bot.scandata = 0
+
+                        if self.scanned[count-1] == 2:
+
+                            bot.resetProbot()
+                
+            
     # Destroy a quantity of Probots.
     #  TODO:  Make more elaborate with big popup box and report on how it was
     #  destroyed.
@@ -558,9 +640,22 @@ class PlanetScanner(object):
         self.thePlanet.anomalyGeneration = True
     
     # Retrieve anomalies and put into ship cargo.
+    # Note: probot actually carries object!  Make sure you put it into cargo!
     def retrieveAnomalies(self):
         
-        pass
+        count = 0
+        
+        for bot in self.probot:
+            
+            if bot.probotDestroyed == False and bot.probotRetrieving == False:
+                
+                count += 1
+                
+                if count <= self.probotCount:
+                    
+                    bot.anomaly = self.anomalies.pop()  # Much excitement!
+                    bot.probotRetrieving = True
+                    bot.setDataTarget()
     
     #  Synchronise scan data with planet.
     def planetSynchronise(self):
@@ -580,12 +675,17 @@ class PlanetScanner(object):
         
         self.dataCollected[dataType] += amount
         
-        if self.dataCollected[dataType] >= 1000:
+        if self.dataCollected[dataType] >= 500:
             
-            if self.dataCollected[dataType] >= 2000:
+            if self.dataCollected[dataType] >= 1000:
                 
                 self.scanned[dataType] = 2
                 self.scanning[dataType] = False
+                
+                #  Generate Anomalies only when all anomaly data collected.
+                if dataType == 4:
+                    
+                    self.createAnomalies()
                 
             else:
                 self.scanned[dataType] = 1
@@ -747,7 +847,7 @@ class PlanetScanner(object):
         
         elif self.Retrieve.within(currentPosition):
             
-            pass
+            self.retrieveAnomalies()
         
         elif self.planetMap.within(currentPosition):
             
