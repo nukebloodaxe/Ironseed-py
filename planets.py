@@ -62,6 +62,7 @@ class Planet(object):
         self.orbit = 0 #  set this during system generation.
         self.outpost = 0 #  Extra feature, is this an outpost?
         self.owned = 0 #  Extra feature, the owner of the planet.
+        self.anomalyGeneration = False #  Have anomalies been generated?
         # Planet bitmap of terrain data.
         self.planetTerrain = [[0 for i in range(g.planetWidth)] for j in range(g.planetHeight)]
         self.eclipsePhase = random.randint(0,4)  #  Area covered by eclipse shadow.
@@ -71,7 +72,7 @@ class Planet(object):
         self.planetTextureExists = False  #  Have we generated the planet?
         
         #  self.createPlanet()
-        #  Note: if you see a system with a star called 'UNKNOWN',
+        #  Note: If you see a system with a star called 'UNKNOWN',
         #        then you have a serious problem.
         
         # Probot scan related Data points.
@@ -509,6 +510,11 @@ class Planet(object):
                     if len(self.cache) == total or remaining <= 0:
                         break
     
+    #  Add an item to the planet cache.
+    def addItemToCache(self, item):
+        
+        self.cache.append(item)
+    
     # Create the planet bitmap, which uses the random pixel height-change
     # method to raise and lower terrain.
     # Areas where technology is present are represented as a bright pixel.
@@ -890,8 +896,8 @@ class Planet(object):
     #  Wrap a flat surface to a pseudo sphere.
     #  The idea is that we can take a defined area of a planet, a flat surface,
     #  and convert it into a "sphere" which we can rotate every so often.
-    #  A rotation is an illusion, and all we are doing is advancing the start and
-    #  end pixels by one.
+    #  A rotation is an illusion, and all we are doing is advancing the start
+    #  and end pixels by one.
     #  sphereSurface must be square and terrain start must be
     #  within or equil to the width of the planet surface.
     def planetBitmapToSphere(self, sphereSurface, terrainStart = 0, eclipse = True):
@@ -1019,7 +1025,7 @@ class Planet(object):
         
         #  https://www.xarg.org/2017/07/how-to-map-a-square-to-a-circle/
         #  Thank you Robert, this is exactly what I was looking for!
-        #  function map(x, y):
+        #  function sphereMap(x, y):
         #    return [ x * math.sqrt(1-y*y/2), y * math.sqrt(1-x*x/2)]
         #  Alternative approach start
         
@@ -1035,7 +1041,7 @@ class Planet(object):
             for y in range(0, g.planetHeight):
                 
                 try:
-                    xLocus, yLocus = h.map(x, y, g.planetHeight, g.planetHeight)
+                    xLocus, yLocus = h.sphereMap(x, y, g.planetHeight, g.planetHeight)
                     tempPlanet4[xLocus][yLocus] = tempPlanet2[x][y]
                     #count += 1
                 except:
