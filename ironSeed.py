@@ -122,6 +122,7 @@ class IronSeed(object):
                     
                     self.state = self.interactive[self.state](evt.button)
                     
+            g.gameDate.update()  #  Update game time in "realtime"
             self.state = self.states[self.state](self.displaySurface)
             # self.state(self.displaySurface)
             pygame.display.update()
