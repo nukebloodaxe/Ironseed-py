@@ -84,6 +84,18 @@ def createBar(tupleList=[], length=0, height=int((g.height/320)*2), rounded=Fals
     barArray.close()
     return bar
 
+#  Create a targetting reticule from [quantity] circles and draw it on
+#  passed [surface] at [x],[y], with [spacing] between circles.
+#  Draw line of circle with [thickness] pixels and [colour].
+def targettingReticule(surface, x, y, colour, quantity, spacing, thickness):
+    
+    for count in range(quantity):
+    
+        pygame.draw.circle(surface, colour, (x, y),
+                           (spacing + count*spacing),
+                           thickness)
+    
+
 #  Map a point on a square 2D array to a point on a 2D sphere.
 #  Note:  No exception correction for math.sqrt(0)
 #  BIG NOTE:  Complexity comes from ridiculous math.sqrt not handling negative
@@ -198,9 +210,9 @@ class StopWatch(object):
 
     def __init__(self):
         
-        self.stopwatch = 0
+        self.stopwatch = 0.0
         self.stopwatchSet = False
-        self.time = 0
+        self.time = 0.0
 
     #  Get the current time - Real World.
     def getTime(self):
@@ -276,6 +288,8 @@ class IronSeedTime(object):
         self.starDateDay = g.starDate[2]
         self.starDateHour = g.starDate[3]
         self.starDateMinute = g.starDate[4]
+        self.internalTimer = StopWatch()
+        self.internalTimer.setStopwatch()
 
     #  Load new values, usually from Save Game.        
     def loadNewDate(self, Year, Month, Day, Hour, Minute):
@@ -297,6 +311,16 @@ class IronSeedTime(object):
     def __str__(self):
         
         return zeroPrefix(self.starDateDay, 2)+'/'+zeroPrefix(self.starDateMonth, 2)+'/'+str(self.starDateYear)+'  '+zeroPrefix(self.starDateHour, 2)+':'+zeroPrefix(self.starDateMinute, 2)
+    
+    #  Update the time, this uses the default of 1 real-world
+    #  second = 5 minutes.
+    def update(self):
+        
+        if self.internalTimer.getElapsedStopwatch() >= 1.0:
+            
+            self.internalTimer.setStopwatch()
+            self.incrementTime(False, False, False, False, True)
+        
     
     #  Tick a unit of time
     def incrementTime(self, Year=False, Month=False,
@@ -335,7 +359,7 @@ class IronSeedTime(object):
             
         if Minute:
             
-            self.starDateMinute += 1
+            self.starDateMinute += 5
             
             if self.starDateMinute > 59:
                 
