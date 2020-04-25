@@ -47,14 +47,21 @@ class Probot(object):
         self.status = 0
         
         #  Probot timer for current runtime.
-        #  Could use stopwatch, but results might be "unrealistic."
-        self.timer = 0
+        #  Use stopwatch, careful, results might be "unrealistic."
+        self.timer = h.StopWatch()
+        self.timerLastCheck = 0.0  #  Used for minor time checks.
         
         #  Time limit for current stage, semi-random.
-        self.stageTimeLimit = 0
+        self.statusTimeLimit = 0.0
         
-        #  Operation times, based on frames for the moment.
-        self.timeLimit = 1200
+        #  Operation times, basing on real-world seconds elapsed.
+        self.timeLimit = 50.0
+        self.deployedTimeLimit = 15.0
+        self.orbitingTimeLimit = 10.0
+        self.gatheringTimeLimit = 10.0
+        #self.analyzingTimeLimit = 10.0
+        self.returningTimeLimit = 25.0
+        self.refuelingTimeLimit = 10.0
         
         #  Probots have 4 acivity monitors on main screen, these are the
         #  bounding-box positions.
@@ -76,7 +83,7 @@ class Probot(object):
     # Reset the timer.
     def resetTimer(self):
         
-        self.timer = 0
+        self.timer.resetStopwatch()
 
     # Reset probot to default state.
     def resetProbot(self):
@@ -89,9 +96,16 @@ class Probot(object):
         self.planetPosition = [0, 0]  # Red dot position on scanner
         self.travelDirection = [0, 0]
         self.dataGathered = 0
-        self.fuel = 50
+        self.fuel = 50.0
         self.status = 0
-        self.timer = 0
+        self.timer.resetStopwatch()
+        self.statusTimeLimit = 0.0
+        self.timerLastCheck = 0.0
+        
+    #  Refuel the probot.
+    def refuelProbot(self):
+        
+        self.fuel = 50.0  # Real-World flight seconds.
 
     #  Check to see if the probot needs to be drawn on the planet view.
     def shouldDraw(self):
@@ -123,6 +137,48 @@ class Probot(object):
             
             self.dataTarget = [random.randint(28, 267),
                                random.randint(13, 132)] #TODO: Add real values.
+
+
+    #  Set Stage Time Limit according to current stage and set timer.
+    def setCurrentStageTimeLimit(self):
+
+        if self.status == 1:
+            
+            self.statusTimeLimit = self.deployedTimeLimit
+            
+        elif self.status == 2:
+            
+            self.statusTimeLimit = self.orbitingTimeLimit
+            
+        elif self.status == 3:
+            
+            self.statusTimeLimit = self.gatheringTimeLimit
+            
+        elif self.status == 4:  #  Shouldn't hit unless on target.
+            
+            self.statusTimeLimit = 80.0 + random.randrange(0, 50)
+            
+        elif self.status == 5:
+            
+            self.statusTimeLimit = self.returningTimeLimit
+            
+        else:
+            
+            self.statusTimeLimit = self.refuelingTimeLimit
+        
+        self.timer.setStopwatch()
+
+    #  Check if stage time limit has been exceeded or matched.
+    #  Returns True if time exceeded, False otherwise.
+    def checkTimeLimitReached(self):
+        
+        exceeded = False
+        
+        if self.timer.getElapsedStopwatch() >= self.statusTimeLimit:
+            
+            exceeded = True
+            
+        return exceeded
     
     #  Make the red dot for the probot move around.
     #  Use retrieve check, if True then use retrieval logic.
@@ -182,39 +238,54 @@ class Probot(object):
         #  Don't move when Analysing.
         if (applied == self.dataTarget) and (self.status != 4):
             
-            #  Analysis time is semi-random
-            self.stageTimeLimit = 80 + random.randrange(0, 50)
             self.status = 4
+            #  Analysis time is semi-random
+            self.setCurrentStageTimeLimit()
+        
+        else:
+        
+            if self.timer.getTime() - self.timerLastCheck >= 1.0:
                 
-        #  Use fuel
-        self.fuel -= 1
+                #  Use fuel
+                self.fuel -= 1.0
+                self.timerLastCheck = self.timer.getTime()
 
+    #  Launch the probot.
+    def launch(self):
+        
+        if self.status == 0:
+
+            self.status = 1  #  Deployed
+                
+        self.probotLaunched = True
+        self.setCurrentStageTimeLimit()
+        
     #  Perform probot tick related functions.
     def tick(self):
         
-        if self.fuel == 0:
+        if self.fuel <= 0.0 or self.dataGathered >= 500:
             
-            self.status = 5
-            
-        if self.dataGathered == 500:
-            
-            self.status = 5
+            if self.status != 5 and self.status != 6:
+                
+                #print("Set Status 5")
+                self.status = 5
+                self.setCurrentStageTimeLimit()
         
         if self.probotLaunched:
-        
-            self.timer += 1
-        
-            if self.timer == self.timeLimit:
+                
+            if self.checkTimeLimitReached():
             
                 if self.status == 6:
-                
-                    self.status = 2
                     
+                    #print("Status 6: Refueled")
+                    self.refuelProbot()
+                    self.status = 1
+
                 else:
                     
                     self.status += 1
                     
-                self.timer = 0
+                self.setCurrentStageTimeLimit()
             
             if self.status == 3 or self.status == 4:
                 
@@ -223,29 +294,27 @@ class Probot(object):
             else:
             
                 self.setDataTarget()  #  Temp, until better targetting.
-            
+
         if self.probotRetrieving:
             
-            self.timer += 1
-            
-            if self.timer == self.timeLimit:
+            if self.checkTimeLimitReached():
                 
-                if self.status == 4:
+                if self.status == 4:  #  Temp, adjust logic later.
                     
                     self.haveCargo = True
                     self.status = 5
-                    
                     
                 elif self.status == 6:
                         
                     self.status = 0
                     self.probotRetrieving = False
+                    self.refuelProbot()
                     
                 else:
                     
                     self.status += 1
                 
-                self.timer = 0
+                self.setCurrentStageTimeLimit()
                 
             if self.status == 3 or self.status == 4:
                 
@@ -254,6 +323,11 @@ class Probot(object):
             else:
             
                 self.setDataTarget()  #  Temp, until better targetting.
+        
+        #  We reset our timer every second.
+        #if self.timer.getTime() - self.timerLastCheck >= 1.0:
+            
+        #    self.timerLastCheck = self.timer.getTime()
 
 # This class is essentially a mini-game called "The planet scanner" ;)
 # The original game logic is relatively sophisticated, analysing individual
@@ -294,6 +368,10 @@ class PlanetScanner(object):
         self.scanInterface = pygame.image.load(os.path.join('Graphics_Assets', 'landform.png'))
         self.scanInterfaceScaled = pygame.transform.scale(self.scanInterface, (g.width, g.height))
         self.scanInterfaceScaled.set_colorkey(g.BLACK)
+        
+        #  Scanner green text frames.
+        self.greenTextFrames = []
+        self.prepareGreenTextFrames()
 
         #  Landform bounding area for planet texture
         self.mainViewBoundary = (int((g.width/320)*28),
@@ -418,17 +496,34 @@ class PlanetScanner(object):
         self.musicState = False
         
         self.systemState = 5
+    
+    # Load green text animation frames
+    def prepareGreenTextFrames(self):
         
+        #  7 units Wide.
+        for icon in range(1, 6):
+                
+                #  Top and bottom border of 1 pixel.
+                #  Right border of 1 pixel.
+                #  Each frame 20 pixels wide.
+                #  Each frame 13 pixels high.
+                sourceRectangle = ((icon*28),13, 20, 13 )
+                frame = pygame.Surface((20, 13))
+                frame.blit(self.scanInterface,(0, 0), sourceRectangle)
+                #  The resizing procedure does introduce innaccuracy, but
+                #  unavoidable right now.
+                resizeFrame = pygame.transform.scale(frame, ( int((g.width/320)*frame.get_width()), int((g.height/200)*frame.get_height())))
+                resizeFrame.set_colorkey(g.BLACK)
+                self.greenTextFrames.append(resizeFrame)
+    
+    
     # Launch probots for a scan
     def launchProbots(self):
         
         for bot in self.probot:
             
-            if bot.status == 0:
-                
-                bot.status = 1  #  Deployed
-                
-            bot.probotLaunched = True
+            bot.launch()
+            
         
     # Run an update tick of the probot timer logic.
     def probotTick(self):
@@ -476,6 +571,8 @@ class PlanetScanner(object):
                             #  Assume bot returns it.
                             bot.anomaly = "placeholder"
                             #  As this was popped, it won't try again.
+                            #bot.resetProbot()  #  ?
+                
                 
                 else:
                     count = 0
@@ -489,12 +586,13 @@ class PlanetScanner(object):
                     if count > 0:
                     
                         self.incrementScanData(count-1, bot.dataGathered)
-                        bot.scandata = 0
+                        bot.dataGathered = 0
 
                         if self.scanned[count-1] == 2:
 
                             bot.resetProbot()
                 
+                #bot.refuelProbot()  #  We're here to refuel.
             
     # Destroy a quantity of Probots.
     #  TODO:  Make more elaborate with big popup box and report on how it was
@@ -613,7 +711,7 @@ class PlanetScanner(object):
                             
                     elif d100 == 73 or d100 == 74 or d100 == 75:
                         
-                        # TODO Artiact code.
+                        # TODO Artifact code.
                         pass
                     
                 else:  # Must be 6.
@@ -622,7 +720,10 @@ class PlanetScanner(object):
                         
                         # TODO Artifact code.
                         pass
-            
+                
+                if randomItem != "placeholder":
+                    
+                    self.anomalies.append(Anomaly(randomItem, 0, 0))
         
         for anomaly in self.anomalies:
         
@@ -639,7 +740,7 @@ class PlanetScanner(object):
         random.seed()
         self.thePlanet.anomalyGeneration = True
     
-    # Retrieve anomalies and put into ship cargo.
+    # Retrieve anomalies to put into ship cargo.
     # Note: probot actually carries object!  Make sure you put it into cargo!
     def retrieveAnomalies(self):
         
@@ -750,6 +851,36 @@ class PlanetScanner(object):
                                    AdjustedPositionY,
                                    int((g.width/320)*59),
                                    int((g.height/200)*59))
+        
+    #  Draw the HUD display green "text" and targetting reticules.
+    #  These should be drawn during the main drawing routine, so the zoom
+    #  texture is left intact.
+    def drawZoomHUD(self, displaySurface):
+        
+        xCentre = (self.zoomedViewBoundary[2] - self.zoomedViewBoundary[0]) / 2
+        xCentre = int(xCentre + self.zoomedViewBoundary[0])
+        
+        yCentre = (self.zoomedViewBoundary[3] - self.zoomedViewBoundary[1]) / 2
+        yCentre = int(yCentre + self.zoomedViewBoundary[1])
+        
+        h.targettingReticule(displaySurface,
+                             xCentre,
+                             yCentre,
+                             g.BLUE,
+                             2,
+                             int(((self.zoomedViewBoundary[2]-self.zoomedViewBoundary[0])/15)*self.zoomLevel),
+                             1)
+        #self.greenTextFrames
+        
+        #  Draw the green text frames on the Zoom HUD.
+        displaySurface.blit(self.greenTextFrames[random.randrange(0,5)],
+                            (self.zoomedViewBoundary[0],
+                             self.zoomedViewBoundary[1]))
+        
+        displaySurface.blit(self.greenTextFrames[random.randrange(0,5)],
+                            (self.zoomedViewBoundary[2] - self.greenTextFrames[0].get_width(),
+                             self.zoomedViewBoundary[3] - self.greenTextFrames[0].get_height()))
+        
     
     #  Check if Scanning and launch probots if not.
     #  Also check to make sure we are not launching Probots if we already
@@ -932,6 +1063,8 @@ class PlanetScanner(object):
         displaySurface.blit(self.scanInterfaceScaled, (0, 0))
         displaySurface.blit(self.planetTextureScaled, self.mainViewBoundary)
         displaySurface.blit(self.zoomTextureScaled, self.zoomedViewBoundary)
+        self.drawZoomHUD(displaySurface)
+        
         
         #  Draw bounding rectangle on map view.
         rectangle = (self.zoomedViewSelected[0] + self.mainViewBoundary[0],
