@@ -349,6 +349,7 @@ class PlanetScanner(object):
         self.scanning = [False, False, False, False, False]
         self.scanned = [0, 0, 0, 0, 0]  # Historically 0 to 2
         self.dataCollected = [0, 0, 0, 0, 0]  # Historically 1000 per point.
+        self.scanningComplete = False
         
         # Anomaly items with locations.
         self.anomalies = []
@@ -497,6 +498,24 @@ class PlanetScanner(object):
         
         self.systemState = 5
     
+    #  Reset the planet scanner back to default starting values.
+    def resetScanner(self):
+        
+        self.scannerStage = 0  # Forces reset when we return to scanner.
+        self.scanning = [False, False, False, False, False]
+        self.scanned = [0, 0, 0, 0, 0]  # Historically 0 to 2
+        self.dataCollected = [0, 0, 0, 0, 0]  # Historically 1000 per point.
+        self.scanningComplete = False
+        self.anomalies = []
+        self.zoomLevel = 1
+        self.musicState = False
+        
+        # Reset all probots to default state; assume they all get back.
+        for bot in self.probot:
+            
+            bot.resetProbot()
+        
+    
     # Load green text animation frames
     def prepareGreenTextFrames(self):
         
@@ -517,7 +536,7 @@ class PlanetScanner(object):
                 self.greenTextFrames.append(resizeFrame)
     
     
-    # Launch probots for a scan
+    # Launch probots for a scan or retrieval.
     def launchProbots(self):
         
         for bot in self.probot:
@@ -744,6 +763,11 @@ class PlanetScanner(object):
     # Note: probot actually carries object!  Make sure you put it into cargo!
     def retrieveAnomalies(self):
         
+        #  Don't do anything if we haven't scanned everything.
+        if self.scanningComplete == False:
+            
+            return
+        
         count = 0
         
         for bot in self.probot:
@@ -757,6 +781,20 @@ class PlanetScanner(object):
                     bot.anomaly = self.anomalies.pop()  # Much excitement!
                     bot.probotRetrieving = True
                     bot.setDataTarget()
+
+    #  Test scan data to see if we have scanned everything
+    def testScanData(self):
+        
+        allTestedComplete = True
+        
+        for test in self.scanned:
+            
+            if test != 2:
+                
+                allTestedComplete = False
+                break
+        
+        return allTestedComplete
     
     #  Synchronise scan data with planet.
     def planetSynchronise(self):
@@ -766,6 +804,7 @@ class PlanetScanner(object):
         self.thePlanet.atmosphere = self.scanned[2]
         self.thePlanet.biosphere = self.scanned[3]
         self.thePlanet.anomaly = self.scanned[4]
+        self.thePlanet.fullyScanned = self.scanningComplete
     
     # Increment the scandata arrays according to the amount of data found
     # by a probot.
@@ -789,7 +828,12 @@ class PlanetScanner(object):
                     self.createAnomalies()
                 
             else:
+                
                 self.scanned[dataType] = 1
+                
+        if self.testScanData():
+            
+            self.scanningComplete = True
         
         self.planetSynchronise()
         
@@ -886,6 +930,10 @@ class PlanetScanner(object):
     #  Also check to make sure we are not launching Probots if we already
     #  have data.
     def scanAndLaunch(self, scanType):
+
+        if self.testScanData():
+            
+            return #  Exit immediately if we have all the scan data.
         
         isScanning = False
         
@@ -918,7 +966,6 @@ class PlanetScanner(object):
         
         currentPosition = pygame.mouse.get_pos()
         
-        
         if self.land.within(currentPosition):
             
             self.scanAndLaunch(0)
@@ -941,14 +988,8 @@ class PlanetScanner(object):
         
         elif self.exit.within(currentPosition):
             
-            self.scannerStage = 0  # Forces reset when we return to scanner.
-            self.musicState = False
-            
-            # Reset all probots to default state; assume they all get back.
-            for bot in self.probot:
-            
-                bot.resetProbot()
-            
+            self.resetScanner()
+                        
             self.systemState = 10
             #  Reset scanner stage and enter main screen system state.
             
@@ -994,12 +1035,17 @@ class PlanetScanner(object):
         return self.systemState
     
     #  Draw a micro version of the planet on a probot monitor.
+    #  TODO:  This actually sweeps in from the right, and zooms in until
+    #  it is centred in the monitor.
     def drawMicroPlanet(self, displaySurface, bot):
         
         pass
     
     #  Draw a segment of the landscape texture on a probot monitor.
     def drawLandscapeProbot(self, displaySurface, bot):
+        
+        #  Ensure original background graphic is wiped
+        self.drawProbotMonitor(displaySurface, bot, True)
         
         displaySurface.blit(self.planetTextureScaled,
                             bot.BoundingBoxScaled,
@@ -1024,25 +1070,49 @@ class PlanetScanner(object):
     #  Docked, Deployed, Orbiting, Gathering, Analyzing, Returning,
     #  Refueling.
     #  TODO:  transit, complex planet resize required.
-    def drawProbotMonitor(self, displaySurface, bot): #  , stage, destination):
+    def drawProbotMonitor(self, displaySurface, bot, blank=False):
+        
+        if blank == True:
+            
+            displaySurface.blit(self.probotEmptyScaled, bot.BoundingBoxScaled)
+            return
 
         if bot.status == 0:
             
-            self.drawTextAndGraphic(displaySurface, self.probotDockedScaled, bot)
+            self.drawTextAndGraphic(displaySurface,
+                                    self.probotDockedScaled,
+                                    bot)
 
         elif bot.status == 1 or bot.status == 2 or bot.status == 5:
             
             #TODO: Scaled planet render on this line.
-            self.drawTextAndGraphic(displaySurface, self.probotTransitScaled, bot)
+            self.drawTextAndGraphic(displaySurface,
+                                    self.probotTransitScaled,
+                                    bot)
 
         elif bot.status == 3 or bot.status == 4:  #  Overlay on landscape
         
             self.drawLandscapeProbot(displaySurface, bot)
-            self.drawTextAndGraphic(displaySurface, self.probotScanningScaled, bot)
+            self.drawTextAndGraphic(displaySurface,
+                                    self.probotScanningScaled,
+                                    bot)
+            displaySurface.fill(g.RED,
+                                (bot.BoundingBoxScaled[0] + int(((g.width/320)*31)/2),
+                                bot.BoundingBoxScaled[1] + int(((g.height/200)*24)/2),
+                                int((g.width/320)*1),
+                                int((g.height/200)*1)))
+            
+            if bot.status == 4:
+                
+                displaySurface.blit(self.greenTextFrames[random.randrange(0,5)],
+                                    (bot.BoundingBoxScaled[2] - self.greenTextFrames[0].get_width(),
+                                     bot.BoundingBoxScaled[3] - self.greenTextFrames[0].get_height()))
                          
         elif bot.status == 6:
 
-            self.drawTextAndGraphic(displaySurface, self.probotRefuelScaled, bot)
+            self.drawTextAndGraphic(displaySurface,
+                                    self.probotRefuelScaled,
+                                    bot)
                          
         else:
 
@@ -1102,8 +1172,7 @@ class PlanetScanner(object):
             else:
                 
                 self.drawProbotMonitor(displaySurface,
-                                       99,
-                                       bot.BoundingBoxScaled)
+                                       bot.BoundingBoxScaled, True)
 
     def runScanner(self, displaySurface):
         
@@ -1155,7 +1224,7 @@ class PlanetScanner(object):
             
             for dataValue in range(0,5):
                 
-                self.scanned[dataValue] = 1000 * self.scanned[dataValue]
+                self.dataCollected[dataValue] = 500 * self.scanned[dataValue]
             
         
         if self.scannerStage == 1:
