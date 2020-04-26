@@ -82,6 +82,7 @@ class Planet(object):
         self.atmosphere = 0
         self.biosphere = 0
         self.anomaly = 0
+        self.fullyScanned = False
         
     # New game initialisation, this occurs during the generation phase.
     # Results are ultimately saved to save game file for new game.
@@ -391,6 +392,12 @@ class Planet(object):
             self.cache = []
             self.bots = [0, 0, 0]
             self.notes = 0
+            self.fullyScanned = False
+            self.lithosphere = 0
+            self.hydrosphere = 0
+            self.atmosphere = 0
+            self.biosphere = 0
+            self.anomaly = 0
     
     # This function computes the quantities of elements required to make the
     # components of a final product (component, material, weapon, shield etc.)
