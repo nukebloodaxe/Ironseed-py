@@ -16,11 +16,14 @@ import helper_functions as h
 # locaion parameter.
 class Anomaly(object):
     
-    def __init__(self, anomalyItem, x, y):
+    def __init__(self, anomalyItem, boundary):
         
         self.item = anomalyItem
-        self.locationX = x
-        self.locationY = y
+        self.alternateName = items.getAlternateName(self.item)
+        
+        #  Set a random location
+        self.locationX = random.randint(boundary[0], boundary[2])
+        self.locationY = random.randint(boundary[1], boundary[3])
 
 # To encapsulate most probot logic
 # Having launch and retrieve here allows for asynchronous operations.
@@ -76,8 +79,8 @@ class Probot(object):
                              int((g.height/200)*(yEnd))]
 
         # Descriptors
-        self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Analyzing",
-                               "Gathering", "Returning", "Refueling",
+        self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Gathering",
+                               "Analyzing", "Returning", "Refueling",
                                "Destroyed"]
 
     # Reset the timer.
@@ -135,8 +138,10 @@ class Probot(object):
         
         else:
             
-            self.dataTarget = [random.randint(28, 267),
-                               random.randint(13, 132)] #TODO: Add real values.
+            self.dataTarget = [random.randint(self.landBoundary[0],
+                                              self.landBoundary[2]),
+                               random.randint(self.landBoundary[1],
+                                              self.landBoundary[3])]
 
 
     #  Set Stage Time Limit according to current stage and set timer.
@@ -156,7 +161,8 @@ class Probot(object):
             
         elif self.status == 4:  #  Shouldn't hit unless on target.
             
-            self.statusTimeLimit = 80.0 + random.randrange(0, 50)
+            self.statusTimeLimit = random.randrange(0, 25)
+            #80.0 + random.randrange(0, 50)  # ridiculous.
             
         elif self.status == 5:
             
@@ -241,14 +247,12 @@ class Probot(object):
             self.status = 4
             #  Analysis time is semi-random
             self.setCurrentStageTimeLimit()
-        
-        else:
-        
-            if self.timer.getTime() - self.timerLastCheck >= 1.0:
+
+        if self.timer.getTime() - self.timerLastCheck >= 1.0:
                 
-                #  Use fuel
-                self.fuel -= 1.0
-                self.timerLastCheck = self.timer.getTime()
+            #  Use fuel
+            self.fuel -= 1.0
+            self.timerLastCheck = self.timer.getTime()
 
     #  Launch the probot.
     def launch(self):
@@ -261,7 +265,7 @@ class Probot(object):
         self.setCurrentStageTimeLimit()
         
     #  Perform probot tick related functions.
-    def tick(self):
+    def tick(self, crewMembers):
         
         if self.fuel <= 0.0 or self.dataGathered >= 500:
             
@@ -280,6 +284,15 @@ class Probot(object):
                     #print("Status 6: Refueled")
                     self.refuelProbot()
                     self.status = 1
+                    
+                elif self.status == 4:
+                    
+                    #  Increment data gathered here.
+                    #  Note, first time crew member skills + stress actually used in this engine.
+                    self.dataGathered += int((crewMembers.skillRange(crewMembers.science, 5, 10) + 20) * (10 / 100))
+                    
+                    self.status = 3
+                    self.setDataTarget()
 
                 else:
                     
@@ -339,10 +352,11 @@ class Probot(object):
 # "natives", I believe here is a lot of potential there; Roswell? ;)
 class PlanetScanner(object):
     
-    def __init__(self, playerShip):
+    def __init__(self, playerShip, crewMembers):
         
         self.scannerStage = 0  # what we are doing.
         self.ironSeed = playerShip
+        self.crewMembers = crewMembers
         self.probotCount = self.ironSeed.getItemQuantity("Probot")
         
         # lithosphere, hydrosphere, atmosphere, biosphere, anomaly
@@ -549,7 +563,7 @@ class PlanetScanner(object):
         
         for bot in self.probot:
             
-            bot.tick()
+            bot.tick(self.crewMembers)
             
             if bot.status == 6:
                 
@@ -648,13 +662,20 @@ class PlanetScanner(object):
 
             if 28 in g.eventFlags:
                 
-                self.anomalies.append(Anomaly("Temporal Anchor", 0, 0))
-                self.anomalies.append(Anomaly("Heavy Corse Grenade", 0, 0))
-                self.anomalies.append(Anomaly("Heavy Corse Grenade", 0, 0))
-                self.anomalies.append(Anomaly("Sling of David", 0, 0))
-                self.anomalies.append(Anomaly("Sling of David", 0, 0))
-                self.anomalies.append(Anomaly("Thynne Vortex", 0, 0))
-                self.anomalies.append(Anomaly("Thynne Vortex", 0, 0))
+                self.anomalies.append(Anomaly("Temporal Anchor",
+                                              self.mainViewBoundary))
+                self.anomalies.append(Anomaly("Heavy Corse Grenade",
+                                              self.mainViewBoundary))
+                self.anomalies.append(Anomaly("Heavy Corse Grenade",
+                                              self.mainViewBoundary))
+                self.anomalies.append(Anomaly("Sling of David",
+                                              self.mainViewBoundary))
+                self.anomalies.append(Anomaly("Sling of David",
+                                              self.mainViewBoundary))
+                self.anomalies.append(Anomaly("Thynne Vortex",
+                                              self.mainViewBoundary))
+                self.anomalies.append(Anomaly("Thynne Vortex",
+                                              self.mainViewBoundary))
                 
         else:
             
@@ -742,18 +763,13 @@ class PlanetScanner(object):
                 
                 if randomItem != "placeholder":
                     
-                    self.anomalies.append(Anomaly(randomItem, 0, 0))
+                    self.anomalies.append(Anomaly(randomItem,
+                                                  self.mainViewBoundary))
         
         for anomaly in self.anomalies:
         
             #  Fill planet cache with generated items.
             self.thePlanet.addItemToCache(anomaly.item)
-            
-            #  Set their random location
-            anomaly.locationX = random.randint(self.mainViewBoundary[0],
-                                               self.mainViewBoundary[2])
-            anomaly.locationY = random.randint(self.mainViewBoundary[1],
-                                               self.mainViewBoundary[3])
             
         # Reset random number seed.
         random.seed()
