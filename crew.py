@@ -134,11 +134,11 @@ class CrewMember(object):
     def tempInsanity(self):
         
         # there is a 1 in 6 change of this happening.
-        if int(random.randint(0,5)) == 0:
+        if int(random.randint(0, 5)) == 0:
             
             return "" # Nothing happens
         
-        return insanityIndex[random.randrange(0,19)]
+        return insanityIndex[random.randrange(0, 19)]
     
     #  Ego Synths are a bit "unstable", given they are lacking physical forms.
     #  So, sanity checks are bad news all around, as the EGO is decaying.
@@ -166,7 +166,7 @@ class CrewMember(object):
         
         self.recalculateStatus()
         
-        if random.randint(1,80) > self.sanity:
+        if random.randint(1, 80) > self.sanity:
             
             return self.tempInsanity()
         
@@ -177,14 +177,14 @@ class CrewMember(object):
     #  returns a boolean declaring skill check success or failure.
     #  Failure causes Ego to decay, like a melting snowflake.
     def skillCheck(self):
-        skillSuccess = random.randint(1,80)
+        skillSuccess = random.randint(1, 80)
         skillCheck = False
         sanityReport = ""
         
         #  You need to roll under the skill level, like D&D, to be successful.
         if skillSuccess > self.skill:
             
-            skillSuccess = random.randint(1,80)
+            skillSuccess = random.randint(1, 80)
             
             #  Now we roll to see how bad things get.
             if skillSuccess > self.performance:
@@ -399,7 +399,7 @@ class Crew(object):
             
             sanityResult = crewMember.tempInsanity()
             
-        d8Roll = random.randint(1,8)
+        d8Roll = random.randint(1, 8)
         
         if (d8Roll == 1) and (crewMember.mental > 0):
             
@@ -420,6 +420,7 @@ class Crew(object):
     #  Perform Sanity Test on crewMember.  This is effectively a D8 roll
     #  with an added difficulty value.
     def sanityTest(self, crewMember, difficulty):
+        
         sanityResult = False
         sanity = crewMember.sanity
         diff = difficulty
@@ -432,7 +433,7 @@ class Crew(object):
             
             diff = 1
             
-        if random.randint(1,sanity+diff) < sanity:
+        if random.randint(1, int(sanity+diff)) < sanity:
             
             sanityResult = True
         
@@ -444,7 +445,7 @@ class Crew(object):
         
         diff = difficulty - crewMember.performance
         
-        if not self.sanityTest(crewMember,diff):
+        if not self.sanityTest(crewMember, diff):
             
             if g.gameStatus < 99:
                 
@@ -464,7 +465,7 @@ class Crew(object):
             
             diff = 1
             
-        if random.randint(1,perf+diff) < perf:
+        if random.randint(1, int(perf+diff)) < perf:
             
             performanceResult = True
         
@@ -484,9 +485,9 @@ class Crew(object):
             
             diff = 1
         
-        return random.randint(1,perf) - random.randint(1,diff)
+        return random.randint(1, int(perf)) - random.randint(1, int(diff))
     
-    
+    #  Perform a skill check on a crewmember, return if they succeed or fail.
     def skillTest(self, crewMember, difficulty, learn):
         
         skillResult = False
@@ -501,15 +502,15 @@ class Crew(object):
             
             diff = 1
             
-        if random.randint(1,skill+diff) < skill:
+        if random.randint(1, int(skill+diff)) < skill:
             
             skillResult = True
             self.crewStress(crewMember, 0)
             
         else:
-            self.crewStress(crewMember,abs(diff-skill))
+            self.crewStress(crewMember, abs(diff-skill))
             
-        if random.randint(1,1000) < learn:
+        if random.randint(1, 1000) < learn:
             
             if crewMember.addXP(difficulty):
                 
@@ -517,9 +518,10 @@ class Crew(object):
                 
         return skillResult
     
+    #  Perform a skill check on a crewmember, return resulting effort.
     def skillRange(self, crewMember, difficulty, learn):
         
-        skill = crewMember.skill
+        skill = int(crewMember.skill)
         diff = difficulty
         
         if skill <= 5:
@@ -530,19 +532,21 @@ class Crew(object):
             
             diff = 1
             
-        if random.randint(1,1000) < learn:
+        if random.randint(1, 1000) < learn:
             
             if crewMember.addXP(difficulty):
                 
                 self.addMessage(crewMember.crewMessage('Increased knowledge base.'))
                 
-        self.crewStress(crewMember,(100*diff)/skill)
-        return random.randint(1,skill)-random.randint(1,diff)
+        self.crewStress(crewMember, int((100*diff)/skill))
+        return random.randint(1, skill) - random.randint(1, diff)
     
     
     
     #  Crew update tick function.
     def update(self):
+        
+        #  TODO:  Crew tick, check everything.
         
         pass
 
