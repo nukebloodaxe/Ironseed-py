@@ -9,6 +9,7 @@ Protic Liquids	Hexane
 Protic Liquids	Octane
 Protic Liquids	Dimethylpropane
 Protic Liquids	Isobutane
+EOD
 Alkene	Toluene
 Alkene	Napthalene
 Alkene	Benzene
@@ -19,6 +20,7 @@ Alkene	Dibromobenzene
 Alkene	Aniline
 Alkene	Nitrobenzene
 Alkene	Anthracene
+EOD
 Alkyne	Acetylene
 Alkyne	Ethylene
 Alkyne	Propyne
@@ -29,6 +31,7 @@ Alkyne	Dibromobenzyne
 Alkyne	Dimethylpropyne
 Alkyne	Cyclopropyne
 Alkyne	Phenylpropyne
+EOD
 Volatile Compounds	Ethyl Alcohol
 Volatile Compounds	Isopropyl Alcohol
 Volatile Compounds	Butyl Alcohol
@@ -39,6 +42,7 @@ Volatile Compounds	Octyl Alcohol
 Volatile Compounds	Hexyl Alcohol
 Volatile Compounds	Benzyl Alcohol
 Volatile Compounds	Furfuryl Alcohol
+EOD
 Ether	Phenetole
 Ether	Anisole
 Ether	Diphenyl Ether
@@ -49,6 +53,7 @@ Ether	Di-iso-butyl Ether
 Ether	Ethyl Acetate
 Ether	Ethyl Stearate
 Ether	Resorcinol Diethyl Ether
+EOD
 Aldehydes/Ketone	Formaldehyde
 Aldehydes/Ketone	Acetaldehyde
 Aldehydes/Ketone	Acetone
@@ -59,6 +64,7 @@ Aldehydes/Ketone	Furfural
 Aldehydes/Ketone	Butyraldehyde
 Aldehydes/Ketone	Methyl Ethyl Ketone
 Aldehydes/Ketone	Methyl Iso-butyl Ketone
+EOD
 Carboxylic Acid	Formic Acid
 Carboxylic Acid	Acetic Acid
 Carboxylic Acid	Butyric Acid
@@ -69,6 +75,7 @@ Carboxylic Acid	Citric Acid
 Carboxylic Acid	Silicic Acid
 Carboxylic Acid	Cinchomeronic Acid
 Carboxylic Acid	Quinolinic Acid
+EOD
 Amine	Ethylamine
 Amine	Aniline
 Amine	Napthhylamine
@@ -79,6 +86,7 @@ Amine	Cytosine
 Amine	Uracil
 Amine	Adenine
 Amine	Guanine
+EOD
 Strong Acid	Hydrochloric Acid
 Strong Acid	Acetic Acid
 Strong Acid	Sulfuric Acid
@@ -89,6 +97,7 @@ Strong Acid	Carbonic Acid
 Strong Acid	Nitric Acid
 Strong Acid	Hydroiodic Acid
 Strong Acid	Chlorous Acid
+EOD
 Base	Sodium Hydroxide
 Base	Barium Hydroxide
 Base	Ammonia
@@ -98,7 +107,8 @@ Base	Nickel Oxide
 Base	Ammonium Chloride
 Base	Magnesium Hydroxide
 Base	Iron Hydroxide
-Base	Potassium  Hydroxide
+Base	Potassium Hydroxide
+EOD
 Salts	Earlandite
 Salts	Humboldtine
 Salts	Mellite
@@ -109,6 +119,7 @@ Salts	Ammonium Nitrate
 Salts	Sodium Flouride
 Salts	Lithium Sulphate
 Salts	Sellenium Chloride
+EOD
 Lensing Solid	Glass
 Lensing Solid	Quartz
 Lensing Solid	Diamonds
@@ -119,6 +130,7 @@ Lensing Solid	Zeunerite
 Lensing Solid	Vanadinite
 Lensing Solid	Tourmaline
 Lensing Solid	Pyrargyrite
+EOD
 Heavy Element	Uranium
 Heavy Element	Dysprosium
 Heavy Element	Erbium
@@ -129,6 +141,7 @@ Heavy Element	Ytterbium
 Heavy Element	Thorium
 Heavy Element	Terbium
 Heavy Element	Rhenium
+EOD
 Transition Metal	Zinc
 Transition Metal	Copper
 Transition Metal	Nickel
@@ -139,6 +152,7 @@ Transition Metal	Lead
 Transition Metal	Iron
 Transition Metal	Mercury
 Transition Metal	Tungsten
+EOD
 Halogens/Noble Gas	Flourine
 Halogens/Noble Gas	Chlorine
 Halogens/Noble Gas	Bromine
@@ -149,6 +163,7 @@ Halogens/Noble Gas	Argon
 Halogens/Noble Gas	Krypton
 Halogens/Noble Gas	Xenon
 Halogens/Noble Gas	Radon
+EOD
 Amino Acid	Asparagine
 Amino Acid	Aspartic Acid
 Amino Acid	Cysteine
@@ -159,6 +174,7 @@ Amino Acid	Proline
 Amino Acid	Tryptophan
 Amino Acid	Tyrosine
 Amino Acid	Valine
+EOD
 Industrial Chemical	Sodium Carbonate
 Industrial Chemical	Urea
 Industrial Chemical	Styrene
