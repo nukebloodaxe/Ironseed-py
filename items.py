@@ -222,9 +222,9 @@ def loadItemData(file1=os.path.join('Data_Generators', 'Other', 'IronPy_items.ta
         alternateNames = []
         
         while S4 != "EOD" and S4 != "ENDF":
-            print(S4)
+            #print(S4)
             itemName, alternateName = S4.split('\n')[0].split('\t', 1)
-            print("Item Name: ", itemName, "Alternate Name: ", alternateName)
+            #print("Item Name: ", itemName, "Alternate Name: ", alternateName)
             alternateNames.append(alternateName)
             S4 = alternateNamesFile.readline().split('\n')[0]
         
