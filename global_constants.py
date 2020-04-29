@@ -35,7 +35,7 @@ TECH4 = (200, 200, 0)
 TECH5 = (250, 250, 0)
 
 #  Fonts:  this is a temporary google font, get it from them.
-font = pygame.font.Font(os.path.join('Fonts', 'NotoSansTC-Regular.otf'), 12)
+font = pygame.font.Font(os.path.join('Fonts', 'Inconsolata-ExtraBold.ttf'), 14)
 offset = 20  # for this font.
 
 #  Totals for items
