@@ -8,7 +8,7 @@ Planet Scanner
 # This requires rather a lot of things to be working beforehand.
 # However, it also is the best way to test the planet related code.
 
-import random, math, io, time, os, buttons, planets, pygame, items, ship, crew
+import random, os, buttons, planets, pygame, items
 import global_constants as g
 import helper_functions as h
 
@@ -24,6 +24,7 @@ class Anomaly(object):
         #  Set a random location
         self.locationX = random.randint(boundary[0], boundary[2])
         self.locationY = random.randint(boundary[1], boundary[3])
+
 
 # To encapsulate most probot logic
 # Having launch and retrieve here allows for asynchronous operations.
@@ -42,6 +43,7 @@ class Probot(object):
         self.dataTarget = [0, 0]  # Target point for investigation.
         self.landBoundary = landBoundary
         self.dataGathered = 0  # 100% = 1000
+        self.scanType = -1
         self.fuel = 50  # 100% = 50, can be set on landing.
 
         #  Status, in order from 0:
@@ -58,13 +60,14 @@ class Probot(object):
         self.statusTimeLimit = 0.0
         
         #  Operation times, basing on real-world seconds elapsed.
+        #  Something seems a bit off, adjusting from original logic.
         self.timeLimit = 50.0
-        self.deployedTimeLimit = 15.0
-        self.orbitingTimeLimit = 10.0
+        self.deployedTimeLimit = 2.0 # 15.0
+        self.orbitingTimeLimit = 3.0 # 10.0
         self.gatheringTimeLimit = 10.0
         #self.analyzingTimeLimit = 10.0
-        self.returningTimeLimit = 25.0
-        self.refuelingTimeLimit = 10.0
+        self.returningTimeLimit = 5.0 # 25.0
+        self.refuelingTimeLimit = 5.0
         
         #  Probots have 4 acivity monitors on main screen, these are the
         #  bounding-box positions.
@@ -83,10 +86,12 @@ class Probot(object):
                                "Analyzing", "Returning", "Refueling",
                                "Destroyed"]
 
+
     # Reset the timer.
     def resetTimer(self):
         
         self.timer.resetStopwatch()
+
 
     # Reset probot to default state.
     def resetProbot(self):
@@ -99,16 +104,19 @@ class Probot(object):
         self.planetPosition = [0, 0]  # Red dot position on scanner
         self.travelDirection = [0, 0]
         self.dataGathered = 0
+        self.scanType = -1
         self.fuel = 50.0
         self.status = 0
         self.timer.resetStopwatch()
         self.statusTimeLimit = 0.0
         self.timerLastCheck = 0.0
-        
+
+
     #  Refuel the probot.
     def refuelProbot(self):
         
         self.fuel = 50.0  # Real-World flight seconds.
+
 
     #  Check to see if the probot needs to be drawn on the planet view.
     def shouldDraw(self):
@@ -120,7 +128,8 @@ class Probot(object):
             yes = True
             
         return yes
-        
+
+
     #  Set a data target
     def setDataTarget(self):
         
@@ -161,7 +170,7 @@ class Probot(object):
             
         elif self.status == 4:  #  Shouldn't hit unless on target.
             
-            self.statusTimeLimit = random.randrange(0, 25)
+            self.statusTimeLimit = random.randrange(0, 7)
             #80.0 + random.randrange(0, 50)  # ridiculous.
             
         elif self.status == 5:
@@ -174,6 +183,7 @@ class Probot(object):
         
         self.timer.setStopwatch()
 
+
     #  Check if stage time limit has been exceeded or matched.
     #  Returns True if time exceeded, False otherwise.
     def checkTimeLimitReached(self):
@@ -185,7 +195,8 @@ class Probot(object):
             exceeded = True
             
         return exceeded
-    
+
+
     #  Make the red dot for the probot move around.
     #  Use retrieve check, if True then use retrieval logic.
     def move(self):
@@ -254,6 +265,7 @@ class Probot(object):
             self.fuel -= 1.0
             self.timerLastCheck = self.timer.getTime()
 
+
     #  Launch the probot.
     def launch(self):
         
@@ -263,7 +275,8 @@ class Probot(object):
                 
         self.probotLaunched = True
         self.setCurrentStageTimeLimit()
-        
+
+
     #  Perform probot tick related functions.
     def tick(self, crewMembers):
         
@@ -342,6 +355,7 @@ class Probot(object):
             
         #    self.timerLastCheck = self.timer.getTime()
 
+
 # This class is essentially a mini-game called "The planet scanner" ;)
 # The original game logic is relatively sophisticated, analysing individual
 # pixels the probot is examining, looking to see if they match the "right"
@@ -365,6 +379,11 @@ class PlanetScanner(object):
         self.dataCollected = [0, 0, 0, 0, 0]  # Historically 1000 per point.
         self.scanningComplete = False
         
+        # Which scan window data is displaying right now?
+        # Also, state 4 turns off full-panel summary and displays land map
+        # again, with strobing anomalies.
+        self.scanDisplay = 5  # 5 is the scan progress screen.
+        
         # Anomaly items with locations.
         self.anomalies = []
         
@@ -378,6 +397,12 @@ class PlanetScanner(object):
         self.lifeforms = ["Avian", "Monoped", "Biped", "Triped", "Quadraped",
                           "Octaped", "Aquatics", "Fungi", "Carniferns",
                           "Crystalline", "Symbiots", "Floaters"]
+        
+        #  Scan Data Text
+        self.scanDataText = ["Information Gathered", " Lithosphere..",
+                             " Hydrosphere..", " Atmosphere...",
+                             " Biosphere....", " Anomaly......", "0/2", "1/2",
+                             "Completed."]
         
         #  Planet Scanner related graphics layers.
         self.scanInterface = pygame.image.load(os.path.join('Graphics_Assets', 'landform.png'))
@@ -511,7 +536,8 @@ class PlanetScanner(object):
         self.musicState = False
         
         self.systemState = 5
-    
+
+
     #  Reset the planet scanner back to default starting values.
     def resetScanner(self):
         
@@ -560,7 +586,7 @@ class PlanetScanner(object):
         
     # Run an update tick of the probot timer logic.
     def probotTick(self):
-        
+                
         for bot in self.probot:
             
             bot.tick(self.crewMembers)
@@ -597,7 +623,6 @@ class PlanetScanner(object):
                                     
                                     bot.resetProbot()
                                     
-                        
                         #  Shouldn't happen!
                         else:  #  Cargo full!  Put item back in cache.
                             
@@ -606,27 +631,19 @@ class PlanetScanner(object):
                             #  As this was popped, it won't try again.
                             #bot.resetProbot()  #  ?
                 
-                
                 else:
-                    count = 0
-                
-                    for dataType in self.scanning:
                     
-                        if dataType:
-                            count += 1
-                            break
-                
-                    if count > 0:
-                    
-                        self.incrementScanData(count-1, bot.dataGathered)
-                        bot.dataGathered = 0
+                    self.incrementScanData(bot.scanType, bot.dataGathered)
+                    bot.dataGathered = 0
 
-                        if self.scanned[count-1] == 2:
-
-                            bot.resetProbot()
+                    if self.scanned[bot.scanType] == 2:
+                        
+                        self.scanning[bot.scanType] = False
+                        bot.resetProbot()
                 
                 #bot.refuelProbot()  #  We're here to refuel.
-            
+
+
     # Destroy a quantity of Probots.
     #  TODO:  Make more elaborate with big popup box and report on how it was
     #  destroyed.
@@ -642,12 +659,14 @@ class PlanetScanner(object):
         else:
             
             self.ironseed.addMessage( "Probot Destroyed!", 3)
-    
+
+
     # The planet we will scan for anomalies etc.
     def scanPlanet(self):
         
         pass
-    
+
+
     # When a planet is scanned for the first time, we add enough items for a
     # full cache.  This is assuming we have scanned the planet fully.
     # Call this only once per planet.  Also populates planet cache, in case
@@ -763,6 +782,8 @@ class PlanetScanner(object):
                 
                 if randomItem != "placeholder":
                     
+                    #print("RandomItem: ", randomItem)
+                    
                     self.anomalies.append(Anomaly(randomItem,
                                                   self.mainViewBoundary))
         
@@ -774,7 +795,8 @@ class PlanetScanner(object):
         # Reset random number seed.
         random.seed()
         self.thePlanet.anomalyGeneration = True
-    
+
+
     # Retrieve anomalies to put into ship cargo.
     # Note: probot actually carries object!  Make sure you put it into cargo!
     def retrieveAnomalies(self):
@@ -798,6 +820,7 @@ class PlanetScanner(object):
                     bot.probotRetrieving = True
                     bot.setDataTarget()
 
+
     #  Test scan data to see if we have scanned everything
     def testScanData(self):
         
@@ -811,7 +834,8 @@ class PlanetScanner(object):
                 break
         
         return allTestedComplete
-    
+
+
     #  Synchronise scan data with planet.
     def planetSynchronise(self):
 
@@ -821,7 +845,8 @@ class PlanetScanner(object):
         self.thePlanet.biosphere = self.scanned[3]
         self.thePlanet.anomaly = self.scanned[4]
         self.thePlanet.fullyScanned = self.scanningComplete
-    
+
+
     # Increment the scandata arrays according to the amount of data found
     # by a probot.
     # Datatype refers to the array position for that data type (0 to 5)
@@ -836,7 +861,6 @@ class PlanetScanner(object):
             if self.dataCollected[dataType] >= 1000:
                 
                 self.scanned[dataType] = 2
-                self.scanning[dataType] = False
                 
                 #  Generate Anomalies only when all anomaly data collected.
                 if dataType == 4:
@@ -852,12 +876,14 @@ class PlanetScanner(object):
             self.scanningComplete = True
         
         self.planetSynchronise()
-        
+
     
+    #  Update call for this section of the state engine.
     def update(self, displaySurface):
         
         return self.runScanner(displaySurface)
-    
+
+
     #  Regenerate the texture for the zoomed in area of land.
     #  Note:  Multiply the zoom by 2, divide target by value.
     #  Result should provide x and y of top left corner if centered.
@@ -880,8 +906,9 @@ class PlanetScanner(object):
         self.zoomTextureScaled.blit(tempTexture, 
                                     (0, 0), 
                                     (0, 0, int((g.width/320)*59), int((g.height/200)*59)))
-        
-    
+
+
+
     #  Set the bounding of the zoomed graphic texture and it's entries in memory.
     def setZoomBoundaries(self, currentPosition):
                  
@@ -911,7 +938,8 @@ class PlanetScanner(object):
                                    AdjustedPositionY,
                                    int((g.width/320)*59),
                                    int((g.height/200)*59))
-        
+
+
     #  Draw the HUD display green "text" and targetting reticules.
     #  These should be drawn during the main drawing routine, so the zoom
     #  texture is left intact.
@@ -940,8 +968,19 @@ class PlanetScanner(object):
         displaySurface.blit(self.greenTextFrames[random.randrange(0,5)],
                             (self.zoomedViewBoundary[2] - self.greenTextFrames[0].get_width(),
                              self.zoomedViewBoundary[3] - self.greenTextFrames[0].get_height()))
+
+    #  Prepare Probot scan target, only set probots which are currently not in
+    #  use.
+    def setProbotsTarget(self, scanType):
         
-    
+        for bot in self.probot:
+            
+            if bot.scanType == -1:
+                
+                bot.scanType = scanType
+                self.scanning[scanType] = True
+            
+
     #  Check if Scanning and launch probots if not.
     #  Also check to make sure we are not launching Probots if we already
     #  have data.
@@ -951,33 +990,45 @@ class PlanetScanner(object):
             
             return #  Exit immediately if we have all the scan data.
         
-        isScanning = False
+#        isScanning = False
         
         #  A probot scan can be interrupted, so we need to check the scanned
         #  value carefully.
         
         #  Check to see if we are scanning something.
-        for check in self.scanning:
+#        for check in self.scanning:
                     
-            if check:
+#            if check:
                         
-                isScanning = True
+#                isScanning = True
         
         #  Only launch Probots when data remains to be scanned.
-        if isScanning:
+#        if isScanning:
                 
-            if self.scanned[scanType] <= 1 and self.scanning[scanType]:
+            #  Do not launch the Probots twice for the same thing.
+#            if self.scanned[scanType] <= 1 and self.scanning[scanType] != True:
+                
+#                self.scanning[scanType] = True
+#                self.setProbotsTarget(scanType)
+#                self.launchProbots()
+                
+#        else:
             
-                self.launchProbots()
+        if self.scanned[scanType] <= 1:
+        
+            # Attempt to send bots.
+            self.setProbotsTarget(scanType)
+            self.launchProbots()
             
         else:
             
-            if self.scanned[scanType] <= 1:
-            
-                self.scanning[scanType] = True
-                self.launchProbots()
-    
+            self.scanning[scanType] = False  #  Have all data.
+
+
     # Handle mouse events for user interaction.
+    # Note: IronSeed was created during the days of no mouse wheel.
+    # It might be interesting to add context support for it to the
+    # data window.
     def interact(self, mouseButton):
         
         currentPosition = pygame.mouse.get_pos()
@@ -1010,13 +1061,22 @@ class PlanetScanner(object):
             #  Reset scanner stage and enter main screen system state.
             
         
+        #  Display the next lines of data in the lower data window for
+        #  a given category.
         elif self.next.within(currentPosition):
             
-            pass
+            if self.scanningComplete:
+                
+                pass
         
+        
+        #  Display the previous lines of data in the lower data window for
+        #  a given category.
         elif self.previous.within(currentPosition):
             
-            pass
+            if self.scanningComplete:
+                
+                pass
         
         elif self.zoomIn.within(currentPosition):
             
@@ -1049,14 +1109,16 @@ class PlanetScanner(object):
             self.setZoomTexture()
         
         return self.systemState
-    
+
+
     #  Draw a micro version of the planet on a probot monitor.
     #  TODO:  This actually sweeps in from the right, and zooms in until
     #  it is centred in the monitor.
     def drawMicroPlanet(self, displaySurface, bot):
         
         pass
-    
+
+
     #  Draw a segment of the landscape texture on a probot monitor.
     def drawLandscapeProbot(self, displaySurface, bot):
         
@@ -1069,16 +1131,21 @@ class PlanetScanner(object):
                              bot.planetPosition[1]-self.mainViewBoundary[1]-(int((g.height/200)*(24/2))),
                              int((g.width/320)*31),
                              int((g.height/200)*24)))
-    
+
+
     #  Draw text and a graphic on a Probot Monitor.
-    def drawTextAndGraphic(self, displaySurface, graphic, bot):
+    def drawTextAndGraphic(self, displaySurface, graphic, bot, showGraphic=True):
         
-        displaySurface.blit(graphic, bot.BoundingBoxScaled)
+        if showGraphic:
+            
+            displaySurface.blit(graphic, bot.BoundingBoxScaled)
+            
         h.renderText([bot.probotFeedback[bot.status]],
                      g.font, displaySurface, g.WHITE, 0,
                      bot.textPosition[0],
                      bot.textPosition[1])
-    
+
+
     #  Draw a probot status monitor.
     #  stage is the probot frame to draw.
     #  destination is a pygame rect
@@ -1109,17 +1176,24 @@ class PlanetScanner(object):
         elif bot.status == 3 or bot.status == 4:  #  Overlay on landscape
         
             self.drawLandscapeProbot(displaySurface, bot)
-            self.drawTextAndGraphic(displaySurface,
-                                    self.probotScanningScaled,
-                                    bot)
+
             displaySurface.fill(g.RED,
                                 (bot.BoundingBoxScaled[0] + int(((g.width/320)*31)/2),
                                 bot.BoundingBoxScaled[1] + int(((g.height/200)*24)/2),
                                 int((g.width/320)*1),
                                 int((g.height/200)*1)))
             
-            if bot.status == 4:
+            if bot.status == 3:
                 
+                self.drawTextAndGraphic(displaySurface,
+                                        self.probotScanningScaled,
+                                        bot, False)
+                
+            elif bot.status == 4:
+                
+                self.drawTextAndGraphic(displaySurface,
+                                        self.probotScanningScaled,
+                                        bot)
                 displaySurface.blit(self.greenTextFrames[random.randrange(0,5)],
                                     (bot.BoundingBoxScaled[2] - self.greenTextFrames[0].get_width(),
                                      bot.BoundingBoxScaled[3] - self.greenTextFrames[0].get_height()))
@@ -1134,12 +1208,48 @@ class PlanetScanner(object):
 
              displaySurface.blit(self.probotEmptyScaled, bot.BoundingBoxScaled)
 
-    #  Draw planet summary information;  this is drawn after all data
+    #  Draw planet scan progress; drawn while data is being collected from the
+    #  planet.
+    def drawScanDataSummary(self, displaySurface):
+                
+        textToRender = [self.scanDataText[0]]
+        
+        for count in range(5):
+            
+            textToRender.append(self.scanDataText[count+1])
+            
+            if self.scanned[count] == 0:
+                
+                textToRender[count+1] += self.scanDataText[6]
+            
+                #textToRender.append(self.scanDataText[6])
+            
+            elif self.scanned[count] == 1:
+                
+                textToRender[count+1] += self.scanDataText[7]
+                
+            else:
+                
+                textToRender[count+1] += self.scanDataText[8]
+        
+        h.renderText(textToRender, g.font, displaySurface, g.WHITE,
+                     g.offset, int((g.width/320)*6), int((g.height/200)*147))
+        
+
+    #  Draw planet summary information; this is drawn after all data
     #  from the planet is collected.
     def drawPlanetDataSummary(self, displaySurface):
         
         pass
-             
+    
+    #  Draw the data summary panel for a given type of data, like atmosphere.
+    #  Depending on the amount of data, the display may be progressed line
+    #  by line using the next and previous buttons.
+    def drawDataPanelSummary(self, displaySurface):
+        
+        pass
+
+
     #  Draw the red dots for Probots deployed on Planet Surface.
 
     #  Draw the Planet Scanner interface and all current animations.
@@ -1147,8 +1257,15 @@ class PlanetScanner(object):
 
         displaySurface.fill(g.BLACK)
         displaySurface.blit(self.scanInterfaceScaled, (0, 0))
-        displaySurface.blit(self.planetTextureScaled, self.mainViewBoundary)
-        displaySurface.blit(self.zoomTextureScaled, self.zoomedViewBoundary)
+        
+        if self.scanningComplete == False:
+            
+            displaySurface.blit(self.planetTextureScaled, self.mainViewBoundary)
+        
+        if self.scanningComplete == False or self.scanDisplay == 4:
+            
+            displaySurface.blit(self.zoomTextureScaled, self.zoomedViewBoundary)
+            
         self.drawZoomHUD(displaySurface)
         
         
@@ -1159,16 +1276,37 @@ class PlanetScanner(object):
                      int(self.zoomedViewSelected[3] / self.zoomLevel))
         pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
 
-        #  Draw anomalies on map.
-        perPixel = pygame.PixelArray(displaySurface)
-        
-        for anomaly in self.anomalies:
+        #  Draw scan progress while data still outstanding.
+        if self.testScanData() == False:
             
-            perPixel[anomaly.locationX][anomaly.locationY] = g.ANOMALY
+            self.drawScanDataSummary(displaySurface)
+
+        if self.scanningComplete:
+            
+            if self.scanDisplay < 4:
+                
+                self.drawPlanetDataSummary(displaySurface)
+                self.drawDataPanelSummary(displaySurface)
+            
+            elif self.scanDisplay == 4:
+            
+                #  Draw anomalies on map.
+                #TODO: Make Strobe
+                perPixel = pygame.PixelArray(displaySurface)
+        
+                for anomaly in self.anomalies:
+            
+                    perPixel[anomaly.locationX][anomaly.locationY] = g.ANOMALY
 
 
-        perPixel.close()
+                perPixel.close()
+                self.drawDataPanelSummary(displaySurface)
+                
+            else:
+                
+                self.drawPlanetDataSummary(displaySurface)
 
+        #  Draw working probots on map.
         count = 1
         
         for bot in self.probot:
@@ -1189,6 +1327,7 @@ class PlanetScanner(object):
                 
                 self.drawProbotMonitor(displaySurface,
                                        bot.BoundingBoxScaled, True)
+
 
     def runScanner(self, displaySurface):
         
