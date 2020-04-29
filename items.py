@@ -48,13 +48,13 @@ def getRandomItem(itemType, limit):
     
     for item in itemDictionary:
         
-        if item[2] == itemType:
+        if itemDictionary[item][2] == itemType:
             
             foundTypeCount += 1
             
             if foundTypeCount == rando:
                 
-                return item[0]
+                return item
 
 # Get the item name of "type" at "count" position, this effectively acts as 
 # primative array traversal.
@@ -64,13 +64,13 @@ def getItemOfType(itemType, count):
     
     for item in itemDictionary:
         
-        if item[2] == itemType:
+        if itemDictionary[item][2] == itemType:
             
             foundTypeCount += 1
             
             if foundTypeCount == count:
                 
-                return item[0]
+                return item
             
 # We look for the item and return the position as though the ditionary was an
 # array.  We are assuming the item exists.
@@ -81,7 +81,7 @@ def findItemInPseudoArray(item):
     
     for searchItem in itemDictionary:
         
-        if searchItem[2] == itemType:
+        if itemDictionary[searchItem][2] == itemType:
             
             foundTypeCount += 1
             
@@ -95,7 +95,7 @@ def findItemInPseudoArray(item):
 def getAlternateName(item):
     
     name = ""
-    
+    #print("Item: ", item)
     try:
         
         alternateNames = itemDictionary[item][6]
@@ -104,6 +104,10 @@ def getAlternateName(item):
     except IndexError:
         
         name = itemDictionary[item][0]
+        
+    except KeyError:
+        
+        name = "" # Unknown Item.
         
     return name
 
