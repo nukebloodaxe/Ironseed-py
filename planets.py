@@ -39,7 +39,9 @@ ScanData = [] #  Holds the scan data definitions from scandata.tab.
 SystemData = []
 
 class Planet(object):
+    
     def __init__(self):
+        
         self.name = "UNKNOWN"
         self.systemName = "" #  Quicker for reverse lookups.
         self.index = 0 #  Normally our planet number.
@@ -48,7 +50,7 @@ class Planet(object):
         self.size = 1
         self.radius = 0
         self.water = 0
-        self.vegitationLevel = (0,0)  #  New for this engine.
+        self.vegitationLevel = (0, 0)  #  New for this engine.
         self.age = 0
         self.bots = [0, 0, 0] #  Mining, Fabricator, Manufactory.
         self.depleted = 0 #  Have bots completed mining/building/fabricating?
@@ -65,7 +67,7 @@ class Planet(object):
         self.anomalyGeneration = False #  Have anomalies been generated?
         # Planet bitmap of terrain data.
         self.planetTerrain = [[0 for i in range(g.planetWidth)] for j in range(g.planetHeight)]
-        self.eclipsePhase = random.randint(0,4)  #  Area covered by eclipse shadow.
+        self.eclipsePhase = random.randint(0, 4)  #  Area covered by eclipse shadow.
         #  Planet texture related data
         self.planetTexture = pygame.Surface((g.planetWidth, g.planetHeight), 0)
         self.planetTexture.set_colorkey(g.BLACK)
@@ -89,101 +91,165 @@ class Planet(object):
     def generate(self, index, sun = False):
         
         self.index = index
-        self.seed = random.randint(1,64000)
+        self.seed = random.randint(1, 64000)
         random.seed(self.seed)
         self.size = random.randint(1, 5)
         
         if self.size == 0 or self.size == 1:
+            
             self.radius = 900
             
         elif self.size == 2 or self.size == 3:
+            
             self.radius = 1095
             
         else:
+            
             self.radius = 3000
         
-        if sun == True:
-            self.age = random.randint(0,7)
-            if self.age <=3:
+        if sun:
+            
+            self.age = random.randint(0, 7)
+            
+            if self.age <= 3:
+                
                 self.grade = 1
+                
             elif self.age >= 4 and self.age <= 5:
+                
                 self.grade = 2
+                
             else:
+                
                 self.grade = 3
+                
             self.state = 7
             return
         
-        self.state = random.randint(0,7)
-        self.water = random.randint(0,50)
+        self.state = random.randint(0, 7)
+        self.water = random.randint(0, 50)
         
         slightVegitation = (self.water, self.water + 10)
         mediumVegitation = (self.water, self.water + 50)
         heavyVegitation = (self.water, self.water + 150)#  The Triffids are loose!
         
         if self.state == 0:
+            
             self.age = random.randint(0, 5)
-            if self.age <=3:
+            
+            if self.age <= 3:
+                
                 self.grade = 1
+                
             elif self.age >= 4 and self.age <= 5:
+                
                 self.grade = 2
+                
             else:
+                
                 self.grade = 3
                 
         elif self.state == 1:
-            if self.age <=4:
+            
+            if self.age <= 4:
+                
                 self.grade = 1
+                
             elif self.age >= 8 and self.age <= 8:
+                
                 self.grade = 2
+                
             else:
+                
                 self.grade = 3
+                
         elif self.state == 2:
+            
             self.age = random.randint(0, 64000)*7812
-            if self.age <=200000000:
+            
+            if self.age <= 200000000:
+                
                 self.grade = 1
+                
             elif self.age <= 350000000 and self.age > 200000000:
+                
                 self.grade = 2
                 self.vegitationLevel = slightVegitation
+                
             else:
+                
                 self.grade = 3
                 self.vegitationLevel = mediumVegitation
+                
         elif self.state == 3:
+            
             self.age = random.randint(0, 15001)*1000
-            if self.age <=150000000:
+            
+            if self.age <= 150000000:
+                
                 self.grade = 1
                 self.vegitationLevel = heavyVegitation
+                
             elif self.age <= 150005000 and self.age > 150000000:
+                
                 self.grade = 2
                 self.vegitationLevel = mediumVegitation
+                
             else:
+                
                 self.grade = 3
                 self.vegitationLevel = mediumVegitation
+                
         elif self.state == 4:
+            
             self.age = random.randint(0, 5000)
-            if self.age <=2000:
+            
+            if self.age <= 2000:
+                
                 self.grade = 1
                 self.vegitationLevel = mediumVegitation
+                
             elif self.age <= 3000 and self.age > 2000:
+                
                 self.grade = 2
                 self.vegitationLevel = slightVegitation
+                
             else:
+                
                 self.grade = 3
+                
         elif self.state == 5:
+            
             self.age = random.randint(0, 5000)
-            if self.age <=1500:
+            
+            if self.age <= 1500:
+                
                 self.grade = 1
+                
             elif self.age <= 5500 and self.age > 1500:
+                
                 self.grade = 2
                 self.vegitationLevel = mediumVegitation
             else:
+                
                 self.grade = 3
+                
         else: # State 6
+        
             self.age = random.randint(0, 100)*1000
-            if self.age >100000:
+            
+            if self.age > 100000:
+                
                 self.grade = 1
+                
             else:
+                
                 if random.randint(0, 2) == 0:
+                    
                     self.grade = 3
+                    
                 else:
+                    
                     self.grade = 1
             
         self.age = random.randint(0, 2000)
@@ -193,7 +259,9 @@ class Planet(object):
     # It is possible that a bit-shift is intended, but that will
     # require more research.
     def getTechLevel(self):
+        
         if self.orbit == 0:
+            
             return 0 # We are a star... although, what about Dyson spheres?
         
         #if self.name == "mars":  #  Twilight zone, this check doesn't work?!?
@@ -201,49 +269,79 @@ class Planet(object):
         #    return 1500
         
         techLevel = -2
+        
         if self.systemName in ["KODUH","OLEZIAS","IYNK","TEVIX","SEKA","WIOTUN"]:
+            
             return 6*256 # Really...
         
         if self.systemName == "EXOPID":
             
             if 27 in g.eventFlags:
+                
                 return 0
+            
             else:
+                
                 return 6*256
         
         if self.state == 2:
+            
             if self.grade == 2:
+                
                 techLevel == -1
+                
             elif self.grade == 3:
+                
                 techLevel += self.age / 15000000
         
         elif self.state == 3:
+            
             techLevel = (self.state - 1) * 256
+            
             if self.grade == 1:
+                
                 techLevel += self.age / 15000000
+                
             elif self.grade == 2:
+                
                 techLevel += self.age / 1000
+                
             elif self.grade == 3:
+                
                 techLevel += self.age / 800
         
         elif self.state == 4:
+            
             techLevel = (self.state + 2) * 256
+            
             if self.grade == 1:
+                
                 techLevel += self.age / 400
+                
             elif self.grade == 2:
+                
                 techLevel += self.age / 200
 
         elif self.state == 5:
+            
             if self.grade == 1:
+                
                 temp = self.age / 100000000
+                
                 if temp > 9:
+                    
                     temp = 9
+                    
                 techLevel += temp
+                
             elif self.grade == 2:
+                
                 techLevel = -1
         
         elif self.state == 6:
+            
             if self.grade == 2: # Void Dwellers.
+            
                 techLevel = 6*256
         
         return techLevel
@@ -253,9 +351,11 @@ class Planet(object):
     def adjustPlanet(self, timePassed):
 
         if self.bots[0] > 0 or self.bots[1] > 0 or self.bots[2] > 0:
+            
             if self.depleted == 0:
-                self.addItems(7) # Historically limit is 7 items.
-                self.depleted = 1 # Bots have completed job.
+                
+                self.addItems(7)  # Historically limit is 7 items.
+                self.depleted = 1  # Bots have completed job.
         
         self.age += timePassed
         oldState = self.state
@@ -263,132 +363,186 @@ class Planet(object):
         if self.state == 0:
         
             if self.grade == 1 or self.grade == 2:
+                
                 if self.age >= 1000000000:
+                    
                     age = 0
                     self.grade += 1
             
             elif self.grade == 3:
+                
                 if self.age > 500000000:
+                    
                     self.age = 0
                     self.grade = 1
                     self.state = 1
             
         elif self.state == 1:
+            
             if self.grade == 1:
+                
                 if self.age >= 500000000:
+                    
                     self.age = 0
                     self.grade = 2
             
             elif self.grade == 2:
+                
                 if self.age >= 400000000:
+                    
                     self.age = 0
                     self.grade = 3
                     
             elif self.grade == 3:
+                
                 if self.age >= 300000000:
+                    
                     self.age = 0
                     self.grade = 1
                     self.state = 2
         
         elif self.state == 2:
+            
             if self.grade == 1:
+                
                 if self.age >= 200000000:
+                    
                     self.age = 0
                     self.grade = 2
             
             elif self.grade == 2:
+                
                 if self.age >= 150000000:
+                    
                     self.age = 0
                     self.grade = 3
                     
             elif self.grade == 3:
+                
                 if self.age >= 150000000:
+                    
                     self.age = 0
                     self.grade = 1
                     self.state = 3
                 
-                if random.randrange(0,40) == 0:
+                if random.randrange(0, 40) == 0:
+                    
                     self.age = 0
                     self.state = 5
                     self.grade = 2
         
         elif self.state == 3:
+            
             if self.grade == 1:
+                
                 if self.age >= 15000000:
+                    
                     self.age = 0
                     self.grade = 2
-                if random.randrange(0,40) == 0:
+                    
+                if random.randrange(0, 40) == 0:
+                    
                     self.age = 0
                     self.state = 5
-                    self.grade = 2                
+                    self.grade = 2
             
             elif self.grade == 2:
+                
                 if self.age >= 10000:
+                    
                     self.age = 0
                     self.grade = 3
                     
             elif self.grade == 3:
+                
                 if self.age >= 8000:
+                    
                     self.age = 0
                     self.grade = 1
                     self.state = 4
         
         elif self.state == 4:
+            
             if self.grade == 1:
+                
                 if self.age >= 4000:
+                    
                     self.age = 0
                     self.grade = 2
             
             elif self.grade == 2:
+                
                 if self.age >= 2000:
+                    
                     self.age = 0
                     self.grade = 3
-                if random.randrange(0,40) == 0:
+                    
+                if random.randrange(0, 40) == 0:
+                    
                     self.age = 0
                     self.state = 6
-                    if random.randrange(0,2) == 0:
+                    
+                    if random.randrange(0, 2) == 0:
+                        
                         self.grade = 1
                     else:
-                        self.grade = 2                
+                        self.grade = 2
                     
             elif self.grade == 3:
+                
                 if self.age >= 4000:
+                    
                     self.age = 0
                     self.grade = 1
                     self.state = 5
-                if random.randrange(0,40) == 0:
+                    
+                if random.randrange(0, 40) == 0:
+                    
                     self.age = 0
                     self.grade = 5
                     self.state = 6
-                    if random.randrange(0,2) == 0:
+                    
+                    if random.randrange(0, 2) == 0:
+                        
                         self.mode =1
+                        
                     else:
-                        self.mode = 2                
+                        
+                        self.mode = 2
             
         elif self.state == 5:
+            
             if self.grade == 1:
+                
                 if self.age >= 3000:
                     self.age = 0
                     self.grade = 2
             
             elif self.grade == 2:
+                
                 if self.age >= 8000:
+                    
                     self.age = 0
                     self.grade = 3
-                if random.randrange(0,40) == 0:
+                    
+                if random.randrange(0, 40) == 0:
+                    
                     self.age = 0
                     self.state = 2
                     self.grade = 3
             #Ignore Grade 3.
             
         elif self.state == 6:
-            if self.state == 1 and age >=100000:
+            
+            if self.state == 1 and age >= 100000:
+                
                 self.age = 0
                 self.grade = 2
             
             
         # Planet changed, catastrophic loss of equipment and info.
         if (oldState != self.state):
+            
             self.cache = []
             self.bots = [0, 0, 0]
             self.notes = 0
@@ -405,10 +559,12 @@ class Planet(object):
     # amount that can be produced.
     # Note: Evil function.
     def getSubQuantities(self, index, itemType, elements, materials):
+        
         totalTech = 99
         itemName = items.getItemOfType(index, itemType)
         temp = items.itemConstructionDictionary[itemName]
-        for something in range(1,4): # each item uses 3 things to make.
+        
+        for something in range(1, 4): # each item uses 3 things to make.
         
             if items.itemDictionary[temp[something]][2] == "ELEMENT":
                 
@@ -420,10 +576,13 @@ class Planet(object):
             
             # This happens when we receive a final product, like a weapon...
             elif items.itemDictionary[temp[something]][2] == "COMPONENT":
+                
                 subIndex = items.findItemInPseudoArray(temp[something[0]])
-                quantity = self.getSubQuantities(subIndex, "COMPONENT", 
+                quantity = self.getSubQuantities(subIndex, "COMPONENT",
                                                  elements, materials)
+                
             if quantity < totalTech:
+                
                 totalTech = quantity
             
         return totalTech
@@ -431,25 +590,37 @@ class Planet(object):
     # Scans are predefined, so return quantities accordingly.
     # This relies on the predefined scan data file being loaded.
     def getItemAmounts(self):
+        
         elements = []
         materials = []
         components = []
+        
         for index in range(g.totalElements):
+            
             elements.append(ScanData[index][self.state])
         
         for index in range(g.totalMaterials):
+            
             totalTech = 99 # We don't want to shower the players with gifts.
             totalYield = 0
             item = items.getItemOftype("MATERIAL", index)
             temp = items.itemConstructionDictionary[item]
-            for element in range(1,4): # each material uses 3 elements to make.
+            
+            for element in range(1, 4): # each material uses 3 elements to make.
+            
                 quantity = elements[items.findItemInPseudoArray(temp[element])]
                 totalYield += quantity
+                
                 if quantity < totalTech:
+                    
                     totalTech = quantity
+                    
             if totalTech > 0:
+                
                 materials.append(totalYield)
+                
             else:
+                
                 materials.append(0)
                 
         materials[0] = 0
@@ -458,6 +629,7 @@ class Planet(object):
         # We use the sub category function in here to determine if we have
         # enough materials to actually manufacture the component concerned.
         for index in range(g.totalComponents):
+            
             components.append(self.getSubQuantities(index, "COMPONENT",
                                                     elements, materials))
         
@@ -473,7 +645,9 @@ class Planet(object):
     # the possibility of a "factory" planet.
     # TODO: Function calls need to be corrected to real versions.
     def addItems(self, quantityLimit):
+        
         if not self.depleted:
+            
             elements, materials, components = self.getItemAmounts()
             remaining = quantityLimit
             total = 0
@@ -481,40 +655,52 @@ class Planet(object):
             if self.bots[0] > 0:
                 
                 for element in elements:
+                    
                     total += element
                 
-                for index in range(1,7):
+                for index in range(1, 7):
                     
                     if len(self.cache) < 7:
+                        
                         self.cache.append(items.getRandomItem("ELEMENT", g.totalElements))
                         remaining -= 1
+                        
                     if len(self.cache) == total or remaining <= 0:
+                        
                         break
             
             if self.bots[1] > 0:
                 
                 for material in materials:
+                    
                     total += material
                 
-                for index in range(1,7):
+                for index in range(1, 7):
                     
                     if len(self.cache) < 7:
+                        
                         self.cache.append(items.getRandomItem("MATERIAL", g.totalMaterials))
                         remaining -= 1
+                        
                     if len(self.cache) == total or remaining <= 0:
+                        
                         break
                     
             if self.bots[2] > 0:
                 
                 for component in components:
+                    
                     total += component
                 
-                for index in range(1,7):
+                for index in range(1, 7):
                     
                     if len(self.cache) < 7:
+                        
                         self.cache.append(items.getRandomItem("COMPONENT", g.totalComponents))
                         remaining -= 1
+                        
                     if len(self.cache) == total or remaining <= 0:
+                        
                         break
     
     #  Add an item to the planet cache.
@@ -533,6 +719,7 @@ class Planet(object):
     # Note: Colour adjust later.  This function is used to draw the planet
     # to screen as well...
     def createPlanet(self):
+        
         # Prepare texture for per-pixel adjustments.
         planetSurface = pygame.PixelArray(self.planetTexture)
         #print("I am creating a planet: ", self.name)
@@ -541,29 +728,41 @@ class Planet(object):
         step = 0
         technologyLevel = self.getTechLevel()
         #print("Technology Level is: ", technologyLevel)
+        
         for index in range(600000):  #  8 x canon version.
+        
             step += 1
-            currentX = currentX-1+random.randrange(0,3)
-            currentY = currentY-1+random.randrange(0,3)
+            currentX = currentX-1+random.randrange(0, 3)
+            currentY = currentY-1+random.randrange(0, 3)
+            
             if currentX > g.planetWidth-1:
+                
                 currentX = 0
+                
             elif currentX < 1:
+                
                 currentX = g.planetWidth-1
             
             if currentY > g.planetHeight-1:
+                
                 currentY = 0
+                
             elif currentY < 1:
+                
                 currentY = g.planetHeight-1
             
             if self.planetTerrain[currentY][currentX] < 240:
+                
                 self.planetTerrain[currentY][currentX] += 7
             
             #  Avoid random tech pixels, or non-valid colours.
             if self.planetTerrain[currentY][currentX] >= 255:
+                
                 self.planetTerrain[currentY][currentX] = 254
                 
         #  Make bright spots representing buildings/tech.
         if technologyLevel > 0:
+            
             #print("Tech Ahoy!: ", technologyLevel)
             technologyLevel = (int(technologyLevel) >> 4) * 10 + (int(technologyLevel) & 0x0F)
             technologyLevel = technologyLevel * technologyLevel / 10
@@ -571,9 +770,12 @@ class Planet(object):
             #  The above evilness is the nearest approximation I can get at the
             #  moment for what was happening in pascal.
             for index in range(int(technologyLevel)):
+                
                 currentX = random.randrange(0, g.planetWidth - 1)
                 currentY = random.randrange(0, g.planetHeight - 1)
+                
                 if self.planetTerrain[currentY][currentX] > self.water:
+                    
                     self.planetTerrain[currentY][currentX] = 255
                     
         #  TODO: Convert height bitmap to planet graphic in self.planetTexture
@@ -584,76 +786,88 @@ class Planet(object):
         currentPixel = 0
         
         if currentY <= g.height: # Southern Hemesphere.
+        
             if size == 2:
+                
                 currentPixel = self.planetTerrain[currentY-1][currentX]
-                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+1] - random.randint(1,3)
-                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1,3)
+                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+1] - random.randint(1, 3)
+                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1, 3)
             
             elif size == 3:
+                
                 currentPixel = self.planetTerrain[currentY-1][currentX]
-                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+2] - random.randint(1,3)
-                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1,3)
+                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+2] - random.randint(1, 3)
+                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1, 3)
                 currentPixel = self.planetTerrain[currentY-1][currentX+1]
-                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+1] - random.randint(1,3)
+                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+1] - random.randint(1, 3)
                 self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1,3)
                 
             elif size == 4:
-                currentPixel = self.planetTerrain[currentY-1][currentX]
-                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+3] - random.randint(1,3)
-                self.planetTerrain[currentY][currentX+3] = currentPixel - random.randint(1,3)
-                currentPixel = self.planetTerrain[currentY-1][currentX+1]
-                self.planetTerrain[currentY-1][currentX+1] = self.planetTerrain[currentY][currentX+2] - random.randint(1,3)
-                self.planetTerrain[currentY][currentX+2] = currentPixel - random.randint(1,3)                
-                currentPixel = self.planetTerrain[currentY-2][currentX+2]
-                self.planetTerrain[currentY-2][currentX+2] = self.planetTerrain[currentY+1][currentX+1] - random.randint(1,3)
-                self.planetTerrain[currentY+1][currentX+1] = currentPixel - random.randint(1,3)
-                currentPixel = self.planetTerrain[currentY-2][currentX+1]
-                self.planetTerrain[currentY-2][currentX+1] = self.planetTerrain[currentY+1][currentX+2] - random.randint(1,3)
-                self.planetTerrain[currentY+1][currentX+2] = currentPixel - random.randint(1,3)
                 
-        else: # Northern Hemesphere.
-            if size == 2:
+                currentPixel = self.planetTerrain[currentY-1][currentX]
+                self.planetTerrain[currentY-1][currentX] = self.planetTerrain[currentY][currentX+3] - random.randint(1, 3)
+                self.planetTerrain[currentY][currentX+3] = currentPixel - random.randint(1, 3)
                 currentPixel = self.planetTerrain[currentY-1][currentX+1]
-                self.planetTerrain[currentY-1][currentX+1] = self.planetTerrain[currentY][currentX] - random.randint(1,3)
-                self.planetTerrain[currentY][currentX] = currentPixel - random.randint(1,3)
+                self.planetTerrain[currentY-1][currentX+1] = self.planetTerrain[currentY][currentX+2] - random.randint(1, 3)
+                self.planetTerrain[currentY][currentX+2] = currentPixel - random.randint(1, 3)                
+                currentPixel = self.planetTerrain[currentY-2][currentX+2]
+                self.planetTerrain[currentY-2][currentX+2] = self.planetTerrain[currentY+1][currentX+1] - random.randint(1, 3)
+                self.planetTerrain[currentY+1][currentX+1] = currentPixel - random.randint(1, 3)
+                currentPixel = self.planetTerrain[currentY-2][currentX+1]
+                self.planetTerrain[currentY-2][currentX+1] = self.planetTerrain[currentY+1][currentX+2] - random.randint(1, 3)
+                self.planetTerrain[currentY+1][currentX+2] = currentPixel - random.randint(1, 3)
+                
+        else:  # Northern Hemesphere.
+        
+            if size == 2:
+                
+                currentPixel = self.planetTerrain[currentY-1][currentX+1]
+                self.planetTerrain[currentY-1][currentX+1] = self.planetTerrain[currentY][currentX] - random.randint(1, 3)
+                self.planetTerrain[currentY][currentX] = currentPixel - random.randint(1, 3)
                 
             elif size == 3:
-                currentPixel = self.planetTerrain[currentY][currentX]
-                self.planetTerrain[currentY][currentX] = self.planetTerrain[currentY-1][currentX+2] - random.randint(1,3)
-                self.planetTerrain[currentY-1][currentX+2] = currentPixel - random.randint(1,3)
-                currentPixel = self.planetTerrain[currentY-1][currentX+1]
-                self.planetTerrain[currentY-1][currentX+1] = self.planetTerrain[currentY][currentX+1] - random.randint(1,3)
-                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1,3)
                 
-            elif size == 4:            
                 currentPixel = self.planetTerrain[currentY][currentX]
-                self.planetTerrain[currentY][currentX] = self.planetTerrain[currentY-1][currentX+3] - random.randint(1,3)
-                self.planetTerrain[currentY-1][currentX+3] = currentPixel - random.randint(1,3)
+                self.planetTerrain[currentY][currentX] = self.planetTerrain[currentY-1][currentX+2] - random.randint(1, 3)
+                self.planetTerrain[currentY-1][currentX+2] = currentPixel - random.randint(1, 3)
+                currentPixel = self.planetTerrain[currentY-1][currentX+1]
+                self.planetTerrain[currentY-1][currentX+1] = self.planetTerrain[currentY][currentX+1] - random.randint(1, 3)
+                self.planetTerrain[currentY][currentX+1] = currentPixel - random.randint(1, 3)
+                
+            elif size == 4:
+                
+                currentPixel = self.planetTerrain[currentY][currentX]
+                self.planetTerrain[currentY][currentX] = self.planetTerrain[currentY-1][currentX+3] - random.randint(1, 3)
+                self.planetTerrain[currentY-1][currentX+3] = currentPixel - random.randint(1, 3)
                 currentPixel = self.planetTerrain[currentY][currentX+1]
-                self.planetTerrain[currentY][currentX+1] = self.planetTerrain[currentY-1][currentX+2] - random.randint(1,3)
-                self.planetTerrain[currentY-1][currentX+2] = currentPixel - random.randint(1,3)                
+                self.planetTerrain[currentY][currentX+1] = self.planetTerrain[currentY-1][currentX+2] - random.randint(1, 3)
+                self.planetTerrain[currentY-1][currentX+2] = currentPixel - random.randint(1, 3)                
                 currentPixel = self.planetTerrain[currentY-2][currentX+2]
-                self.planetTerrain[currentY-2][currentX+2] = self.planetTerrain[currentY+1][currentX+1] - random.randint(1,3)
-                self.planetTerrain[currentY+1][currentX+1] = currentPixel - random.randint(1,3)
+                self.planetTerrain[currentY-2][currentX+2] = self.planetTerrain[currentY+1][currentX+1] - random.randint(1, 3)
+                self.planetTerrain[currentY+1][currentX+1] = currentPixel - random.randint(1, 3)
                 currentPixel = self.planetTerrain[currentY-2][currentX+1]
-                self.planetTerrain[currentY-2][currentX+1] = self.planetTerrain[currentY+1][currentX+2] - random.randint(1,3)
-                self.planetTerrain[currentY+1][currentX+2] = currentPixel - random.randint(1,3)
+                self.planetTerrain[currentY-2][currentX+1] = self.planetTerrain[currentY+1][currentX+2] - random.randint(1, 3)
+                self.planetTerrain[currentY+1][currentX+2] = currentPixel - random.randint(1, 3)
     
     # Create a Gas Planet bitmap.
     def createGasPlanet(self):
+        
         currentX, currentY = 0
         random.seed(self.seed)
         #step = 0
-        colours = [0,0,0]
+        colours = [0, 0, 0]
         # You never know, there might be blimp people...
         #technologyLevel = self.getTechLevel(self.systemName)
         
         # What horrible colours shall we choose?
-        if random.randint(0,2) > 0:
+        if random.randint(0, 2) > 0:
+            
             colours[0] = 32
             colours[1] = 48
             colours[2] = 64
+            
         else:
+            
             colours[0] = 112
             colours[1] = 128
             colours[2] = 96
@@ -663,27 +877,36 @@ class Planet(object):
         bandColour = 0
         
         for YPosition in range(int(g.height/2), 0, -1):
+            
             areas -= 1
+            
             if areas == 0:
+                
                 areas = (int(g.height/2) - abs(YPosition - int(g.height/2))) / 10
                 areas = areas + 6 + random.randint(0, areas + 5)
+                
                 if (areas < YPosition) and ((areas + 5) > YPosition):
+                    
                     areas = YPosition >> 1 # bit shift by 1 right.
-                bandColour = (bandColour + random.randint(0,2) + 1) % 3
+                    
+                bandColour = (bandColour + random.randint(0, 2) + 1) % 3
                 
                 if bandColour == 0:
-                    bandColour = colours[0] + 8 + random.randint(0,5)
+                    
+                    bandColour = colours[0] + 8 + random.randint(0, 5)
                     
                 elif bandColour == 1:
-                    bandColour = colours[1] + 8 + random.randint(0,5)
+                    
+                    bandColour = colours[1] + 8 + random.randint(0, 5)
                     
                 else:
-                    bandColour = colours[2] + 8 + random.randint(0,5)
+                    
+                    bandColour = colours[2] + 8 + random.randint(0, 5)
         
             for XPosition in range(0, int(g.width)):
                 
-                self.planetTerrain[YPosition][XPosition] = bandColour + random.randint(0,2)
-                self.planetTerrain[g.height-YPosition][XPosition] = bandColour + random.randint(0,2)
+                self.planetTerrain[YPosition][XPosition] = bandColour + random.randint(0, 2)
+                self.planetTerrain[g.height-YPosition][XPosition] = bandColour + random.randint(0, 2)
             
         # Create areas of turbulance between bands, aka the Jupiter look.
         for YPosition in range(3, g.height):
@@ -691,32 +914,47 @@ class Planet(object):
             if (self.planetTerrain[YPosition][1] & 0xF0) != (self.planetTerrain[YPosition-1][1] & 0xF0):
                 
                 XPosition = 1
+                
                 while XPosition <= g.width:
+                    
                     band = random.randint(0, 4) + 1
+                    
                     if band + XPosition > g.height:
+                        
                         band = g.height - XPosition
+                        
                     self.createSwirl(XPosition,YPosition,band)
                     XPosition += band
+                    
                 YPosition += 2
                 
         # Create Spots: this was pretty dire in the code...
-        spotCount = 6 + random.randint(0,5)
+        spotCount = 6 + random.randint(0, 5)
         spotSize = 0
+        
         for spot in range(1, spotCount):
-            colour = random.randint(0,2)
+            
+            colour = random.randint(0, 2)
+            
             if colour == 0:
-                colour = colours[0] + 2 + random.randint(0,4)
+                
+                colour = colours[0] + 2 + random.randint(0, 4)
                 
             elif colour == 1:
-                colour = colours[1] + 2 + random.randint(0,4)
+                
+                colour = colours[1] + 2 + random.randint(0, 4)
                 
             else:
-                colour = colours[2] + 2 + random.randint(0,4)
+                
+                colour = colours[2] + 2 + random.randint(0, 4)
             
             if spot == 1:
-                spotSize = 15 + random.randint(1,5)
+                
+                spotSize = 15 + random.randint(1, 5)
+                
             else:
-                spotSize = 2 + random.randint(1,6)
+                
+                spotSize = 2 + random.randint(1, 6)
             
             spotSize2 = spotSize * spotSize
             spotSize21 = (spotSize - 1) * (spotSize - 1)
@@ -725,22 +963,35 @@ class Planet(object):
             YPosition = random.randint(0, (g.height-10)-(2*spotSize)) + 5 + spotSize
             
             for X1 in range(spotSize*-1, spotSize):
+                
                 XX = X1 + XPosition
                 X12 = X1 * X1
+                
                 if XX < 1:
+                    
                     XX += g.width
                 
                 elif XX > 240:
+                    
                     XX -= g.width
+                    
                 diametre = round(math.sqrt(spotSize2 - X12))
+                
                 for Y1 in range(diametre*-1, diametre):
+                    
                     diametre2 = X12 * (Y1*Y1)
+                    
                     if diametre2 > spotSize21:
-                        self.planetTerrain[Y1+YPosition][XX] += 1 + random.randint(1,2)
+                        
+                        self.planetTerrain[Y1+YPosition][XX] += 1 + random.randint(1, 2)
+                        
                     elif diametre2 > spotSize22:
-                        self.planetTerrain[Y1+YPosition][XX] += colour - 1 - random.randint(1,2)
+                        
+                        self.planetTerrain[Y1+YPosition][XX] += colour - 1 - random.randint(1, 2)
+                        
                     else:
-                        self.planetTerrain[Y1+YPosition][XX] += colour + random.randint(1,2)
+                        
+                        self.planetTerrain[Y1+YPosition][XX] += colour + random.randint(1, 2)
                     
         #TODO: After the horrendous mess we've just gone through, convert the
         # bitmap into a surface with the correct colours.
@@ -755,46 +1006,63 @@ class Planet(object):
     #  NOTE: Does not work yet.
     #  TODO: Replace algo with something a bit nicer.
     def createCloud(self):
+        
         currentX, currentY = 0
         random.seed(self.seed)
         steps = random.randint(0, 25) + 50
         size = 0
-        colours = [0,0,0]
+        colours = [0, 0, 0]
         #  You never know, something might be running in the cloud...
         #technologyLevel = self.getTechLevel(self.systemName)
         for step in range(steps):
+            
             if step == 1:
+                
                 size = random.randint(0, 50) + 50
                 x = 160
                 y = 70
+                
             else:
+                
                 size = random.randint(0, 50) + 25
                 x = size + 30 + random(260 - size*2)
                 y = (size >> 1) + 10 + random.randint(0, 120 - size)
             
             # Note: I believe they were referencing the colour.
             colour = (random.randint(0, 48) + 32) & 0xF0
+            
             for xWidth in range(-size, size):
+                
                 background1 = (0x7 * (size - abs(xWidth)) ) / size
                 ySize = round(math.cos(xWidth*1.57/size) * (size << 1))
+                
                 for yHeight in range(-ySize, ySize):
+                    
                     if ySize > 0:
+                        
                         background = (background1 * (ySize - abs(yHeight))) * (ySize - abs(yHeight)) / ySize / ySize
+                        
                     else:
+                        
                         background = 0
+                        
                     currentX = x + xWidth
                     currentY = y + yHeight
                     #  Note: Interact with background here.
                     #  TODO: access background layer.
                     #  Using foreground layer for now.
-                    if (self.planetTerrain[currentY][currentX] > 143) or (random.randint(0,7) < background):
+                    if (self.planetTerrain[currentY][currentX] > 143) or (random.randint(0, 7) < background):
+                        
                         self.planetTerrain[currentY][currentX] = colour | background
                     
                     elif (self.planetTerrain[currentY][currentX] and 0xF) < background:
+                        
                         self.planetTerrain[currentY][currentX] = (self.planetTerrain[currentY][currentX] & 0xF0) | background
             
             for xWidth in range(0, 120):
+                
                 for yHeight in range(0, 240):
+                    
                     self.planetTerrain[yHeight][xWidth] = self.planetTerrain[yHeight+10][xWidth+40]
 
     #  Returns an eclipse X axis figure based on the phase of the eclipse.
@@ -804,15 +1072,19 @@ class Planet(object):
         eclipseCoverage = 0
         
         if selectEclipsePhase == 0:
+            
             eclipseCoverage = random.randint(0, (g.planetHeight/5)/2) + (g.planetHeight/5)/2
         
         elif selectEclipsePhase == 1:
+            
             eclipseCoverage = (g.planetHeight/5)*2 - random.randint(0, (g.planetHeight/5)/2)
             
         elif selectEclipsePhase == 2:
+            
             eclipseCoverage = (g.planetHeight/5)*4 + random.randint(0, (g.planetHeight/5)/2)
             
         else:
+            
             eclipseCoverage = g.planetHeight - random.randint(0, (g.planetHeight/5)/2)
             
         return eclipseCoverage
@@ -821,6 +1093,7 @@ class Planet(object):
     def generatePlanetTexture(self):
         
         if self.planetTextureExists:
+            
             return
         
         adjustedPixel = 0  # to avoid using modulus later.
@@ -839,10 +1112,13 @@ class Planet(object):
         #print("Surface Width: ", len(tempPlanet2[0]))
         
         for x in range(0, g.planetWidth):
+            
             #print("X: ", x)
             for y in range(0, g.planetHeight):
+                
                 #print("Y: ", y)
                 if self.water > self.planetTerrain[y][x]:
+                    
                     #print("water")
                     #  Water depth support...
                     #  TODO : preliminary support
@@ -855,30 +1131,39 @@ class Planet(object):
                 #  yellow pixel.  This is based on tech level.
                 
                 elif self.planetTerrain[y][x] == 255:
+                    
                     #print("technology")
                     Technology = self.getTechLevel()
                 
                     if Technology <= 1:
+                        
                         if Technology > 0:
+                            
                             tempPlanet2[x][y] = g.TECH1
                             
                     elif Technology <= 2:
+                        
                         tempPlanet2[x][y] = g.TECH2
                             
                     elif Technology <= 3:
+                        
                         tempPlanet2[x][y] = g.TECH3
                             
                     elif Technology <= 4:
+                        
                         tempPlanet2[x][y] = g.TECH4
                             
                     elif Technology <= 5:
+                        
                         tempPlanet2[x][y] = g.TECH5
                             
                     else:
+                        
                         tempPlanet2[x][y] = g.YELLOW
                             
                 #  TODO : Green pixels based on life present.
                 elif self.planetTerrain[y][x] < self.vegitationLevel[1]:
+                    
                     #print("Vegitation")
                     tempPlanet2[x][y] = (0,
                                          self.planetTerrain[y][x],
@@ -886,14 +1171,17 @@ class Planet(object):
 
                 
                 else:
+                    
                     # TODO:  Add the correct colours.
                     #print("Terrain")
                     #  Stop land being transparent.
                     if self.planetTerrain[y][x] == 0:
+                        
                         tempPlanet2[x][y] = ((self.planetTerrain[y][x])+1,
                                              (self.planetTerrain[y][x])+1,
                                              (self.planetTerrain[y][x])+1)
                     else:
+                        
                         tempPlanet2[x][y] = (self.planetTerrain[y][x],
                                              self.planetTerrain[y][x],
                                              self.planetTerrain[y][x])
@@ -927,23 +1215,33 @@ class Planet(object):
         #  360 degrees in a circle.
         
         for x in range(0, g.planetHeight):
-            bitmapSafeX = h.safeWrap(g.planetWidth,x,terrainStart)
-            safeX = h.safeWrap(g.planetHeight,x,0)
+            
+            bitmapSafeX = h.safeWrap(g.planetWidth, x, terrainStart)
+            safeX = h.safeWrap(g.planetHeight, x, 0)
+            
             for y in range(0, g.planetHeight):
+                
                 eclipseMask = self.eclipse(self.eclipsePhase)
+                
                 if self.water > self.planetTerrain[y][bitmapSafeX]:
+                    
                     #print("water")
                     #  Water depth support...
                     #  TODO : preliminary support
                     #  Current blue is based on difference between water level and terrain
                     if safeX <= eclipseMask:
+                        
                         tempPlanet2[safeX][y] = (0,
                                                  0,
                                                  (self.water-self.planetTerrain[y][bitmapSafeX]))
+                        
                     else:
+                        
                         #  Brighten
                         adjustedPixel = (self.water-self.planetTerrain[y][bitmapSafeX]) + 60
+                        
                         if adjustedPixel >= 255:
+                            
                             adjustedPixel = 254
                         
                         tempPlanet2[safeX][y] = (0,
@@ -955,38 +1253,50 @@ class Planet(object):
                 #  yellow pixel.  This is based on tech level.
                 
                 elif self.planetTerrain[y][bitmapSafeX] == 255:
+                    
                     #print("technology")
                     Technology = self.getTechLevel()
                 
                     if Technology <= 1:
+                        
                         if Technology > 0:
+                            
                             tempPlanet2[safeX][y] = g.TECH1
                             
                     elif Technology <= 2:
+                        
                         tempPlanet2[safeX][y] = g.TECH2
                             
                     elif Technology <= 3:
+                        
                         tempPlanet2[safeX][y] = g.TECH3
                             
                     elif Technology <= 4:
+                        
                         tempPlanet2[safeX][y] = g.TECH4
                             
                     elif Technology <= 5:
+                        
                         tempPlanet2[safeX][y] = g.TECH5
                             
                     else:
+                        
                         tempPlanet2[safeX][y] = g.YELLOW
                             
                 #  TODO : Green pixels based on life present.
                 elif self.planetTerrain[y][bitmapSafeX] < self.vegitationLevel[1]:
+                    
                     if safeX <= eclipseMask:
+                        
                         tempPlanet2[safeX][y] = (0,
                                                  self.planetTerrain[y][bitmapSafeX],
                                                  0)
                     else:
                         #  Brighten
                         adjustedPixel = self.planetTerrain[y][bitmapSafeX] + 40
+                        
                         if adjustedPixel >= 255:
+                            
                             adjustedPixel = 254
                         
                         tempPlanet2[safeX][y] = (0,
@@ -997,22 +1307,29 @@ class Planet(object):
                 #  TODO : light level due to eclipse.
                 
                 else:
+                    
                     # TODO:  Add the correct colours.
                     #print("default")
                     if safeX <= eclipseMask:
+                        
                         #  Stop land being transparent.
                         if self.planetTerrain[y][bitmapSafeX] == 0:
+                            
                             tempPlanet2[safeX][y] = (self.planetTerrain[y][bitmapSafeX]+1,
                                                      self.planetTerrain[y][bitmapSafeX]+1,
                                                      self.planetTerrain[y][bitmapSafeX]+1)
                         else:
+                            
                             tempPlanet2[safeX][y] = (self.planetTerrain[y][bitmapSafeX],
                                                      self.planetTerrain[y][bitmapSafeX],
                                                      self.planetTerrain[y][bitmapSafeX])
                     else:
+                        
                         #  Brighten
                         adjustedPixel = self.planetTerrain[y][bitmapSafeX] + 40
+                        
                         if adjustedPixel >= 255:
+                            
                             adjustedPixel = 254
                         
                         tempPlanet2[safeX][y] = (adjustedPixel,
@@ -1049,27 +1366,33 @@ class Planet(object):
         #print("Total Data Points: ", g.planetHeight*g.planetHeight)
         #count = 0
         exceptions = 0
+        
         for x in range(0, g.planetHeight):
+            
             for y in range(0, g.planetHeight):
                 
                 try:
+                    
                     xLocus, yLocus = h.sphereMap(x, y, g.planetHeight, g.planetHeight)
                     tempPlanet4[xLocus][yLocus] = tempPlanet2[x][y]
                     #count += 1
+                    
                 except:
+                    
                     exceptions += 1
+                    
         #print("Data Points Succeeded: ", count, " Exceptions: ", exceptions)
         tempPlanet2.close()
         tempPlanet4.close()
         
         #  Test texture surface, have a look at it when it is flat.
         #  Note: scale will be incorrect as target is smaller.  This is okay.
-        self.planetTexture = tempPlanet
-        self.planetTextureExists = False  #  Flat planet texture clobbered.
+        #self.planetTexture = tempPlanet
+        #self.planetTextureExists = False  #  Flat planet texture clobbered.
         #self.planetTexture.blit(tempPlanet,(0,0))
         #  I know, but this is something that needs investigating further.
         #sphereSurface.blit(pygame.transform.rotate(tempPlanet3, 90), (0,0))
-        sphereSurface.blit(tempPlanet3, (0,0))
+        sphereSurface.blit(tempPlanet3, (0, 0))
         return tempPlanet3
         #  That's it!
         # Alternative approach finish.
@@ -1093,35 +1416,41 @@ class Planet(object):
     def renderPlanet(self, displaySurface, XPosition, YPosition,
                      step, time, eclipse=True):
 
-        day, month, year, second = 0  #  For rotation calculations.
+        day, month, year, second = 0  # For rotation calculations.
         c2, r2 = 0.0 #  c^2, r^2
         eclipseCoverage = 0
-        glowIndex = 4  #  It's glowing brightly.
+        glowIndex = 4  # It's glowing brightly.
         roundPlanetTexture = pygame.PixelArray(self.planetTexture)
         #  Prepare our planet texture for per-pixel blit.
-        random.seed(self.seed) #  Ensure consistency each time drawn.
+        random.seed(self.seed)  # Ensure consistency each time drawn.
         
         #  Warning: Calculus ahead, c2, r2 and the like represent c^2, r^2 etc.
         if self.radius < 901:
+            
             c2 = 1.2
         
         elif self.radius > 2000:
+            
             c2 = 1.09
         
-        else: 
+        else:
+            
             c2 = 1.16
         
         #  Sort out the eclipse shadow settings.
         
-        selectEclipsePhase = random.randint(0,3)
+        selectEclipsePhase = random.randint(0, 3)
         
         if selectEclipsePhase == 0:
+            
             eclipseCoverage = random.randint(0, 25) + 30
         
         elif selectEclipsePhase == 1:
+            
             eclipseCoverage = 80 - random.randint(0, 25)
             
         elif selectEclipsePhase == 2:
+            
             eclipseCoverage = 200 + random.randint(0, 25)
             
         else:
@@ -1156,12 +1485,15 @@ class Planet(object):
 
     #  Update the planet, this is assuming there has been a change.
     def update(self):
+        
         pass
     
     
         
 class PlanetarySystem(object):
+    
     def __init__(self, systemName="Buggy", positionX=0.0, positionY=0.0, positionZ=0.0):
+        
         self.systemName = systemName #  Don't forget to assign to planets too.
         #  Visitation related info
         self.dateMonth = g.starDate[0]
@@ -1177,15 +1509,18 @@ class PlanetarySystem(object):
             
     #  Get the tech level for a particular planet.
     def getTechLevel(self, orbit):
+        
         self.planets[orbit].getTechLevel(self.systemName)
     
     #  Determine amount of planets this system has.
     def createPlanetCount(self):
-        self.numberOfPlanets = 3 + random.randint(1,3)
+        
+        self.numberOfPlanets = 3 + random.randint(1, 3)
     
     #  Update the system, which is normally based on time passed since last visit.
     #  Run once only for each visit!
     def updateSystem(self):
+        
         self.visits += 1 # It is HIGHLY unlikely we'll roll this over...
         self.dateMonth = g.starDate[0]
         self.dateYear = g.starDate[2]
@@ -1208,8 +1543,11 @@ class PlanetarySystem(object):
         
     #  A trick to show the name as "UNKNOWN" when a system has not been visited.
     def getName(self):
+        
         if self.visits > 0:
+            
             return self.systemName
+        
         return "UNKNOWN"
 
 #  Find a planetary system associated with a given set of coordinates.
@@ -1238,12 +1576,15 @@ def findPlanetarySystem(X = 0.0, Y = 0.0, Z = 0.0):
 
 #  Note: Original code had name of planet based on orbit.
 #  ALPHA, BETA, GAMMA, DELTA, EPISILON, ZETA, ETA, THETA
-def initialisePlanets(planetNamesFile=os.path.join('Data_Generators', 'Other', 'IronPy_PlanetNames.tab')):
+def initialisePlanets(planetNamesFile = os.path.join('Data_Generators', 'Other', 'IronPy_PlanetNames.tab')):
+    
     #  Load planet files and populate planet structure
 
     planetsFile = io.open(planetNamesFile, "r")
     planetDataString = planetsFile.readline().split('\n')[0] #  Data Line
+    
     while planetDataString != "ENDF":
+        
         PlanetNames.append(planetDataString)
         #  A scan entry line has now been loaded.
         planetDataString = planetsFile.readline().split('\n')[0] #  Data Line line
@@ -1251,7 +1592,7 @@ def initialisePlanets(planetNamesFile=os.path.join('Data_Generators', 'Other', '
     planetsFile.close()
     
     # Planet by name = (planet name, state, variation, tech level/life)
-    Planets["mars"] = Planet() # For intro.
+    Planets["mars"] = Planet()  # For intro.
     Planets["mars"].generate("mars")
     Planets["mars"].name = "mars"
     Planets["mars"].seed = 3733
@@ -1263,7 +1604,7 @@ def initialisePlanets(planetNamesFile=os.path.join('Data_Generators', 'Other', '
     Planets["mars"].createPlanet()
     
     # Oban planet orbit 2.
-    Planets["Icarus"] = Planet() # For intro.
+    Planets["Icarus"] = Planet()  # For intro.
     Planets["Icarus"].generate("Icarus")
     Planets["Icarus"].name = "Icarus"
     Planets["Icarus"].seed = 7007
@@ -1274,7 +1615,8 @@ def initialisePlanets(planetNamesFile=os.path.join('Data_Generators', 'Other', '
     Planets["Icarus"].orbit = 2
     Planets["Icarus"].createPlanet()
     
-    for newPlanet in range(0,1001):
+    for newPlanet in range(0, 1001):
+        
         Planets[newPlanet] = Planet()
         Planets[newPlanet].name = PlanetNames[newPlanet]
         Planets[newPlanet].seed = random.random()
@@ -1282,10 +1624,11 @@ def initialisePlanets(planetNamesFile=os.path.join('Data_Generators', 'Other', '
         
     
 def transformCheckPlanet(planet):
+    
     name, state, grade, life = Planets[planet]
     # chance of transformation.
-    #TODO
-    #BIG ALGO HERE
+    # TODO
+    # BIG ALGO HERE
     Planets[planet] = (name, state, grade)
     
 """
@@ -1310,7 +1653,7 @@ def renderPlanet(width, height, planetType, surface, step=0):
     while line<g.height:
         for pixel in range(g.width):
             if safeCombo[pixel][line] != 0:
-                safeSurface[pixel][line]=safeCombo[pixel][line]            
+                safeSurface[pixel][line]=safeCombo[pixel][line]
             
         line += 1
             
@@ -1327,9 +1670,12 @@ def renderPlanet(width, height, planetType, surface, step=0):
 #  Note: Might be interesting to see if we can implement the travelling salesman
 #  Algo for working out shortest distance between systems on the starmap.
 def loadPlanetarySystems(planetarySystemsFile=os.path.join('Data_Generators', 'Other', 'IronPy_SystemData.tab')):
+    
     systemsFile = io.open(planetarySystemsFile, "r")
     systemDataString = (systemsFile.readline().split('\n')[0]).split('\t') #Data Line line
+    
     while systemDataString[0] != "ENDF":
+        
         SystemData.append([systemDataString[0], float(systemDataString[1]),
                            float(systemDataString[2]), float(systemDataString[3])])
         #systemDataString = temp.split('\t')
@@ -1339,6 +1685,7 @@ def loadPlanetarySystems(planetarySystemsFile=os.path.join('Data_Generators', 'O
     #  Populate the Planetary Systems Dictionary.
     
     for system in SystemData:
+        
         PlanetarySystems[system[0]] = PlanetarySystem(system[0],
                                                       system[1],
                                                       system[2],
@@ -1351,13 +1698,21 @@ def loadPlanetarySystems(planetarySystemsFile=os.path.join('Data_Generators', 'O
 #  what the code is doing.
 #  Note: support function for populatePlanetary systems, run it nowhere else.
 def iteratePlanetDictionary():
+    
     count = 0
+    
     while 1:
+        
         count = 0
+        
         for planet in Planets:
+            
             count += 1
+            
             if count > 1000:
+                
                 break
+            
             yield Planets[planet], count
 
 # Add in planets to all systems.  Breakout when all planets used up.
@@ -1372,10 +1727,12 @@ def populatePlanetarySystems():
     count = 0
     
     for pSystem in PlanetarySystems:
+        
         system = PlanetarySystems[pSystem]
         system.createPlanetCount()
         
         if system.systemName == "OBAN":
+            
             system.numberOfPlanets = 3 # Including the star
         
         #  TODO: Random orbits for the count of planets.
@@ -1391,7 +1748,7 @@ def populatePlanetarySystems():
                 if orbit == 1:
                     
                     Planets[count].water = 0
-                    Planets[count].seed = 7007                    
+                    Planets[count].seed = 7007
                     Planets[count].state = 2
                     Planets[count].grade = 3
                     Planets[count].orbit = 2
@@ -1410,28 +1767,36 @@ def populatePlanetarySystems():
             
             #  Add Sun Here.
             if orbit == 0:
-                Planets[count].generate(count, True) # activate sun code.
+                Planets[count].generate(count, True)  # activate sun code.
                 system.starGrade = Planets[count].state
             
             count += 1
             
             if count >= 1000:
+                
                 lastPlanet = True
                 break
             
-        if lastPlanet == True:
+        if lastPlanet:
+            
             break
 
 # Load in scanData, used during planet scans.
 def loadScanData(scannerFile=os.path.join('Data_Generators', 'Other', 'IronPy_scandata.tab')):
+    
     scanFile = io.open(scannerFile, "r")
-    scanDataString = (scanFile.readline().split('\n')[0]).split('\t') #Data Line line
+    scanDataString = (scanFile.readline().split('\n')[0]).split('\t')  # Data Line line
+    
     while scanDataString[0] != "ENDF":
+        
         convertedLine = []
+        
         for value in scanDataString:
+            
             convertedLine.append(int(value))
+            
         ScanData.append(convertedLine[:])
         # A scan entry line has now been loaded.
-        scanDataString = (scanFile.readline().split('\n')[0]).split('\t') #Data Line line
+        scanDataString = (scanFile.readline().split('\n')[0]).split('\t')  # Data Line line
 
     scanFile.close()
