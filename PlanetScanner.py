@@ -12,15 +12,15 @@ import random, os, buttons, planets, pygame, items
 import global_constants as g
 import helper_functions as h
 
-# Encapsulate the Anomaly logic, it is really a wrapped item class with a 
-# locaion parameter.
+# Encapsulate the Anomaly logic, it is really a wrapped item class with a
+# location parameter.
 class Anomaly(object):
-    
+
     def __init__(self, anomalyItem, boundary):
-        
+
         self.item = anomalyItem
         self.alternateName = items.getAlternateName(self.item)
-        
+
         #  Set a random location
         self.locationX = random.randint(boundary[0], boundary[2])
         self.locationY = random.randint(boundary[1], boundary[3])
@@ -30,9 +30,9 @@ class Anomaly(object):
 # Having launch and retrieve here allows for asynchronous operations.
 # Note:  We assume the bounding box has already been scaled.
 class Probot(object):
-    
+
     def __init__(self, x, y, xEnd, yEnd, landBoundary):
-        
+
         self.probotLaunched = False
         self.probotDestroyed = False
         self.probotRetrieving = False
@@ -44,21 +44,21 @@ class Probot(object):
         self.landBoundary = landBoundary
         self.dataGathered = 0  # 100% = 1000
         self.scanType = -1
-        self.fuel = 50  # 100% = 50, can be set on landing.
+        self.fuel = 50  # 100% = approx 50 seconds, can be set on landing.
 
         #  Status, in order from 0:
         #  Docked, Deployed, Orbiting, Gathering, Analyzing, Returning,
         #  Refueling.
         self.status = 0
-        
+
         #  Probot timer for current runtime.
         #  Use stopwatch, careful, results might be "unrealistic."
         self.timer = h.StopWatch()
         self.timerLastCheck = 0.0  #  Used for minor time checks.
-        
+
         #  Time limit for current stage, semi-random.
         self.statusTimeLimit = 0.0
-        
+
         #  Operation times, basing on real-world seconds elapsed.
         #  Something seems a bit off, adjusting from original logic.
         self.timeLimit = 50.0
@@ -68,7 +68,7 @@ class Probot(object):
         #self.analyzingTimeLimit = 10.0
         self.returningTimeLimit = 5.0 # 25.0
         self.refuelingTimeLimit = 5.0
-        
+
         #  Probots have 4 acivity monitors on main screen, these are the
         #  bounding-box positions.
         self.BoundingBox = (x, y, xEnd, yEnd)
@@ -77,7 +77,7 @@ class Probot(object):
                                         int((g.height/200)*y),
                                         int((g.width/320)*xEnd),
                                         int((g.height/200)*yEnd))
-        
+
         self.textPosition = [int((g.width/320)*x),
                              int((g.height/200)*(yEnd))]
 
@@ -89,13 +89,13 @@ class Probot(object):
 
     # Reset the timer.
     def resetTimer(self):
-        
+
         self.timer.resetStopwatch()
 
 
     # Reset probot to default state.
     def resetProbot(self):
-        
+
         self.probotLaunched = False
         self.probotDestroyed = False
         self.probotRetrieving = False
@@ -114,39 +114,39 @@ class Probot(object):
 
     #  Refuel the probot.
     def refuelProbot(self):
-        
-        self.fuel = 50.0  # Real-World flight seconds.
+
+        self.fuel = 50.0  # Approx real-World flight seconds.
 
 
     #  Check to see if the probot needs to be drawn on the planet view.
     def shouldDraw(self):
-        
+
         yes = False
-        
+
         if self.status == 3 or self.status == 4:
-            
+
             yes = True
-            
+
         return yes
 
 
     #  Set a data target
     def setDataTarget(self):
-        
-        if self.probotRetrieving == True:
-            
+
+        if self.probotRetrieving:
+
             try:
-                
+
                 self.dataTarget = [self.anomaly.locationX,
                                    self.anomaly.locationY]
-            
+
             except:
-                
+
                 print("Exception:Anomaly:setDataTarget: ", str(self.anomaly))
                 self.probotRetrieving = False
-        
+
         else:
-            
+
             self.dataTarget = [random.randint(self.landBoundary[0],
                                               self.landBoundary[2]),
                                random.randint(self.landBoundary[1],
@@ -157,37 +157,37 @@ class Probot(object):
     def setCurrentStageTimeLimit(self):
 
         if self.status == 1:
-            
+
             self.statusTimeLimit = self.deployedTimeLimit
-            
+
         elif self.status == 2:
-            
+
             self.statusTimeLimit = self.orbitingTimeLimit
-            
+
         elif self.status == 3:
-            
+
             self.statusTimeLimit = self.gatheringTimeLimit
-            
+
         elif self.status == 4:  #  Shouldn't hit unless on target.
-            
+
             self.statusTimeLimit = random.randrange(0, 7)
             #80.0 + random.randrange(0, 50)  # ridiculous.
-            
+
         elif self.status == 5:
-            
+
             self.statusTimeLimit = self.returningTimeLimit
-            
+
         else:
-            
+
             self.statusTimeLimit = self.refuelingTimeLimit
-        
+
         self.timer.setStopwatch()
 
 
     #  Check if stage time limit has been exceeded or matched.
     #  Returns True if time exceeded, False otherwise.
     def checkTimeLimitReached(self):
-        
+
         exceeded = False
         
         if self.timer.getElapsedStopwatch() >= self.statusTimeLimit:
@@ -195,7 +195,12 @@ class Probot(object):
             exceeded = True
             
         return exceeded
-
+    
+    #  Return the current amount of time elapsed for the Probot, for this
+    #  operation stage.  Int return value.
+    def stageTimeElapsed(self):
+        
+        return int(self.timer.getElapsedStopwatch())
 
     #  Make the red dot for the probot move around.
     #  Use retrieve check, if True then use retrieval logic.
@@ -212,8 +217,8 @@ class Probot(object):
         else:
             
             self.travelDirection[0] = 0
-        
-        
+
+
         if self.planetPosition[1] > self.dataTarget[1]:
             
             self.travelDirection[1] = -1
@@ -319,7 +324,7 @@ class Probot(object):
             
             else:
             
-                self.setDataTarget()  #  Temp, until better targetting.
+                self.setDataTarget()
 
         if self.probotRetrieving:
             
@@ -348,7 +353,7 @@ class Probot(object):
             
             else:
             
-                self.setDataTarget()  #  Temp, until better targetting.
+                self.setDataTarget()
         
         #  We reset our timer every second.
         #if self.timer.getTime() - self.timerLastCheck >= 1.0:
@@ -425,6 +430,9 @@ class PlanetScanner(object):
         #  Planet sphere scaled to size of probot monitor
         self.miniPlanet = "Placeholder"
         
+        #  Planet sphere animation frames
+        self.miniPlanetAnimation = []
+        
         #  Zoomed view bounding area for zoomed planet texture.
         self.zoomedViewBoundary = (int((g.width/320)*206),
                                    int((g.height/200)*140),
@@ -437,7 +445,7 @@ class PlanetScanner(object):
                                    int((g.width/320)*59),
                                    int((g.height/200)*59))
         
-        self.zoomLevel = 1  #  The zoom applied to the zoom view.  Max 3.
+        self.zoomLevel = 1  # The zoom applied to the zoom view.  Max 3.
         
         #  Zoom texture for showing zoomed area of landmass.
         self.zoomTexture = pygame.Surface((int((g.width/320)*59),
@@ -480,7 +488,7 @@ class PlanetScanner(object):
         self.probotTransit = pygame.Surface((31, 24), 0)
         self.probotTransit.blit(self.scanInterface, (0, 0), self.probot[3].BoundingBox )
         self.probotTransitScaled = pygame.transform.scale(self.probotTransit, (int((g.width/320)*31), int((g.height/200)*24)))
-        #self.probotTransitScaled.set_colorkey(g.BLACK)
+        self.probotTransitScaled.set_colorkey(g.BLACK)
         
         self.probotEmpty = pygame.Surface((31, 24), 0)
         self.probotEmptyScaled = pygame.transform.scale(self.probotEmpty, (int((g.width/320)*31), int((g.height/200)*24)))
@@ -562,20 +570,43 @@ class PlanetScanner(object):
         #  7 units Wide.
         for icon in range(1, 6):
                 
-                #  Top and bottom border of 1 pixel.
-                #  Right border of 1 pixel.
-                #  Each frame 20 pixels wide.
-                #  Each frame 13 pixels high.
-                sourceRectangle = ((icon*28),13, 20, 13 )
-                frame = pygame.Surface((20, 13))
-                frame.blit(self.scanInterface,(0, 0), sourceRectangle)
-                #  The resizing procedure does introduce innaccuracy, but
-                #  unavoidable right now.
-                resizeFrame = pygame.transform.scale(frame, ( int((g.width/320)*frame.get_width()), int((g.height/200)*frame.get_height())))
-                resizeFrame.set_colorkey(g.BLACK)
-                self.greenTextFrames.append(resizeFrame)
-    
-    
+            #  Top and bottom border of 1 pixel.
+            #  Right border of 1 pixel.
+            #  Each frame 20 pixels wide.
+            #  Each frame 13 pixels high.
+            sourceRectangle = ((icon*28),13, 20, 13 )
+            frame = pygame.Surface((20, 13))
+            frame.blit(self.scanInterface,(0, 0), sourceRectangle)
+            #  The resizing procedure does introduce innaccuracy, but
+            #  unavoidable right now.
+            resizeFrame = pygame.transform.scale(frame, (int((g.width/320)*frame.get_width()), int((g.height/200)*frame.get_height())))
+            resizeFrame.set_colorkey(g.BLACK)
+            self.greenTextFrames.append(resizeFrame)
+            
+    #  Create the mini planet animation frames from current mini sphere.
+    #  5 frames.
+    def prepareMiniPlanetFrames(self):
+
+        #  Generate the mini planet for probot travel
+        preMiniPlanet = pygame.Surface((g.planetHeight, g.planetHeight), 0)
+        preMiniPlanet.set_colorkey(g.BLACK)
+        self.thePlanet.planetBitmapToSphere(preMiniPlanet, 0, eclipse = True)
+        specialX = int((g.width/320)*31) # Scaled correct X
+        specialY = int(((g.height/200)*24)) # Scaled correct Y.
+        self.miniPlanet = pygame.transform.scale(preMiniPlanet,
+                                                 (specialX, specialY))
+        
+        for count in range(3, 0, -1):
+            
+            tempFrame = pygame.transform.scale(self.miniPlanet, (int(specialX/count), int(specialY/count)))
+            realFrame = pygame.Surface((specialX, specialY), 0)
+            realFrame.set_colorkey(g.BLACK)
+            realFrame.blit(tempFrame, ((specialX-tempFrame.get_width()), 0))
+            self.miniPlanetAnimation.append(realFrame)
+        
+        tempFrame = pygame.transform.scale(self.miniPlanet, (specialX, specialY))
+        self.miniPlanetAnimation.append(tempFrame)
+
     # Launch probots for a scan or retrieval.
     def launchProbots(self):
         
@@ -591,7 +622,7 @@ class PlanetScanner(object):
             
             bot.tick(self.crewMembers)
             
-            if bot.status == 6:
+            if bot.status == 6:  #  Refueling
                 
                 if bot.probotRetrieving:
                     
@@ -640,8 +671,6 @@ class PlanetScanner(object):
                         
                         self.scanning[bot.scanType] = False
                         bot.resetProbot()
-                
-                #bot.refuelProbot()  #  We're here to refuel.
 
 
     # Destroy a quantity of Probots.
@@ -1116,7 +1145,8 @@ class PlanetScanner(object):
     #  it is centred in the monitor.
     def drawMicroPlanet(self, displaySurface, bot):
         
-        pass
+        displaySurface.blit(self.miniPlanetAnimation[bot.stageTimeElapsed()],
+                            bot.BoundingBoxScaled)
 
 
     #  Draw a segment of the landscape texture on a probot monitor.
@@ -1168,7 +1198,12 @@ class PlanetScanner(object):
 
         elif bot.status == 1 or bot.status == 2 or bot.status == 5:
             
-            #TODO: Scaled planet render on this line.
+            displaySurface.blit(self.probotEmptyScaled, bot.BoundingBoxScaled)
+            
+            if bot.status == 2:
+                
+                self.drawMicroPlanet(displaySurface, bot)
+                
             self.drawTextAndGraphic(displaySurface,
                                     self.probotTransitScaled,
                                     bot)
@@ -1222,7 +1257,7 @@ class PlanetScanner(object):
                 
                 textToRender[count+1] += self.scanDataText[6]
             
-                #textToRender.append(self.scanDataText[6])
+                textToRender.append(self.scanDataText[6])
             
             elif self.scanned[count] == 1:
                 
@@ -1359,12 +1394,8 @@ class PlanetScanner(object):
             self.planetTextureScaled = pygame.transform.scale(self.thePlanet.planetTexture,
                                                               (int((g.width/320)*239), int((g.height/200)*119)))
             
-            #  Generate the mini planet for probot travel
-            preMiniPlanet = pygame.Surface((g.planetWidth, g.planetHeight), 0)
-            preMiniPlanet.set_colorkey(g.BLACK)
-            self.thePlanet.planetBitmapToSphere(preMiniPlanet, 0, eclipse = True)
-            self.miniPlanet = pygame.transform.scale(preMiniPlanet,
-                                                     (int((g.width/320)*31), int((g.height/200)*24)))
+            #  Generate the animation frames for the mini planet.
+            self.prepareMiniPlanetFrames()
             
             #  Sort out Probot count.
             self.probotCount = self.ironSeed.getItemQuantity("Probot")
@@ -1380,17 +1411,15 @@ class PlanetScanner(object):
             for dataValue in range(0,5):
                 
                 self.dataCollected[dataValue] = 500 * self.scanned[dataValue]
-            
-        
+
         if self.scannerStage == 1:
-            
+
             self.probotTick() # Run a tick update for the probots.
             self.drawInterface(displaySurface)
-            
-        
+
             # rewind and start music playing again if track end reached.
             if not pygame.mixer.music.get_busy():
-                    
+
                 pygame.mixer.music.play()
 
         return self.systemState
