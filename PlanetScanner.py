@@ -939,29 +939,41 @@ class PlanetScanner(object):
 
 
     #  Set the bounding of the zoomed graphic texture and it's entries in memory.
+    #  Note:  We centre the view on the clicked position.
     def setZoomBoundaries(self, currentPosition):
                  
-        AdjustedPositionX = currentPosition[0]
-        AdjustedPositionY = currentPosition[1]
-            
         #  Determine bounding rectangle size based on zoom level.
         rectangle = (self.zoomedViewSelected[0] + self.mainViewBoundary[0],
                      self.zoomedViewSelected[1] + self.mainViewBoundary[1],
                      int(self.zoomedViewSelected[2] / self.zoomLevel),
                      int(self.zoomedViewSelected[3] / self.zoomLevel))
+
+        AdjustedPositionX = currentPosition[0] - int(rectangle[2]/2)
+        AdjustedPositionY = currentPosition[1] - int(rectangle[3]/2)
+            
                     
         #  Check the selected area is still within the bounds of the map.
         #  If not, restrict position into bounding area.
-        if (currentPosition[0] + self.mainViewBoundary[0] + rectangle[2]) > self.mainViewBoundary[2]:
+        if (AdjustedPositionX + self.mainViewBoundary[0] + rectangle[2]) > self.mainViewBoundary[2]:
             
             AdjustedPositionX = self.mainViewBoundary[2] - rectangle[2]
             AdjustedPositionX -= self.mainViewBoundary[0]
+            
+        elif (AdjustedPositionX + self.mainViewBoundary[0]) < self.mainViewBoundary[0]:
+            
+            AdjustedPositionX += (self.mainViewBoundary[0] - AdjustedPositionX)
+            AdjustedPositionX -= self.mainViewBoundary[0]
 
-        if (currentPosition[1] + self.mainViewBoundary[1] + rectangle[3]) > self.mainViewBoundary[3]:
+        if (AdjustedPositionY + self.mainViewBoundary[1] + rectangle[3]) > self.mainViewBoundary[3]:
                 
             AdjustedPositionY = self.mainViewBoundary[3] - rectangle[3]
             AdjustedPositionY -= self.mainViewBoundary[1]
-                
+            
+        elif (AdjustedPositionY + self.mainViewBoundary[1]) < self.mainViewBoundary[1]:
+            
+            AdjustedPositionY += (self.mainViewBoundary[1] - AdjustedPositionY)
+            AdjustedPositionY -= self.mainViewBoundary[1]
+            
         #  Change view point for zoomed view.
         self.zoomedViewSelected = (AdjustedPositionX,
                                    AdjustedPositionY,
@@ -1257,7 +1269,7 @@ class PlanetScanner(object):
                 
                 textToRender[count+1] += self.scanDataText[6]
             
-                textToRender.append(self.scanDataText[6])
+                #textToRender.append(self.scanDataText[6])
             
             elif self.scanned[count] == 1:
                 
