@@ -940,7 +940,8 @@ class PlanetScanner(object):
 
     #  Set the bounding of the zoomed graphic texture and it's entries in memory.
     #  Note:  We centre the view on the clicked position.
-    def setZoomBoundaries(self, currentPosition):
+    #  Mouse indicates if we are clicking on the map.
+    def setZoomBoundaries(self, currentPosition, mouse=True, zoomOut=False):
                  
         #  Determine bounding rectangle size based on zoom level.
         rectangle = (self.zoomedViewSelected[0] + self.mainViewBoundary[0],
@@ -948,10 +949,23 @@ class PlanetScanner(object):
                      int(self.zoomedViewSelected[2] / self.zoomLevel),
                      int(self.zoomedViewSelected[3] / self.zoomLevel))
 
-        AdjustedPositionX = currentPosition[0] - int(rectangle[2]/2)
-        AdjustedPositionY = currentPosition[1] - int(rectangle[3]/2)
+        if mouse and zoomOut == False:
             
-                    
+            AdjustedPositionX = currentPosition[0] - int(rectangle[2]/2)
+            AdjustedPositionY = currentPosition[1] - int(rectangle[3]/2)
+        
+        else:
+            
+            if zoomOut:
+            
+                AdjustedPositionX = currentPosition[0] - int((self.zoomedViewSelected[2] / (self.zoomLevel+1))/2)
+                AdjustedPositionY = currentPosition[1] - int((self.zoomedViewSelected[3] / (self.zoomLevel+1))/2)
+                
+            else:
+                
+                AdjustedPositionX = currentPosition[0] + int(rectangle[2]/2)
+                AdjustedPositionY = currentPosition[1] + int(rectangle[3]/2)
+            
         #  Check the selected area is still within the bounds of the map.
         #  If not, restrict position into bounding area.
         if (AdjustedPositionX + self.mainViewBoundary[0] + rectangle[2]) > self.mainViewBoundary[2]:
@@ -1123,14 +1137,14 @@ class PlanetScanner(object):
             
             if self.zoomLevel < 3:
                 self.zoomLevel += 1
-                self.setZoomBoundaries(self.zoomedViewSelected)
+                self.setZoomBoundaries(self.zoomedViewSelected, False)
                 self.setZoomTexture()
         
         elif self.zoomOut.within(currentPosition):
             
             if self.zoomLevel > 1:
                 self.zoomLevel -= 1
-                self.setZoomBoundaries(self.zoomedViewSelected)
+                self.setZoomBoundaries(self.zoomedViewSelected, False, True)
                 self.setZoomTexture()
         
         
