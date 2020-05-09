@@ -1237,14 +1237,14 @@ class PlanetScanner(object):
         elif bot.status == 3 or bot.status == 4:  #  Overlay on landscape
         
             self.drawLandscapeProbot(displaySurface, bot)
-
-            displaySurface.fill(g.RED,
-                                (bot.BoundingBoxScaled[0] + int(((g.width/320)*31)/2),
-                                bot.BoundingBoxScaled[1] + int(((g.height/200)*24)/2),
-                                int((g.width/320)*1),
-                                int((g.height/200)*1)))
             
             if bot.status == 3:
+                
+                displaySurface.fill(g.RED,
+                                    (bot.BoundingBoxScaled[0] + int(((g.width/320)*31)/2),
+                                    bot.BoundingBoxScaled[1] + int(((g.height/200)*24)/2),
+                                    int((g.width/320)*1),
+                                    int((g.height/200)*1)))
                 
                 self.drawTextAndGraphic(displaySurface,
                                         self.probotScanningScaled,
