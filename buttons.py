@@ -16,7 +16,7 @@ class Button(object):
         self.height = height
         self.width = width
         
-        self.position = position  #  Top left corner.
+        self.position = position  # Top left corner.
         
         # Store the values used to generate this button.
         self.resolutionX = g.width
@@ -67,4 +67,22 @@ class Button(object):
         
 # Ironseed has these big dialogue boxes that appear, we can handle those here.
 class BigDialogueBox(Button):
-    pass
+    
+    #  In this case the height and width dictate the full size of the main
+    #  panel.
+    def __init__(self, height, width, position, crewMember, message):
+
+        Button.__init__(height, width, position)
+        self.crewMember = crewMember
+        self.message = message
+        self.okButton = Button(int(self.height/5),
+                               int(self.width/6),
+                               (int((self.height/5)*4), int(self.width/3)))
+    
+    def drawDialogueBox(self, displaySurface):
+        
+        pass
+    
+    def checkButtonClicked(self, position):
+
+        return self.okButton.within(position)
