@@ -399,6 +399,29 @@ def safeWrap(width, step, current):
     
     return whereAt
 
+#  Return a subset of a list, safely
+#  Start is the start of the index in the list.
+#  End is the ending index entry in the list.
+#  We return what we can if the ending index is longer than the list.
+def subsetList(theList, start, end):
+    
+    subSet = []
+    count = 0
+    
+    for item in theList:
+        
+        if count >= start and count <= end:
+            
+            subSet.append(item)
+        
+        count += 1
+        
+        if count > end:
+            
+            break
+        
+    return subSet
+
 #  Render the given text onto a surface.
 def renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0, centred=False):
     
