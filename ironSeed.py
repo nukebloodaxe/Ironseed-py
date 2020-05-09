@@ -5,9 +5,9 @@ Game state machine.
 Handles the main render and tick loop.
 @author: Nuke Bloodaxe
 """
-import pygame, os, sys, time, random, numpy, pygame.sndarray, intro_main
+import pygame, sys, pygame.sndarray, intro_main
 import ship, crew, items, planets, weaponsAndShields, PlanetScanner
-import mainMenu, saveAndLoad, EGOSynthManipulator
+import mainMenu, saveAndLoad, EGOSynthManipulator, commandDeck
 import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
@@ -66,6 +66,8 @@ class IronSeed(object):
         self.planetScanner = PlanetScanner.PlanetScanner(self.ship, self.crew)
         print("EGO Synth Manipulation System")
         self.EGOManipulation = EGOSynthManipulator.EGOManipulator(self.crew)
+        print("Command Deck System")
+        self.commandDeck = commandDeck.CommandDeck(self.ship, self.crew)
         print("Creating Main Menu")
         self.mainMenu = mainMenu.MainMenu()
         
@@ -78,7 +80,7 @@ class IronSeed(object):
                        7:"Combat",  # Normal and simulated combat.
                        8:self.crewCom.update,  # "talk" with crew members.
                        9:self.EGOManipulation.update,  # Ego-synth manipulation.
-                       10:"ORBIT",  # Placeholder for generic orbit screen.
+                       10:self.commandDeck.update,  # Main game command deck.
                        11: "Load Game",
                        12: "Save Game" }
         
@@ -91,7 +93,7 @@ class IronSeed(object):
                             7:"Combat",
                             8:self.crewCom.interact,
                             9:self.EGOManipulation.interact,
-                            10:"Orbit",
+                            10:self.commandDeck.interact,
                             11:"Load Game",
                             12:"Save Game"}
         print("We Are GO!")
