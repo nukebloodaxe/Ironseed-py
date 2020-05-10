@@ -396,18 +396,45 @@ class PlanetScanner(object):
         self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Gathering",
                                "Analyzing", "Returning", "Refueling",
                                "Destroyed", "Docked"]
-        self.scanTypes = ["Lithosphere", "Hydrosphere", "Atmosphere", "Biosphere",
-                          "Anomaly"]
-        self.planetActivity = ["Calm", "Mild", "Moderate", "Heavy", "Massive"]
+        self.scanTypes = ["Lithosphere", "Hydrosphere", "Atmosphere",
+                          "Biosphere", "Anomaly"]
+        self.planetActivity = ["None", "Calm", "Mild", "Moderate", "Heavy",
+                               "Massive"]
+        self.planetTemperature = ["SubArctic", "Arctic", "Cold", "Cool",
+                                  "Moderate", "Warm", "Tropical", "Searing",
+                                  "Infernal"]
+        self.planetState = ["Gaseous", "Active", "Stable", "Early Life",
+                            "Advanced Life", "Dying", "Dead"]
+        self.starState = ["Red Star", "Yellow Star", "White Star"]
+        self.lifeformDiet = ["Carnivorous", "Herbivourous", "Omnivorous",
+                             "Cannibalistic", "Photosynthetic"]
         self.lifeforms = ["Avian", "Monoped", "Biped", "Triped", "Quadraped",
                           "Octaped", "Aquatics", "Fungi", "Carniferns",
                           "Crystalline", "Symbiots", "Floaters"]
+        self.lifeNumbers = ["No Life", "Uncomputable", "000", " Million",
+                            " Billion", " Trillion"]
+        self.protoLife = ["Short Chain Proteins", "Long Chain Proteins",
+                          "Simple Protoplasms", "Complex Protoplasms"]
+        self.primativeLife = ["Single Celled", "Chaosms", "Communes",
+                              "Heirarchies"]
+        self.lifeIntelligence = ["No Intelligence", "Instinctual", "Hive Mind",
+                                 "Inherited", "Societies", "Telepathic",
+                                 "Cybernetics", "Transcendent", "Unknowable"]
         
-        #  Scan Data Text
+        # Scan Data Text
         self.scanDataText = ["Information Gathered", " Lithosphere..",
                              " Hydrosphere..", " Atmosphere...",
                              " Biosphere....", " Anomaly......", "0/2", "1/2",
                              "Completed."]
+        
+        # Planet data summary text.
+        self.dataSummary = ["Planet Summary", "Star Summary",
+                            "Seismic Activity", "Atmospheric Activity",
+                            "Atmospheric Pressure", "Relative Gravity",
+                            "Percent Hydro", "Percent Bio", "Life Forms",
+                            "Population", "Technology Level", "Temperature",
+                            "Surface Radiation", "Planet State",
+                            "Star Classification", "Most Common Compounds"]
         
         #  Planet Scanner related graphics layers.
         self.scanInterface = pygame.image.load(os.path.join('Graphics_Assets', 'landform.png'))
@@ -1299,7 +1326,10 @@ class PlanetScanner(object):
 
     #  Draw planet summary information; this is drawn after all data
     #  from the planet is collected.
+    #  mainViewBoundary
     def drawPlanetDataSummary(self, displaySurface):
+        
+        
         
         pass
     
