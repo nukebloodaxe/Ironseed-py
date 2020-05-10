@@ -86,6 +86,10 @@ class Planet(object):
         self.anomaly = 0
         self.fullyScanned = False
         
+        #  Per pixel data generated, this affects statistical measurements.
+        self.biologicalLevel = 0
+        self.biologicalLevelComputed = False
+        
     # New game initialisation, this occurs during the generation phase.
     # Results are ultimately saved to save game file for new game.
     def generate(self, index, sun = False):
@@ -94,6 +98,7 @@ class Planet(object):
         self.seed = random.randint(1, 64000)
         random.seed(self.seed)
         self.size = random.randint(1, 5)
+        self.biologicalLevelComputed = False
         
         if self.size == 0 or self.size == 1:
             
@@ -552,6 +557,8 @@ class Planet(object):
             self.atmosphere = 0
             self.biosphere = 0
             self.anomaly = 0
+            self.biologicalLevel = 0
+            self.biologicalLevelComputed = False
     
     # This function computes the quantities of elements required to make the
     # components of a final product (component, material, weapon, shield etc.)
@@ -1286,6 +1293,12 @@ class Planet(object):
                 #  TODO : Green pixels based on life present.
                 elif self.planetTerrain[y][bitmapSafeX] < self.vegitationLevel[1]:
                     
+                    #  We also compute the biological matter present here,
+                    #  it's more efficient.
+                    if self.biologicalLevelComputed == False:
+                        
+                        self.biologicalLevel += 1
+                    
                     if safeX <= eclipseMask:
                         
                         tempPlanet2[safeX][y] = (0,
@@ -1393,6 +1406,9 @@ class Planet(object):
         #  I know, but this is something that needs investigating further.
         #sphereSurface.blit(pygame.transform.rotate(tempPlanet3, 90), (0,0))
         sphereSurface.blit(tempPlanet3, (0, 0))
+        
+        self.biologicalLevelComputed = True  # This has now been calculated.
+        
         return tempPlanet3
         #  That's it!
         # Alternative approach finish.
