@@ -89,6 +89,12 @@ class Planet(object):
         #  Per pixel data generated, this affects statistical measurements.
         self.biologicalLevel = 0
         self.biologicalLevelComputed = False
+        self.waterCoverage = 0
+        self.waterCoverageComputed = False
+        
+        # tl2 as it is known in the original code, represents technology
+        # after the decimal point.
+        self.technology2 = 0
         
     # New game initialisation, this occurs during the generation phase.
     # Results are ultimately saved to save game file for new game.
@@ -99,6 +105,7 @@ class Planet(object):
         random.seed(self.seed)
         self.size = random.randint(1, 5)
         self.biologicalLevelComputed = False
+        self.waterCoverageComputed = False
         
         if self.size == 0 or self.size == 1:
             
@@ -263,6 +270,7 @@ class Planet(object):
     # Note: I'm not 100% sure how those values work.
     # It is possible that a bit-shift is intended, but that will
     # require more research.
+    #  Note:  Expanded to include tl2, the population count.
     def getTechLevel(self):
         
         if self.orbit == 0:
@@ -274,6 +282,7 @@ class Planet(object):
         #    return 1500
         
         techLevel = -2
+        self.technology2 = 0
         
         if self.systemName in ["KODUH","OLEZIAS","IYNK","TEVIX","SEKA","WIOTUN"]:
             
@@ -297,6 +306,7 @@ class Planet(object):
                 
             elif self.grade == 3:
                 
+                self.technology2 = self.age / 15000000
                 techLevel += self.age / 15000000
         
         elif self.state == 3:
@@ -305,14 +315,17 @@ class Planet(object):
             
             if self.grade == 1:
                 
+                self.technology2 = self.age / 15000000
                 techLevel += self.age / 15000000
                 
             elif self.grade == 2:
                 
+                self.technology2 = self.age / 1000
                 techLevel += self.age / 1000
                 
             elif self.grade == 3:
                 
+                self.technology2 = self.age / 800
                 techLevel += self.age / 800
         
         elif self.state == 4:
@@ -321,10 +334,12 @@ class Planet(object):
             
             if self.grade == 1:
                 
+                self.technology2 = self.age / 400
                 techLevel += self.age / 400
                 
             elif self.grade == 2:
                 
+                self.technology2 = self.age / 200
                 techLevel += self.age / 200
 
         elif self.state == 5:
@@ -336,7 +351,8 @@ class Planet(object):
                 if temp > 9:
                     
                     temp = 9
-                    
+                
+                self.technology2 = temp
                 techLevel += temp
                 
             elif self.grade == 2:
@@ -559,6 +575,8 @@ class Planet(object):
             self.anomaly = 0
             self.biologicalLevel = 0
             self.biologicalLevelComputed = False
+            self.waterCoverage = 0
+            self.waterCoverageComputed = False
     
     # This function computes the quantities of elements required to make the
     # components of a final product (component, material, weapon, shield etc.)
@@ -1232,6 +1250,10 @@ class Planet(object):
                 
                 if self.water > self.planetTerrain[y][bitmapSafeX]:
                     
+                    if self.waterCoverageComputed == False:
+                        
+                        self.waterCoverage += 1
+                    
                     #print("water")
                     #  Water depth support...
                     #  TODO : preliminary support
@@ -1408,6 +1430,7 @@ class Planet(object):
         sphereSurface.blit(tempPlanet3, (0, 0))
         
         self.biologicalLevelComputed = True  # This has now been calculated.
+        self.waterCoverageComputed = True # This has now been calculated.
         
         return tempPlanet3
         #  That's it!
