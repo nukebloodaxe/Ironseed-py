@@ -436,6 +436,10 @@ class PlanetScanner(object):
                             "Surface Radiation", "Planet State",
                             "Star Classification", "Most Common Compounds"]
         
+        #  Actual planet Data summary
+        self.planetData = []
+        self.planetDataDone = False
+        
         #  Planet Scanner related graphics layers.
         self.scanInterface = pygame.image.load(os.path.join('Graphics_Assets', 'landform.png'))
         self.scanInterfaceScaled = pygame.transform.scale(self.scanInterface, (g.width, g.height))
@@ -582,6 +586,8 @@ class PlanetScanner(object):
         self.dataCollected = [0, 0, 0, 0, 0]  # Historically 1000 per point.
         self.scanningComplete = False
         self.anomalies = []
+        self.planetData = []
+        self.planetDataDone = False
         self.zoomLevel = 1
         self.musicState = False
         
@@ -1327,12 +1333,221 @@ class PlanetScanner(object):
     #  Draw planet summary information; this is drawn after all data
     #  from the planet is collected.
     #  mainViewBoundary
+    # renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0, centred=False, justifyRight=False):
     def drawPlanetDataSummary(self, displaySurface):
+
+        screenCentre = int(((self.mainViewBoundary[2]-self.mainViewBoundary[0])/2)+self.mainViewBoundary[0])
+        dataFeed = []
+        
+        if self.thePlanet.orbit > 0:
+            
+            h.renderText([self.dataSummary[0]], g.font, displaySurface, g.WHITE,
+                         0, screenCentre, self.mainViewBoundary[1], True)
+
+        else:
+
+            h.renderText([self.dataSummary[1]], g.font, displaySurface, g.WHITE,
+                         0, screenCentre, self.mainViewBoundary[1], True)
+
+        # Prepare seismic data.
+        dataFeed.append(self.dataSummary[2])
+        
+        planetActivity = {0:[self.planetActivity[0]],
+                          1:[self.planetActivity[5], self.planetActivity[4]],
+                          2:[self.planetActivity[3], self.planetActivity[2]],
+                          3:[self.planetActivity[3], self.planetActivity[2]],
+                          4:[self.planetActivity[2], self.planetActivity[1]],
+                          5:[self.planetActivity[1], self.planetActivity[0]],
+                          6:[self.planetActivity[1], self.planetActivity[0]],
+                          7:[self.planetActivity[5], self.planetActivity[4]]}
+        
+        random.seed(self.thePlanet.seed)
+        dataFeed.append(random.choice(planetActivity[self.thePlanet.state]))
+
+        # Prepare Atmospheric Activity.
+        dataFeed.append(self.dataSummary[3])
+        pressure = abs(self.thePlanet.orbit-7) * (self.thePlanet.size+1) + self.thePlanet.water
+        dataFeed.append(self.planetActivity[((int(pressure) % 5) + 1)])
+        
+        # Prepare Gravity and atmosphere related data.
+        dataFeed.append(self.dataSummary[4])
+        random.seed(self.thePlanet.seed)
+        gravity = (self.thePlanet.size+1) * ((random.randint(1, 30)+1)/15)
+        
+        atmosphereDensity = {0:17, 1:12, 2:3, 3:4, 4:3, 5:3, 6:2, 7:10}
+        
+        if self.thePlanet.state == 7:
+
+            random.seed(self.thePlanet.seed)
+            gravity = gravity * 10 + random.randint(1, 10)
+
+        atmospherePressure = gravity*(atmosphereDensity[self.thePlanet.state]/(self.thePlanet.size+1))
+        dataFeed.append(str(atmospherePressure) + " Atm")
+        dataFeed.append(self.dataSummary[5])
+        dataFeed.append(str(gravity) + " G")
+        
+        # Prepare Hydrosphere data
+        
+        dataFeed.append(self.dataSummary[6])
+        waterCoverage = (self.thePlanet.waterCoverage/(g.planetHeight*g.planetWidth))*100
+        dataFeed.append(str(round(waterCoverage, 2)) + "%")
+        
+        # Prepare biological data
+        dataFeed.append(self.dataSummary[7])
+        biologicalCoverage = (self.thePlanet.biologicalLevel/(g.planetHeight*g.planetWidth))*100
+        dataFeed.append(str(round(biologicalCoverage, 2)) + "%")
+        
+        """
+        self.lifeIntelligence = ["No Intelligence", "Instinctual", "Hive Mind",
+                                 "Inherited", "Societies", "Telepathic",
+                                 "Cybernetics", "Transcendent", "Unknowable"]
+        """
+        #  Identify Life-forms.
+        technologyLevel = int(self.thePlanet.getTechLevel())
+        
+        if technologyLevel == 6*256:
+            
+            technologyLevel = 6
+        
+        if technologyLevel == -2:
+            
+            dataFeed.append(self.dataSummary[8])
+            dataFeed.append("No Life")
+            
+        elif technologyLevel == -1:
+            
+            dataFeed.append("Dominant Life forms")
+            
+            simpleLife = {0:[self.protoLife[0], self.protoLife[1]],
+                          1:[self.protoLife[2], self.protoLife[3]],
+                          2:[self.primativeLife[1], self.primativeLife[2],
+                             self.primativeLife[3]]}
+            
+            random.seed(self.thePlanet.seed)
+            lifeType = int((self.thePlanet.state+self.thePlanet.grade+self.thePlanet.seed)%3)
+            
+            if simpleLife == 2:
+                
+                dataFeed.append(self.primativeLife[0]+" "+random.choice(simpleLife[lifeType]))
+                
+            else:
+            
+                dataFeed.append(random.choice(simpleLife[lifeType]))
+        
+        else:
+        
+            dataFeed.append("Sapient Life")
+            random.seed(self.thePlanet.seed)
+            dataFeed.append(random.choice(self.lifeformDiet)+" "+random.choice(self.lifeforms))
+            
+        # Prepare population data
+        dataFeed.append(self.dataSummary[9])
+        population = 0
+        
+        if technologyLevel > 0:
+            
+            population = 2000
+            
+            for pop in range(technologyLevel):
+                
+                population *= 10
+        
+        else:
+        
+            population = 10
+
+        random.seed(self.thePlanet.seed)
+        #  Is this evil(tm)?  Yes, yes it is.  Original algo.
+        population = int((population/10*self.thePlanet.technology2)+population)
+        
+        if int(population/1000) >= 1:
+            
+            population += random.randint(1, int(population/1000))
+        
+        decimals = len(str(population))
+        
+        if decimals <= 3:
+            
+            dataFeed.append(str(population)+self.lifeNumbers[2])
+            
+        elif decimals <= 6:
+            
+            dataFeed.append(str(population)+self.lifeNumbers[3])
+            
+        elif decimals <= 9:
+            
+            dataFeed.append(str(population)+self.lifeNumbers[4])
+            
+        elif decimals <= 12:
+            
+            dataFeed.append(str(population)+self.lifeNumbers[5])
+            
+        #  Prepare technology level data
+        dataFeed.append(self.dataSummary[10])
+        dataFeed.append(str(technologyLevel)+"."+str(self.thePlanet.technology2))        
+        
+        #  Prepare Temperature data
+        dataFeed.append(self.dataSummary[11])
+        temperature = int((abs(self.thePlanet.orbit-7)*atmospherePressure+(50-self.thePlanet.water) % 7)/2)
+        
+        if temperature < 0:
+            
+            temperature = 0
+            
+        if temperature >= 7:
+            
+            dataFeed.append(self.planetTemperature[8])
+            
+        else:
+            
+            dataFeed.append(self.planetTemperature[temperature])
+            
+        #  Prepare Radiation data
+        dataFeed.append(self.dataSummary[12])
+        radiationLevel = str(abs(self.thePlanet.orbit-7)/(atmospherePressure*5))
+        dataFeed.append(radiationLevel+" RAD/Yr")
+        
+        #  Prepare planet/star state desciption
+        
+        if self.thePlanet.orbit == 0:
+            
+            dataFeed.append(self.dataSummary[14])
+            dataFeed.append(self.starState[self.thePlanet.grade])
+            
+        else:
+            
+            dataFeed.append(self.dataSummary[13])
+            dataFeed.append(self.planetState[self.thePlanet.state])
+        
+        #  Prepare Most Common compounds Data.
+        dataFeed.append(self.dataSummary[15])
+        #TODO
+        
+        #  Prepare pie graph.
+        #TODO
+        
+        #  Draw prepared data on-screen.
+        
+        finalCountdown = 2
+
+        while(finalCountdown <= 14):  #TODO should be 16
+            
+            h.renderText([dataFeed[finalCountdown]], g.font, displaySurface,
+                         g.WHITE, 0,
+                         self.mainViewBoundary[0],
+                         int(self.mainViewBoundary[1]+(finalCountdown/2)*g.offset),
+                         False)
+            h.renderText([dataFeed[finalCountdown+1]], g.font, displaySurface,
+                         g.WHITE, 0,
+                         self.mainViewBoundary[2],
+                         int(self.mainViewBoundary[1]+(finalCountdown/2)*g.offset),
+                         False, True)
+            finalCountdown += 2
+        
+        self.planetData = dataFeed
+        self.planetDataDone = True
         
         
-        
-        pass
-    
     #  Draw the data summary panel for a given type of data, like atmosphere.
     #  Depending on the amount of data, the display may be progressed line
     #  by line using the next and previous buttons.
@@ -1463,6 +1678,7 @@ class PlanetScanner(object):
             self.scanned[2] = self.thePlanet.atmosphere
             self.scanned[3] = self.thePlanet.biosphere
             self.scanned[4] = self.thePlanet.anomaly
+            self.scanningComplete = self.testScanData()
             
             for dataValue in range(0,5):
                 
