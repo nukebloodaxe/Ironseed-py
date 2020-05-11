@@ -423,7 +423,9 @@ def subsetList(theList, start, end):
     return subSet
 
 #  Render the given text onto a surface.
-def renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0, centred=False):
+#  With right justification, make sure you provide the width where the text
+#  should end.
+def renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0, centred=False, justifyRight=False):
     
     position = 0
     
@@ -434,6 +436,10 @@ def renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0,
         if centred:
             
             Surface.blit(renderedText, (width-(renderedText.get_width()/2), height+position))
+            
+        elif justifyRight:
+            
+            Surface.blit(renderedText, ((width-renderedText.get_width()), height+position))
             
         else:
             
