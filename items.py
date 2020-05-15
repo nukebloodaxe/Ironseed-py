@@ -15,6 +15,7 @@ itemConstructionDictionary = {}
 # Artifacts will be implmented later, they are a special case.
 
 # Base object parameters.
+#  Note:  The dictionary is working so well I might dispense with this.
 class Item(object):
     
     def __init__(self, name, cargoSize, worth, levels, itemType):
@@ -72,7 +73,7 @@ def getItemOfType(itemType, count):
                 
                 return item
             
-# We look for the item and return the position as though the ditionary was an
+# We look for the item and return the position as though the dictionary was an
 # array.  We are assuming the item exists.
 def findItemInPseudoArray(item):
     
@@ -85,9 +86,9 @@ def findItemInPseudoArray(item):
             
             foundTypeCount += 1
             
-            if searchItem[0] == item:
+            if searchItem == item:
                 
-                return foundTypeCount
+                return foundTypeCount - 1
             
 # Find the item and return a valid random alternate name for the item.
 # If there is no alternate name, return normal item name.
@@ -185,7 +186,7 @@ def loadItemData(file1=os.path.join('Data_Generators', 'Other', 'IronPy_items.ta
                                                   0,[1,1,1,1,1,1]]
             except:
                 
-                print("Tried Key:", decodedItem[0])
+                print("Tried Key: ", decodedItem[0])
                 # Usually indicates the file we are loading is incorrectly
                 # formatted.  If you are modding, double-check your tabs.
                 print("Absolutely fatal error on creating items")    
@@ -210,7 +211,7 @@ def loadItemData(file1=os.path.join('Data_Generators', 'Other', 'IronPy_items.ta
             
         except KeyError:
             
-            print("Tried Key:", itemName)
+            print("Tried Key: ", itemName)
             # Usually indicates the file we are loading is incorrectly
             # formatted.  If you are modding, double-check your item
             # files, as you may have a spelling mistake in the key names.
@@ -238,7 +239,7 @@ def loadItemData(file1=os.path.join('Data_Generators', 'Other', 'IronPy_items.ta
             
         except KeyError:
             
-            print("Tried Key:", itemName)
+            print("Tried Key: ", itemName)
             # Usually indicates the file we are loading is incorrectly
             # formatted.  If you are modding, double-check your item
             # files, as you may have a spelling mistake in the key names.
