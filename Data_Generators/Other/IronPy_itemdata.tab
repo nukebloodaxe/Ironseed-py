@@ -39,7 +39,7 @@ Sling of David	Grav-Pulse Launcher	Masking Pod	Torque Stanchion	150	10	15	8	12	1
 Death Weave	Thynne Vortex	ThermoPlast	Grav-Coupler	324	20	17	18	19	19	19	
 Dogath Buoy	Esper Seeds	Esper Seeds	Caltrops	59	8	2	6	7	8	12	
 Disruptor Cannon	Hydra Pulse Array	Dopplegangers	Liquid Gases	285	8	3	15	10	8	9	
-Imbreth Leech	Mulroid	Protoplasma	Cyberplasm	45	10	4	7	9	6	12	
+Imbreth Leech	Mulroid	Protoplasm	Cyberplasm	45	10	4	7	9	6	12	
 Guerrloid Grapple	Grav-Coupler	Ion Cache	Whip	151	13	12	5	9	14	5	
 Kyn-poxIchor	Ochre Embryons	Proto-Nutrient	Medicants	59	7	4	6	7	8	8	
 Corse Grenades	Oxidants	Oxidants	Caltrops	59	5	4	7	8	7	6	
@@ -90,19 +90,20 @@ Steo Plast	Metal Weave	Heavy Ions	Polymers	31	2	1	2	2	2	2
 Flux Lens	Crystals	Magnetics	Polymers	18	2	1	3	2	2	2	
 Metal Weave	Conductants	Radioactives	Ceramics	18	2	1	2	2	3	2	
 Pulse Loom	Polymers	Alien Compounds	Radioactives	18	2	1	2	3	2	4	
-Biosynth	Organics	Proto-Nutrient	Protoplasma	31	4	1	2	4	4	2	
+Biosynth	Organics	Proto-Nutrient	Protoplasm	31	4	1	2	4	4	2	
 Plasma Inverter	Crystals	Electrolytes	Alien Isotopes	18	3	1	3	2	1	2	
 Grav-Coupler	Pulse Loom	Radioactives	Strange Particles	31	2	2	3	3	2	2	
 Torque Stanchion	Strata Mount	Guidance Strut	Ceramics	44	2	2	2	3	2	2	
 Vac-Feeder	Heavy Ions	Oxidants	Solonoid	31	2	2	3	2	3	2	
 Mulroid	Esper Seeds	Coolants	Alien Isotopes	18	4	1	1	3	1	4	
-Proto-Nutrient	Protoplasma	Organics	Medicants	18	4	1	2	4	4	2	
+Proto-Nutrient	Protoplasm	Organics	Medicants	18	4	1	2	4	4	2	
 Duct Battery	Conductants	Magnetics	Ceramics	18	2	1	3	2	2	1	
 Masking Pod	Flux Lens	Crystals	Polymers	31	3	3	5	3	2	1	
 Guidance Strut	Heavy Ions	Conductants	Magnetics	18	1	2	2	2	3	1	
 Strata Mount	Heavy Ions	Solvents	Magnetics	18	1	3	2	2	2	1	
 Ion Cache	Polymers	Magnetics	Liquid Gases	18	3	2	3	3	3	2	
-Protoplasma	Amino Acid	Carboxylic Acid	Amine	5	1	1	1	1	1	1	
+Unknown Material	Unknown Material	Unknown Material	Unknown Material	1	1	1	1	1	1	1	
+Protoplasm	Amino Acid	Carboxylic Acid	Amine	5	1	1	1	1	1	1	
 Polymers	Alkene	Alkene	Industrial Chemical	5	1	1	1	1	1	1	
 Crystals	Lensing Solid	Lensing Solid	Strong Acid	5	1	1	1	1	1	1	
 Oxidants	Base	Transition Metal	Protic Liquids	5	1	1	1	1	1	1	
