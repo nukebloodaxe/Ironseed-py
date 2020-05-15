@@ -586,23 +586,27 @@ class Planet(object):
     def getSubQuantities(self, index, itemType, elements, materials):
         
         totalTech = 99
-        itemName = items.getItemOfType(index, itemType)
+        itemName = items.getItemOfType(itemType, index)
+        if itemName == "Unknown Component":
+            
+            return 0
+        
         temp = items.itemConstructionDictionary[itemName]
         
         for something in range(1, 4): # each item uses 3 things to make.
         
             if items.itemDictionary[temp[something]][2] == "ELEMENT":
                 
-                quantity = elements[items.findItemInPseudoArray(temp[0])]
+                quantity = elements[items.findItemInPseudoArray(temp[something])]
             
             elif items.itemDictionary[temp[something]][2] == "MATERIAL":
-            
-                quantity = materials[items.findItemInPseudoArray(temp[0])]
+                
+                quantity = materials[items.findItemInPseudoArray(temp[something])]
             
             # This happens when we receive a final product, like a weapon...
             elif items.itemDictionary[temp[something]][2] == "COMPONENT":
                 
-                subIndex = items.findItemInPseudoArray(temp[something[0]])
+                subIndex = items.findItemInPseudoArray(temp[something])
                 quantity = self.getSubQuantities(subIndex, "COMPONENT",
                                                  elements, materials)
                 
@@ -624,22 +628,24 @@ class Planet(object):
             
             elements.append(ScanData[index][self.state])
         
-        for index in range(g.totalMaterials):
+        for index in range(1, g.totalMaterials):
             
             totalTech = 99 # We don't want to shower the players with gifts.
             totalYield = 0
-            item = items.getItemOftype("MATERIAL", index)
+            item = items.getItemOfType("MATERIAL", index)
             temp = items.itemConstructionDictionary[item]
             
             for element in range(1, 4): # each material uses 3 elements to make.
-            
-                quantity = elements[items.findItemInPseudoArray(temp[element])]
-                totalYield += quantity
+
+                if item != "Worthless Junk" and item != "Unknown Material":
+
+                    quantity = elements[items.findItemInPseudoArray(temp[element])]
+                    totalYield += quantity
                 
-                if quantity < totalTech:
+                    if quantity < totalTech:
                     
-                    totalTech = quantity
-                    
+                        totalTech = quantity
+                                    
             if totalTech > 0:
                 
                 materials.append(totalYield)
@@ -648,19 +654,19 @@ class Planet(object):
                 
                 materials.append(0)
                 
-        materials[0] = 0
-        materials[20] = 0
+        materials[0] = 0  # No Unknown Material
+        materials[19] = 0  # No Worthless Junk
         
         # We use the sub category function in here to determine if we have
         # enough materials to actually manufacture the component concerned.
-        for index in range(g.totalComponents):
+        for index in range(1, g.totalComponents+1):
             
             components.append(self.getSubQuantities(index, "COMPONENT",
                                                     elements, materials))
         
-        components[0] = 0
-        components[21] = 0
-        components[22] = 0
+        components[0] = 0  # No unknown Components.
+        components[20] = 0 # No Ion Cache.
+        components[21] = 0 # No Thermoplast.
         
         return elements, materials, components
     
