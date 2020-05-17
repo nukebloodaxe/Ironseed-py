@@ -378,7 +378,7 @@ class PlanetScanner(object):
         self.crewMembers = crewMembers
         self.probotCount = self.ironSeed.getItemQuantity("Probot")
         
-        # lithosphere, hydrosphere, atmosphere, biosphere, anomaly
+        # atmosphere, hydrosphere, lithosphere, biosphere, anomaly
         self.scanning = [False, False, False, False, False]
         self.scanned = [0, 0, 0, 0, 0]  # Historically 0 to 2
         self.dataCollected = [0, 0, 0, 0, 0]  # Historically 1000 per point.
@@ -389,6 +389,9 @@ class PlanetScanner(object):
         # again, with strobing anomalies.
         self.scanDisplay = 5  # 5 is the scan progress screen.
         
+        #  Which line are we displaying from in the scan data list?
+        self.scanDisplayLine = 0
+        
         # Anomaly items with locations.
         self.anomalies = []
         
@@ -396,7 +399,7 @@ class PlanetScanner(object):
         self.probotFeedback = ["Docked", "Deployed", "Orbiting", "Gathering",
                                "Analyzing", "Returning", "Refueling",
                                "Destroyed", "Docked"]
-        self.scanTypes = ["Lithosphere", "Hydrosphere", "Atmosphere",
+        self.scanTypes = ["Atmosphere", "Hydrosphere", "Lithosphere",
                           "Biosphere", "Anomaly"]
         self.planetActivity = ["None", "Calm", "Mild", "Moderate", "Heavy",
                                "Massive"]
@@ -422,8 +425,8 @@ class PlanetScanner(object):
                                  "Cybernetics", "Transcendent", "Unknowable"]
         
         # Scan Data Text
-        self.scanDataText = ["Information Gathered", " Lithosphere..",
-                             " Hydrosphere..", " Atmosphere...",
+        self.scanDataText = ["Information Gathered", " Lithosphere...",
+                             " Hydrosphere..", " Hydrosphere..",
                              " Biosphere....", " Anomaly......", "0/2", "1/2",
                              "Completed."]
         
@@ -443,6 +446,10 @@ class PlanetScanner(object):
         #  Scan data names based on planet scan data.
         self.scanElementNameData = []  # Tuples of (name, state)
         self.scanElementNameDataState = False
+        
+        #  ScanData sublists.
+        self.scanDataSubLists = [[], [], [], [], []]  # list of lists.
+        self.scanDataSubListsDone = False
         
         #  Planet Scanner related graphics layers.
         self.scanInterface = pygame.image.load(os.path.join('Graphics_Assets', 'landform.png'))
@@ -594,6 +601,8 @@ class PlanetScanner(object):
         self.planetDataDone = False
         self.scanElementNameData = []
         self.scanElementNameDataState = False
+        self.scanDataSubLists = [[], [], [], [], []]
+        self.scanDataSubListsDone = False
         self.zoomLevel = 1
         self.musicState = False
         
@@ -907,9 +916,9 @@ class PlanetScanner(object):
     #  Synchronise scan data with planet.
     def planetSynchronise(self):
 
-        self.thePlanet.lithosphere = self.scanned[0]
+        self.thePlanet.atmosphere = self.scanned[0]
         self.thePlanet.hydrosphere = self.scanned[1]
-        self.thePlanet.atmosphere = self.scanned[2]
+        self.thePlanet.lithosphere = self.scanned[2]
         self.thePlanet.biosphere = self.scanned[3]
         self.thePlanet.anomaly = self.scanned[4]
         self.thePlanet.fullyScanned = self.scanningComplete
@@ -1127,25 +1136,51 @@ class PlanetScanner(object):
         
         currentPosition = pygame.mouse.get_pos()
         
-        if self.land.within(currentPosition):
+        if self.air.within(currentPosition):
             
             self.scanAndLaunch(0)
+            
+            if self.scanningComplete:
+                
+                self.scanDisplay = 0
+                self.scanDisplayLine = 0
+        
         
         elif self.sea.within(currentPosition):
             
             self.scanAndLaunch(1)
         
-        elif self.air.within(currentPosition):
+            if self.scanningComplete:
+                
+                self.scanDisplay = 1
+                self.scanDisplayLine = 0
+        
+        elif self.land.within(currentPosition):
             
             self.scanAndLaunch(2)
+            
+            if self.scanningComplete:
+                
+                self.scanDisplay = 2
+                self.scanDisplayLine = 0
         
         elif self.life.within(currentPosition):
             
             self.scanAndLaunch(3)
+            
+            if self.scanningComplete:
+                
+                self.scanDisplay = 3
+                self.scanDisplayLine = 0
         
         elif self.anomaly.within(currentPosition):
             
             self.scanAndLaunch(4)
+            
+            if self.scanningComplete:
+                
+                self.scanDisplay = 4
+                self.scanDisplayLine = 0
         
         elif self.exit.within(currentPosition):
             
@@ -1159,18 +1194,18 @@ class PlanetScanner(object):
         #  a given category.
         elif self.next.within(currentPosition):
             
-            if self.scanningComplete:
+            if self.scanningComplete and (self.scanDisplayLine < len(self.scanDataSubLists[self.scanDisplay])):
                 
-                pass
+                self.scanDisplayLine += 1
         
         
         #  Display the previous lines of data in the lower data window for
         #  a given category.
         elif self.previous.within(currentPosition):
             
-            if self.scanningComplete:
+            if self.scanningComplete and self.scanDisplayLine > 0:
                 
-                pass
+                self.scanDisplayLine -= 1
         
         elif self.zoomIn.within(currentPosition):
             
@@ -1336,25 +1371,11 @@ class PlanetScanner(object):
                      g.offset, int((g.width/320)*6), int((g.height/200)*147))
         
 
-    #  Draw planet summary information; this is drawn after all data
-    #  from the planet is collected.
-    #  mainViewBoundary
-    # renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0, centred=False, justifyRight=False):
-    def drawPlanetDataSummary(self, displaySurface):
-
-        screenCentre = int(((self.mainViewBoundary[2]-self.mainViewBoundary[0])/2)+self.mainViewBoundary[0])
-        dataFeed = []
+    #  Generate the data for the Planet Data Summary
+    def generatePlanetDataSummary(self):
         
-        if self.thePlanet.orbit > 0:
+        dataFeed = []
             
-            h.renderText([self.dataSummary[0]], g.font, displaySurface, g.WHITE,
-                         0, screenCentre, self.mainViewBoundary[1], True)
-
-        else:
-
-            h.renderText([self.dataSummary[1]], g.font, displaySurface, g.WHITE,
-                         0, screenCentre, self.mainViewBoundary[1], True)
-
         # Prepare seismic data.
         dataFeed.append(self.dataSummary[2])
         
@@ -1528,6 +1549,32 @@ class PlanetScanner(object):
         
         #  Prepare Most Common compounds Data.
         dataFeed.append(self.dataSummary[15])
+        
+        self.planetData = dataFeed
+        self.planetDataDone = True
+
+    #  Draw planet summary information; this is drawn after all data
+    #  from the planet is collected.
+    #  mainViewBoundary
+    # renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0, centred=False, justifyRight=False):
+    def drawPlanetDataSummary(self, displaySurface):
+
+        screenCentre = int(((self.mainViewBoundary[2]-self.mainViewBoundary[0])/2)+self.mainViewBoundary[0])
+
+        if self.thePlanet.orbit > 0:
+            
+            h.renderText([self.dataSummary[0]], g.font, displaySurface, g.WHITE,
+                         0, screenCentre, self.mainViewBoundary[1], True)
+
+        else:
+
+            h.renderText([self.dataSummary[1]], g.font, displaySurface, g.WHITE,
+                         0, screenCentre, self.mainViewBoundary[1], True)
+
+        if self.planetDataDone == False:
+            
+            self.generatePlanetDataSummary()
+
         #TODO
         
         #  Prepare pie graph.
@@ -1539,25 +1586,28 @@ class PlanetScanner(object):
 
         while(finalCountdown <= 14):  #TODO should be 16
             
-            h.renderText([dataFeed[finalCountdown]], g.font, displaySurface,
+            h.renderText([self.planetData[finalCountdown]],
+                         g.font, displaySurface,
                          g.WHITE, 0,
                          self.mainViewBoundary[0],
                          int(self.mainViewBoundary[1]+(finalCountdown/2)*g.offset),
                          False)
-            h.renderText([dataFeed[finalCountdown+1]], g.font, displaySurface,
+            h.renderText([self.planetData[finalCountdown+1]],
+                         g.font, displaySurface,
                          g.WHITE, 0,
                          self.mainViewBoundary[2],
                          int(self.mainViewBoundary[1]+(finalCountdown/2)*g.offset),
                          False, True)
             finalCountdown += 2
         
-        self.planetData = dataFeed
-        self.planetDataDone = True
-        
     
     #  Generate data for data summary panel.
     #  State represents the type of data, lithosphere, atmosphere etc.
     def generateDataPanelSummary(self):
+        
+        if self.scanElementNameDataState:
+            
+            return  #  break out, execution not required.
         
         #TODO:  Exit on planet state 7.
         
@@ -1588,18 +1638,36 @@ class PlanetScanner(object):
             elementIndex += 1
         
         self.scanElementNameDataState = True
-        
     
-    #  Draw the data summary panel for a given type of data, like atmosphere.
+    
+    # Generate the data for the sublists, from Data Panel Summary data.
+    def generateDataSubLists(self):
+        
+        if self.scanDataSubListsDone:
+            
+            return # Data execution not required.
+        
+        for element in self.scanElementNameData:
+            
+            self.scanDataSubLists[element[1]].append(element[0])
+        
+        self.scanDataSubListsDone = True
+    
+    #  Draw the small summary panel with self.scanDisplay data, like atmosphere.
     #  Depending on the amount of data, the display may be progressed line
     #  by line using the next and previous buttons.
     def drawDataPanelSummary(self, displaySurface):
         
-        pass
+        h.renderText([self.scanTypes[self.scanDisplay]+" Data"]+h.subsetList(self.scanDataSubLists[self.scanDisplay],
+                                  self.scanDisplayLine, 4),
+                         g.font, displaySurface,
+                         g.WHITE, g.offset,
+                         int((g.width/320)*6),
+                         int((g.height/200)*147),
+                         False)
 
 
     #  Draw the red dots for Probots deployed on Planet Surface.
-
     #  Draw the Planet Scanner interface and all current animations.
     def drawInterface(self, displaySurface):
 
@@ -1715,9 +1783,9 @@ class PlanetScanner(object):
             self.setZoomTexture()
             
             #  Syncronise our scan data with the planet.
-            self.scanned[0] = self.thePlanet.lithosphere
+            self.scanned[0] = self.thePlanet.atmosphere
             self.scanned[1] = self.thePlanet.hydrosphere
-            self.scanned[2] = self.thePlanet.atmosphere
+            self.scanned[2] = self.thePlanet.lithosphere
             self.scanned[3] = self.thePlanet.biosphere
             self.scanned[4] = self.thePlanet.anomaly
             self.scanningComplete = self.testScanData()
@@ -1728,6 +1796,9 @@ class PlanetScanner(object):
                 
             #  Ensure our data summaries are ready to print
             self.generateDataPanelSummary()
+            
+            #  Generate the sublists for above.
+            self.generateDataSubLists()
 
         if self.scannerStage == 1:
 
