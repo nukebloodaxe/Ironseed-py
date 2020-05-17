@@ -440,6 +440,10 @@ class PlanetScanner(object):
         self.planetData = []
         self.planetDataDone = False
         
+        #  Scan data names based on planet scan data.
+        self.scanElementNameData = []  # Tuples of (name, state)
+        self.scanElementNameDataState = False
+        
         #  Planet Scanner related graphics layers.
         self.scanInterface = pygame.image.load(os.path.join('Graphics_Assets', 'landform.png'))
         self.scanInterfaceScaled = pygame.transform.scale(self.scanInterface, (g.width, g.height))
@@ -588,6 +592,8 @@ class PlanetScanner(object):
         self.anomalies = []
         self.planetData = []
         self.planetDataDone = False
+        self.scanElementNameData = []
+        self.scanElementNameDataState = False
         self.zoomLevel = 1
         self.musicState = False
         
@@ -1405,7 +1411,8 @@ class PlanetScanner(object):
         #  Identify Life-forms.
         technologyLevel = int(self.thePlanet.getTechLevel())
         
-        if technologyLevel == 6*256:
+        if technologyLevel == 6*256:    # I know, but it's related to the
+                                        # pixel count for yellow tech pixels.
             
             technologyLevel = 6
         
@@ -1547,7 +1554,42 @@ class PlanetScanner(object):
         self.planetData = dataFeed
         self.planetDataDone = True
         
+    
+    #  Generate data for data summary panel.
+    #  State represents the type of data, lithosphere, atmosphere etc.
+    def generateDataPanelSummary(self):
         
+        #TODO:  Exit on planet state 7.
+        
+        self.scanElementNameData = []  #  Tuples of (name, state)
+        random.seed(self.thePlanet.seed)
+        elements, materials, components = self.thePlanet.getItemAmounts()
+
+        elementIndex = 0
+        
+        for amount in elements:
+            
+            if amount > 0:
+                
+                stateTable = {0: self.thePlanet.getScanDataEntry(elementIndex, 7),
+                              1: self.thePlanet.getScanDataEntry(elementIndex, 8),
+                              2: self.thePlanet.getScanDataEntry(elementIndex, 9),
+                              3: self.thePlanet.getScanDataEntry(elementIndex, 9),
+                              4: self.thePlanet.getScanDataEntry(elementIndex, 9),
+                              5: self.thePlanet.getScanDataEntry(elementIndex, 10),
+                              6: self.thePlanet.getScanDataEntry(elementIndex, 11)}
+                
+                for index in range(0, amount):
+                    
+                    self.scanElementNameData.append((items.getAlternateName(items.getItemOfType("ELEMENT", elementIndex+1)),
+                                                     stateTable[self.thePlanet.state]))
+                    
+                    
+            elementIndex += 1
+        
+        self.scanElementNameDataState = True
+        
+    
     #  Draw the data summary panel for a given type of data, like atmosphere.
     #  Depending on the amount of data, the display may be progressed line
     #  by line using the next and previous buttons.
@@ -1683,6 +1725,9 @@ class PlanetScanner(object):
             for dataValue in range(0,5):
                 
                 self.dataCollected[dataValue] = 500 * self.scanned[dataValue]
+                
+            #  Ensure our data summaries are ready to print
+            self.generateDataPanelSummary()
 
         if self.scannerStage == 1:
 
