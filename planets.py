@@ -616,6 +616,11 @@ class Planet(object):
             
         return totalTech
     
+    #  Ge an entry from the scan data.
+    def getScanDataEntry(self, index, state):
+        
+        return ScanData[index][state]
+    
     # Scans are predefined, so return quantities accordingly.
     # This relies on the predefined scan data file being loaded.
     def getItemAmounts(self):
