@@ -427,6 +427,10 @@ def subsetList(theList, start, end):
 #  should end.
 def renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0, centred=False, justifyRight=False):
     
+    if text == []:
+        
+        return # Nothing to render
+    
     position = 0
     
     for line in text:
