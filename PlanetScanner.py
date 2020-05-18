@@ -880,6 +880,9 @@ class PlanetScanner(object):
         # Reset random number seed.
         random.seed()
         self.thePlanet.anomalyGeneration = True
+        
+        #  populate the data summary with the new data.
+        self.generateDataSubLists()
 
 
     # Retrieve anomalies to put into ship cargo.
@@ -1520,7 +1523,13 @@ class PlanetScanner(object):
             
         #  Prepare technology level data
         dataFeed.append(self.dataSummary[10])
-        dataFeed.append(str(technologyLevel)+"."+str(self.thePlanet.technology2))        
+        tempTech = 0
+        
+        if technologyLevel > 0:
+            
+            tempTech = int(TechnologyLevel)
+        
+        dataFeed.append(str(tempTech)+"."+str(int(self.thePlanet.technology2)))
         
         #  Prepare Temperature data
         dataFeed.append(self.dataSummary[11])
@@ -1649,7 +1658,15 @@ class PlanetScanner(object):
     
     
     # Generate the data for the sublists, from Data Panel Summary data.
+    # Biological data is drawn from the generatePlanetDataSummary function.
+    # Anomaly data comes from the anomalies list.
     def generateDataSubLists(self):
+        
+        #  As the anomaly list can change, we always generate it.
+        
+        for anomaly in self.anomalies:
+            
+            self.scanDataSubLists[4].append(anomaly.alternateName)
         
         if self.scanDataSubListsDone:
             
@@ -1658,6 +1675,12 @@ class PlanetScanner(object):
         for element in self.scanElementNameData:
             
             self.scanDataSubLists[element[1]].append(element[0])
+            
+        #  Create biological entries.
+        self.scanDataSubLists[3].append(self.planetData[10]+':'+self.planetData[11])
+        self.scanDataSubLists[3].append(self.planetData[12]+':'+self.planetData[13])
+        self.scanDataSubLists[3].append(self.planetData[14]+':'+self.planetData[15])
+        self.scanDataSubLists[3].append(self.planetData[16]+':'+self.planetData[17])
         
         self.scanDataSubListsDone = True
     
@@ -1686,11 +1709,12 @@ class PlanetScanner(object):
             
         #    displaySurface.blit(self.planetTextureScaled, self.mainViewBoundary)
         
+        displaySurface.blit(self.zoomTextureScaled, self.zoomedViewBoundary)
+        self.drawZoomHUD(displaySurface)
+        
         if self.scanningComplete == False or self.scanDisplay == 4:
             
             displaySurface.blit(self.planetTextureScaled, self.mainViewBoundary)
-            displaySurface.blit(self.zoomTextureScaled, self.zoomedViewBoundary)    
-            self.drawZoomHUD(displaySurface)
 
             #  Draw bounding rectangle on map view.
             rectangle = (self.zoomedViewSelected[0] + self.mainViewBoundary[0],
@@ -1708,7 +1732,7 @@ class PlanetScanner(object):
             
             if self.scanDisplay < 4:
                 
-                displaySurface.blit(self.zoomedViewBlank, self.zoomedViewBoundary)
+                #displaySurface.blit(self.zoomedViewBlank, self.zoomedViewBoundary)
                 displaySurface.blit(self.mainViewBlank, self.mainViewBoundary)
                 self.drawPlanetDataSummary(displaySurface)
                 self.drawDataPanelSummary(displaySurface)
@@ -1730,7 +1754,7 @@ class PlanetScanner(object):
                 
             else:
                 
-                displaySurface.blit(self.zoomedViewBlank, self.zoomedViewBoundary)
+                #displaySurface.blit(self.zoomedViewBlank, self.zoomedViewBoundary)
                 displaySurface.blit(self.mainViewBlank, self.mainViewBoundary)
                 self.drawPlanetDataSummary(displaySurface)
 
@@ -1808,6 +1832,8 @@ class PlanetScanner(object):
                 
             #  Ensure our data summaries are ready to print
             self.generateDataPanelSummary()
+            
+            self.generatePlanetDataSummary()
             
             #  Generate the sublists for above.
             self.generateDataSubLists()
