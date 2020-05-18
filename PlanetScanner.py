@@ -466,6 +466,10 @@ class PlanetScanner(object):
                                  int((g.width/320)*267),
                                  int((g.height/200)*132))
         
+        #  Blank texture for the view window.
+        self.mainViewBlank = pygame.Surface((self.mainViewBoundary[2]-self.mainViewBoundary[0],
+                                             self.mainViewBoundary[3]-self.mainViewBoundary[1]), 0)
+        
         #  Planet texture scaled to the Landform Bounding area.
         self.planetTextureScaled = "Placeholder"
         
@@ -480,6 +484,10 @@ class PlanetScanner(object):
                                    int((g.height/200)*140),
                                    int((g.width/320)*265),
                                    int((g.height/200)*198))
+        
+        #  Blank texture for the zoom window.
+        self.zoomedViewBlank = pygame.Surface((self.zoomedViewBoundary[2]-self.zoomedViewBoundary[0],
+                                               self.zoomedViewBoundary[3]-self.zoomedViewBoundary[1]), 0)
         
         #  Selected zone for zoomedViewBoundary; default = top left corner.
         self.zoomedViewSelected = (int((g.width/320)*28),
@@ -1659,7 +1667,7 @@ class PlanetScanner(object):
     def drawDataPanelSummary(self, displaySurface):
         
         h.renderText([self.scanTypes[self.scanDisplay]+" Data"]+h.subsetList(self.scanDataSubLists[self.scanDisplay],
-                                  self.scanDisplayLine, 4),
+                                  self.scanDisplayLine, self.scanDisplayLine+4),
                          g.font, displaySurface,
                          g.WHITE, g.offset,
                          int((g.width/320)*6),
@@ -1674,23 +1682,22 @@ class PlanetScanner(object):
         displaySurface.fill(g.BLACK)
         displaySurface.blit(self.scanInterfaceScaled, (0, 0))
         
-        if self.scanningComplete == False:
+        #if self.scanningComplete == False:
             
-            displaySurface.blit(self.planetTextureScaled, self.mainViewBoundary)
+        #    displaySurface.blit(self.planetTextureScaled, self.mainViewBoundary)
         
         if self.scanningComplete == False or self.scanDisplay == 4:
             
-            displaySurface.blit(self.zoomTextureScaled, self.zoomedViewBoundary)
-            
-        self.drawZoomHUD(displaySurface)
-        
-        
-        #  Draw bounding rectangle on map view.
-        rectangle = (self.zoomedViewSelected[0] + self.mainViewBoundary[0],
-                     self.zoomedViewSelected[1] + self.mainViewBoundary[1],
-                     int(self.zoomedViewSelected[2] / self.zoomLevel),
-                     int(self.zoomedViewSelected[3] / self.zoomLevel))
-        pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
+            displaySurface.blit(self.planetTextureScaled, self.mainViewBoundary)
+            displaySurface.blit(self.zoomTextureScaled, self.zoomedViewBoundary)    
+            self.drawZoomHUD(displaySurface)
+
+            #  Draw bounding rectangle on map view.
+            rectangle = (self.zoomedViewSelected[0] + self.mainViewBoundary[0],
+                         self.zoomedViewSelected[1] + self.mainViewBoundary[1],
+                         int(self.zoomedViewSelected[2] / self.zoomLevel),
+                         int(self.zoomedViewSelected[3] / self.zoomLevel))
+            pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
 
         #  Draw scan progress while data still outstanding.
         if self.testScanData() == False:
@@ -1701,6 +1708,8 @@ class PlanetScanner(object):
             
             if self.scanDisplay < 4:
                 
+                displaySurface.blit(self.zoomedViewBlank, self.zoomedViewBoundary)
+                displaySurface.blit(self.mainViewBlank, self.mainViewBoundary)
                 self.drawPlanetDataSummary(displaySurface)
                 self.drawDataPanelSummary(displaySurface)
             
@@ -1708,6 +1717,7 @@ class PlanetScanner(object):
             
                 #  Draw anomalies on map.
                 #TODO: Make Strobe
+                
                 perPixel = pygame.PixelArray(displaySurface)
         
                 for anomaly in self.anomalies:
@@ -1720,6 +1730,8 @@ class PlanetScanner(object):
                 
             else:
                 
+                displaySurface.blit(self.zoomedViewBlank, self.zoomedViewBoundary)
+                displaySurface.blit(self.mainViewBlank, self.mainViewBoundary)
                 self.drawPlanetDataSummary(displaySurface)
 
         #  Draw working probots on map.
