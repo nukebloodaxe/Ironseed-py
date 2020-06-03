@@ -6,11 +6,12 @@ Intro module
 I know this is as ugly as sin, but I have to start learning somewhere...
 @author: Nuke Bloodaxe
 """
-import pygame, sys, os, time, random, numpy, pygame.sndarray, ironSeed, planets
+import pygame, os, pygame.sndarray, planets
 import helper_functions as h
 import global_constants as g
 
 class IronseedIntro(object):
+    
     def __init__(self):
 
         
@@ -56,6 +57,7 @@ class IronseedIntro(object):
         self.channel7Logo = pygame.image.load(os.path.join('Graphics_Assets', 'channel7.png'))
         self.mars = pygame.image.load(os.path.join('Graphics_Assets', 'world.png'))
         self.charCom = pygame.image.load(os.path.join('Graphics_Assets', 'charcom.png'))
+        self.redLight = pygame.image.load(os.path.join('Graphics_Assets', 'CrewCom_RED.png'))
         self.battle = pygame.image.load(os.path.join('Graphics_Assets', 'battle1.png'))
         self.alienShip = pygame.image.load(os.path.join('Graphics_Assets', 'alien.png'))
         self.ship = pygame.image.load(os.path.join('Graphics_Assets', 'ship1.png'))
@@ -79,6 +81,9 @@ class IronseedIntro(object):
 
         self.centredX = 0.0
         self.centeredY = 0.0
+
+        #  Prepare Ironseed Intro stopwatch.
+        self.stopwatch = h.StopWatch()
 
         #  Prepare surface used for fading out.
         self.fade = pygame.Surface((g.width,g.height))
@@ -107,6 +112,10 @@ class IronseedIntro(object):
         self.redBar = h.colourGradient(int(g.width/16)*2, g.RED)
         #  Full length Encode Bar.
         self.fullBar = h.createBar(self.redBar, int((g.width/320)*37), int((g.height/200)*2)+1)
+        
+        # Red tank light, including flipped version.
+        self.redLightScaled = pygame.transform.scale(self.redLight, (int((g.width/320)*13), int((g.height/200)*16)))
+        self.redLightScaledFlipped = pygame.transform.flip(self.redLightScaled, True, False)
         
         #  Background star with lens flare.
         self.battleScaled = pygame.transform.scale(self.battle, (g.width, g.height))
@@ -138,23 +147,28 @@ class IronseedIntro(object):
         
         
     def isIntroFinished(self):
+        
         return self.introFinished
     
     def resetIntro(self):
+        
         self.count = 1
         self.length = 0
         self.encodeStep = 0
         self.introStage = 0
         self.scavengerStep = 0
         self.crashLandingStep = 0
+        self.stopwatch.resetStopwatch()
         self.introFinished = False
         self.musicState = False
         self.fade.set_alpha(10)
     
     def resetCounts(self, stage):
+        
         self.introStage = stage
         self.count = 0
         self.fade.set_alpha(10)
+        self.stopwatch.resetStopwatch()
     
     #  Create the channel 7 logo atop static background by gradually
     #  bringing lines of pixels onto screen.
@@ -171,18 +185,28 @@ class IronseedIntro(object):
         S = h.safeWrap #  reduces namespace lookups.
 
         while line < height:
+            
             if length >= width:  #  flood fill - guaranteed finish.
+            
                 for pixel in range(length):
+                    
                     if self.C7LogoBlit[pixel][line] != 0:
-                        C7LogoCreateBlit[pixel][line] = self.C7LogoBlit[pixel][line]            
+                        
+                        C7LogoCreateBlit[pixel][line] = self.C7LogoBlit[pixel][line]  
+                        
             else:
+                
                 for pixel in range(length, length+step):
+                    
                     loci = S(width, stepNo, pixel)
+                    
                     if self.C7LogoBlit[loci][line] != 0:
+                        
                         C7LogoCreateBlit[loci][line] = self.C7LogoBlit[loci][line]
 
             line += 1
             stepNo += step
+            
         C7LogoCreateBlit.close()
         logoScreen.close()
         comboSurface.blit(self.C7LogoCreate, (0,0))
@@ -192,12 +216,16 @@ class IronseedIntro(object):
     
     #  Create the Mars floats up into view against starfield screen.
     def marsSceneGenerate(self, planet, starfield, surface, width, height, step):
+        
         finished = False
+        
         if step*5 < (height/5)*2:
+            
             surface.blit(self.starFieldScaled,(0,(0-int((height/3)))+(step*3)))
             surface.blit(self.marsScaled,(0,int(height-(height/3))-(step*5)))
             
         else:
+            
             finished = True
         
         return finished
@@ -229,12 +257,15 @@ class IronseedIntro(object):
         """
         h.fadeIn(width, height, surface, step)
         
-        if h.GameStopwatch.stopwatchSet:
-            if h.GameStopwatch.getElapsedStopwatch() > 15:
-                h.GameStopwatch.resetStopwatch()
+        if self.stopwatch.stopwatchSet:
+            
+            if self.stopwatch.getElapsedStopwatch() > 15:
+                
+                self.stopwatch.resetStopwatch()
                 finished = True
         else:
-            h.GameStopwatch.setStopwatch()
+            
+            self.stopwatch.setStopwatch()
             
         # uncomment to look at planet 2D texture.
         #surface.blit(planets.Planets[planet].planetTexture,(0,0))
@@ -242,15 +273,20 @@ class IronseedIntro(object):
     
     #  Encode helper function, draws the bars in a given position.
     def drawEncodeBar(self, surface, xPosition, yPosition):
+        
             currentTimer = 4
+            
             #  Set green light to red next to bar.
             if self.count <= 37:
+                
                 growingBar = h.createBar(self.redBar, int((g.width/320)*self.count), int((g.height/200)*2)+1)
                 surface.blit(growingBar, (int((g.width/320)*xPosition), int((g.height/200)*yPosition)))
+                
             else:
+                
                 self.encodeStep += 1
                 self.count = 0
-                h.GameStopwatch.resetStopwatch()  #  If we beat the timer.
+                self.stopwatch.resetStopwatch()  #  If we beat the timer.
 
     #  Load the encodes of the IronSeed Movement members.
     #  Terminate origin bodies on end of transmission.
@@ -260,72 +296,89 @@ class IronseedIntro(object):
     #  Transmission lines are supposed to draw every 2 seconds.
     #  TODO: Green lights go red on Encode load.
     def loadEncodes(self, surface):
+        
+        surface.fill(g.BLACK)
         finished = False
         currentTimer = 0
         lowerThird = int(7*(g.height/10))
         centerWidth = int(g.width/16)
 
-        if self.encodeStep == 0:
+        if self.encodeStep >= 0:
+            
             currentTimer = 2
             h.renderText([self.introText4[0]], g.font, surface, g.WHITE,
                           0, centerWidth, lowerThird)
 
-        elif self.encodeStep == 1:
+        if self.encodeStep >= 1:
+            
             currentTimer = 3
             h.renderText([self.introText4[1]], g.font, surface, g.WHITE,
-            0, centerWidth*10, lowerThird)
+                         0, centerWidth*10, lowerThird)
 
-        elif self.encodeStep == 2:
+        if self.encodeStep >= 2:
+    
             currentTimer = 3
             h.renderText([self.introText4[2]], g.font, surface, g.WHITE,
             0, centerWidth, lowerThird+g.offset)
-            self.count = 0
+            
+            if self.encodeStep == 2:
+                
+                self.count = 0
 
         #  Left Side
 
-        elif self.encodeStep == 3:
+        if self.encodeStep == 3:
+            
             currentTimer = 15
             #  TODO Set green light to red next to bar.
             self.drawEncodeBar(surface, 13, 48)
 
-        elif self.encodeStep == 4:
+        if self.encodeStep == 4:
+            
             currentTimer = 15
             #  TODO Set green light to red next to bar.
             self.drawEncodeBar(surface, 13, 78)
 
-        elif self.encodeStep == 5:
+        if self.encodeStep == 5:
+            
             currentTimer = 15
             #  TODO Set green light to red next to bar.
             self.drawEncodeBar(surface, 13, 108)
 
         #  Right Side.
 
-        elif self.encodeStep == 6:
+        if self.encodeStep == 6:
+            
             currentTimer = 15
             #  TODO Set green light to red next to bar.
             self.drawEncodeBar(surface, 271, 48)
 
-        elif self.encodeStep == 7:
+        if self.encodeStep == 7:
+            
             currentTimer = 15
             #  TODO Set green light to red next to bar.
             self.drawEncodeBar(surface, 271, 78)
 
-        elif self.encodeStep == 8:
+        if self.encodeStep == 8:
+            
             currentTimer = 15
             #  TODO Set green light to red next to bar.
             self.drawEncodeBar(surface, 271, 108)
             
-        elif self.encodeStep == 9:
+        if self.encodeStep >= 9:
+            
             currentTimer = 3
             h.renderText([self.introText4[3]], g.font, surface, g.WHITE,
             0, centerWidth, lowerThird+(g.offset*2))
             
-        elif self.encodeStep == 10:
+        if self.encodeStep >= 10:
+            
             currentTimer = 3
             h.renderText([self.introText4[4]], g.font, surface, g.WHITE,
             0, centerWidth, lowerThird+(g.offset*3))
             
-        elif self.encodeStep == 11:
+        if self.encodeStep >= 11:
+            
             currentTimer = 3
             h.renderText([self.introText4[5]], g.font, surface, g.WHITE,
             0, centerWidth, lowerThird+(g.offset*4))
@@ -335,31 +388,46 @@ class IronseedIntro(object):
 
         #  Draw full encode bars for each cycle.
         if self.encodeStep >= 4:
+            
             #  Bar 1
             surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*48)))
+                        
             if self.encodeStep >= 5:
+                
                 #  Bar 2
                 surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*78)))
+                                
                 if self.encodeStep >= 6:
+                    
                     #  Bar 3
                     surface.blit(self.fullBar, (int((g.width/320)*13), int((g.height/200)*108)))
+                                        
                     if self.encodeStep >= 7:
+                        
                         #  Bar 4
                         surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*48)))
+                                            
                         if self.encodeStep >= 8:
+                            
                             #  Bar 5
                             surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*78)))
+                                                        
                             if self.encodeStep >= 9:
+                                
                                 #  Bar 6
                                 surface.blit(self.fullBar, (int((g.width/320)*271), int((g.height/200)*108)))
-                            
+                                                            
         #  Our timer for this sequence.
-        if h.GameStopwatch.stopwatchSet:
-            if h.GameStopwatch.getElapsedStopwatch() > currentTimer:
-                h.GameStopwatch.resetStopwatch()
+        if self.stopwatch.stopwatchSet:
+            
+            if self.stopwatch.getElapsedStopwatch() > currentTimer:
+                
+                self.stopwatch.resetStopwatch()
                 self.encodeStep += 1
+                
         else:
-            h.GameStopwatch.setStopwatch()
+            
+            self.stopwatch.setStopwatch()
         """
                 self.introText4 = ["Ship IRONSEED to Relay Point:",
                            "Link Established.",
@@ -369,12 +437,45 @@ class IronseedIntro(object):
                            'Control Protocol Transfered to Human Encode "PRIME".']
         """
         if self.encodeStep >= 1:
+            
             primeStatic = h.makeFuzz(int((g.width/16)*4), int((g.height/10)*4))
             surface.blit(primeStatic, (int((g.width/16)*6), int((g.height/10)*2)))
 
         surface.blit(self.charComScaled, (0, 0))
         
+        # Add Tank Lights
+        if self.encodeStep >= 4:
+            
+            # Red tank light top left
+            surface.blit(self.redLightScaled, (int((g.width/320)*82), int((g.height/200)*31)))
+            
+            if self.encodeStep >= 5:
+                
+                # Red tank light middle left
+                surface.blit(self.redLightScaled, (int((g.width/320)*82), int((g.height/200)*62)))
+                
+                if self.encodeStep >= 6:
+                    
+                    # Red tank light bottom left
+                    surface.blit(self.redLightScaled, (int((g.width/320)*82), int((g.height/200)*92)))
+                    
+                    if self.encodeStep >= 7:
+                        
+                        # Red tank light top right
+                        surface.blit(self.redLightScaledFlipped, (int((g.width/320)*226), int((g.height/200)*31)))
+                    
+                        if self.encodeStep >= 8:
+                            
+                            # Red tank light middle right
+                            surface.blit(self.redLightScaledFlipped, (int((g.width/320)*226), int((g.height/200)*62)))
+                            
+                            if self.encodeStep >= 9:
+                                
+                                # Red tank light bottom right
+                                surface.blit(self.redLightScaledFlipped, (int((g.width/320)*226), int((g.height/200)*92)))
+        
         if self.encodeStep == 12:
+            
             finished = True
         
         return finished
