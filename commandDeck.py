@@ -8,6 +8,7 @@ Main Command Deck, central operations for all systems in IronSeed.
 """
 
 import pygame, os
+import global_constants as g
 
 class CommandDeck(object):
     
@@ -19,6 +20,16 @@ class CommandDeck(object):
         self.systemState = 10
         self.musicState = False
         
+        #  Load Graphics Layers
+        
+        #  Command Deck Graphic
+        self.commandDeckGraphic = pygame.image.load(os.path.join('Graphics_Assets', 'main.png'))
+        
+        #  Prepare Command Deck Graphic for blitting
+        self.commandDeckGraphicScaled = pygame.transform.scale(self.commandDeckGraphic, (g.width, g.height))
+        
+        
+        
     #  Mouse button interaction routine.
     def interact(self, mouseButton):
         
@@ -29,7 +40,9 @@ class CommandDeck(object):
     #  Draw command deck interface
     def drawInterface(self, displaySurface):
         
-        pass
+        displaySurface.fill(g.BLACK)
+        displaySurface.blit(self.commandDeckScaled, (0, 0))
+        
     
     
     #  Check stage and run routines for initialization, ongoing ops or exit.
