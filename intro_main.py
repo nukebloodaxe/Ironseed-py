@@ -498,48 +498,55 @@ class IronseedIntro(object):
     #  Draw background graphic, Draw Alien Ship, Draw targetting consoles.
     #  Draw frames above and have targeting consoles concentrate on one point.
     def scavengersAttack(self, displaySurface, width, height, step):
+        
         finished = False
         currentTimer = 0
         lowerThird = int(6*(g.height/10))
         centerWidth = int(g.width/16)*2
-        #  Show the ship being examined
-        
-        if self.scavengerStep == 0:
-            currentTimer = 3
-            displaySurface.blit(self.shipScaled, (0, 0))
-            self.bufferSurfaceImage.set_colorkey(g.RED)
-            self.bufferSurfaceImage.fill(g.BLACK)  #  Reset image buffer.
-            self.bufferSurfaceImage.set_colorkey(g.BLACK)
-        
+        displaySurface.fill(g.BLACK)  #  Reset image buffer.
+                
         #  Print the Scavenger's analysis and orders.
         
-        elif self.scavengerStep == 1:
-            currentTimer = 3
-            h.renderText([self.introText6[0]], g.font, displaySurface, g.GREEN,
-            0, centerWidth, lowerThird)
-        
-        elif self.scavengerStep == 2:
-            currentTimer = 3
-            h.renderText([self.introText6[1]], g.font, displaySurface, g.GREEN,
-            0, centerWidth, lowerThird+(g.offset))
+        if self.scavengerStep <= 6:
             
-        elif self.scavengerStep == 3:
-            currentTimer = 3
-            h.renderText([self.introText6[2]], g.font, displaySurface, g.GREEN,
-            0, centerWidth, lowerThird+(g.offset*2))
-        
-        elif self.scavengerStep == 4:
-            currentTimer = 3
-            h.renderText([self.introText6[3]], g.font, displaySurface, g.GREEN,
-            0, centerWidth, lowerThird+(g.offset*3))
-        
-        elif self.scavengerStep == 5:
-            currentTimer = 3
-            h.renderText([self.introText6[4]], g.font, displaySurface, g.GREEN,
-            0, centerWidth, lowerThird+(g.offset*4))
-        
+            #  Show the ship being examined
+            
+            displaySurface.blit(self.shipScaled, (0, 0))
+            self.bufferSurfaceImage.set_colorkey(g.RED)
+            self.bufferSurfaceImage.set_colorkey(g.BLACK)
+            
+            if self.scavengerStep < 6:
+            
+                currentTimer = 3
+            
+            if self.scavengerStep >= 1:
+                
+                h.renderText([self.introText6[0]], g.font, displaySurface,
+                             g.GREEN, 0, centerWidth, lowerThird)
+            
+            if self.scavengerStep >= 2:
+                
+                h.renderText([self.introText6[1]], g.font, displaySurface,
+                             g.GREEN, 0, centerWidth, lowerThird+(g.offset))
+                
+            if self.scavengerStep >= 3:
+                
+                h.renderText([self.introText6[2]], g.font, displaySurface,
+                             g.GREEN, 0, centerWidth, lowerThird+(g.offset*2))
+            
+            if self.scavengerStep >= 4:
+                
+                h.renderText([self.introText6[3]], g.font, displaySurface,
+                             g.GREEN, 0, centerWidth, lowerThird+(g.offset*3))
+            
+            if self.scavengerStep >= 5:
+                
+                h.renderText([self.introText6[4]], g.font, displaySurface,
+                             g.GREEN, 0, centerWidth, lowerThird+(g.offset*4))
+            
         # Now we switch to shrinking the screen into the viewing panel.
-        elif self.scavengerStep == 6:
+        if self.scavengerStep == 6:
+            
             #  No Timer, this needs to be FAST!
             self.bufferSurfaceImage = pygame.Surface((g.width,g.height))
             self.bufferSurfaceImage.set_colorkey(g.RED)
@@ -576,6 +583,7 @@ class IronseedIntro(object):
             self.scavengerStep += 1
             
         elif (self.scavengerStep >= 15 and self.scavengerStep <= 270):
+            
             #  No Timer, this needs to be FAST!
             #  TODO:  Fix mysterous bug here!
             #  Note:  Voodoo bug!  Looks to be hardware surface mapping issue!
@@ -595,6 +603,7 @@ class IronseedIntro(object):
         
         #  Prepare buffer to get targetting reticule.
         elif self.scavengerStep == 271:
+            
             #  No Timer, this needs to be FAST!
             self.bufferSurfaceImage = pygame.Surface((g.width,g.height))
             self.bufferSurfaceImage.set_colorkey(g.RED)
@@ -604,21 +613,37 @@ class IronseedIntro(object):
             #  Prior Surface sampled!
             self.scavengerStep += 1
         
-        #  Draw targeting reticule.
+        #  Make dot move twice to Thrice.
+        #  Then draw reticules (3 of em, largest to smallest, 1 at a time).
+        
+        #  Need to draw ship dot moving into position on X and Y screens.
         elif self.scavengerStep == 272:
+            
+            
+        
+        #  Draw targeting reticule.
+        elif self.scavengerStep == 273:
+            
             currentTimer = 10  #  Temp.
             #  No Timer, this needs to be FAST!
             displaySurface.blit(self.bufferSurfaceImage, (0, 0))
             #  Reticule aiming
             self.scavengerStep += 1
-        else:
+            
+        if self.scavengerStep >= 274:
+            
             finished = True
+            
         #  Our timer for this sequence.
         if h.GameStopwatch.stopwatchSet:
+            
             if h.GameStopwatch.getElapsedStopwatch() > currentTimer:
+                
                 h.GameStopwatch.resetStopwatch()
                 self.scavengerStep += 1
+                
         else:
+            
             h.GameStopwatch.setStopwatch()
         
         return finished
