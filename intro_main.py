@@ -582,55 +582,69 @@ class IronseedIntro(object):
             #  Prior Surface sampled!
             self.scavengerStep += 1
             
-        elif (self.scavengerStep >= 15 and self.scavengerStep <= 270):
+        
+        #  Prepare display surface for later frames.
+        if (self.scavengerStep >= 15 and self.scavengerStep <= 279):
             
-            #  No Timer, this needs to be FAST!
-            #  TODO:  Fix mysterous bug here!
-            #  Note:  Voodoo bug!  Looks to be hardware surface mapping issue!
             displaySurface.set_colorkey(g.RED)
             displaySurface.fill(g.BLACK)
             displaySurface.set_colorkey(g.BLACK)
             displaySurface.blit(self.bufferSurfaceImage,
                                 (int((g.width/16)*(7*1.6)), 
                                  int((g.height/10)*7)))
-            #displaySurface.blit(self.bufferSurfaceImage, (0, 0))
-            #displaySurface = self.bufferSurfaceImage.copy()
-            #displaySurface.set_colorkey(g.BLACK)
-            #  Surface prepared!
-            self.alienShipScaled.set_alpha(0 + (self.scavengerStep-15))
-            displaySurface.blit(self.alienShipScaled, (0, 0))
-            self.scavengerStep += 5
         
-        #  Prepare buffer to get targetting reticule.
-        elif self.scavengerStep == 271:
+        if (self.scavengerStep >= 15 and self.scavengerStep <= 270):
             
             #  No Timer, this needs to be FAST!
-            self.bufferSurfaceImage = pygame.Surface((g.width,g.height))
-            self.bufferSurfaceImage.set_colorkey(g.RED)
-            self.bufferSurfaceImage.fill(g.BLACK)
-            self.bufferSurfaceImage.set_colorkey(g.BLACK)
-            self.bufferSurfaceImage.blit(displaySurface, (0, 0))
-            #  Prior Surface sampled!
-            self.scavengerStep += 1
+            #  TODO:  Fix mysterous bug here!
+            #  Note:  Voodoo bug!  Looks to be hardware surface mapping issue!
+
+            #  Surface prepared!
+            self.alienShipScaled.set_alpha(0 + (self.scavengerStep-15))
+            
+            if self.scavengerStep == 270:
+                
+                self.scavengerStep = 272
+            
+            else:
+                
+                self.scavengerStep += 5
+        
+        #  Draw Command Deck
+        if (self.scavengerStep >= 15 and self.scavengerStep <= 279):
+            
+            displaySurface.blit(self.alienShipScaled, (0, 0))
+        
         
         #  Make dot move twice to Thrice.
         #  Then draw reticules (3 of em, largest to smallest, 1 at a time).
         
         #  Need to draw ship dot moving into position on X and Y screens.
-        elif self.scavengerStep == 272:
+        if self.scavengerStep >= 272 and self.scavengerStep <= 275:
             
-            
+            currentTimer = 1
+            adjustment = self.scavengerStep-272
+
+            displayArray = pygame.PixelArray(displaySurface)
+            displayArray[int((g.width/320)*183)-adjustment, int((g.height/200)*131)+adjustment] = g.WHITE
+            displayArray[int((g.width/320)*62), int((g.height/200)*148)+adjustment] = g.WHITE
+            displayArray.close()
         
         #  Draw targeting reticule.
-        elif self.scavengerStep == 273:
+        elif self.scavengerStep >= 276 and self.scavengerStep <= 279:
             
-            currentTimer = 10  #  Temp.
-            #  No Timer, this needs to be FAST!
-            displaySurface.blit(self.bufferSurfaceImage, (0, 0))
-            #  Reticule aiming
-            self.scavengerStep += 1
+            currentTimer = 1  #  Temp.
+            circles = self.scavengerStep-275
+
+            displayArray = pygame.PixelArray(displaySurface)
+            displayArray[int((g.width/320)*180), int((g.height/200)*134)] = g.WHITE
+            displayArray[int((g.width/320)*62), int((g.height/200)*151)] = g.WHITE
+            displayArray.close()
             
-        if self.scavengerStep >= 274:
+            h.targettingReticule(displaySurface, int((g.width/320)*180), int((g.height/200)*134), g.VILE_PINK, circles, 4, 1)
+            h.targettingReticule(displaySurface, int((g.width/320)*62), int((g.height/200)*151), g.VILE_PINK, circles, 4, 1)
+            
+        if self.scavengerStep >= 280:
             
             finished = True
             
@@ -654,24 +668,76 @@ class IronseedIntro(object):
     #  Blue bars are used to indicate status as the ship comes under attack.
     def ironseedCrash(self, width, height, displaySurface, count):
         
+        displaySurface.fill(g.BLACK)
         displaySurface.blit(self.ironseedScaled, (0, 0))
         
         finished = False
-        #  self.crashLandingStep
-        #  1, 159 - text box location.
+        currentTimer = 0
+        #  Bar reduction steps.  These appear to be no x 10 percentages.
+        #-1,0,0,-2
+        #-3,0,-1-1
+        #-1,-1,0,0
         
-        #  186, 35 - Hull integrity bar.  106 wide, 10 high.
+        #  11, 159 - text box location.
+
+        #  Bar bounding box parameters.
+        #  (X to X), (Y to Y)  104 wide, 10 high.
+        #  (186,290), (35,45) - Hull integrity bar. 100%
         
-        #  186, 55 - Primary Power
+        #  (186,200), (55,65) - Primary Power.  10% ?
         
-        #  186, 75 - Auxiliary power.
+        #  (186,233), (75,85) - Auxiliary power. 40% ?
         
-        #  186, 95 - Shield Strength.
+        #  (186,279), (95,105) - Shield Strength. 90% ?
         
-        #  Placeholder
-        if count == 200:
+        barLengths = {0:(290, 200, 233, 279), 1:(280, 200, 233, 259),
+                      2:(250, 200, 223, 249), 3:(240, 190, 223, 249),
+                      4:(240, 190, 223, 249), 5:(240, 190, 223, 249)}
+        
+        defaultBar = h.colourLine(int((g.width/320)*110), g.BLUE)
+        
+        barLineHull = h.createBar(defaultBar, int((g.width/320)*(barLengths[self.crashLandingStep][0]-186)), int(g.height/200*10))
+        barLinePri = h.createBar(defaultBar, int((g.width/320)*(barLengths[self.crashLandingStep][1]-186)), int(g.height/200*10))
+        barLineAux = h.createBar(defaultBar, int((g.width/320)*(barLengths[self.crashLandingStep][2]-186)), int(g.height/200*10))
+        barLineShld = h.createBar(defaultBar, int((g.width/320)*(barLengths[self.crashLandingStep][3]-186)), int(g.height/200*10))
+
+        #  Render planet here.
+        readyPlanet = pygame.Surface((g.planetWidth, g.planetHeight), 0)
+        readyPlanet.set_colorkey(g.BLACK)
+        terrainStart = self.crashLandingStep % (g.planetWidth+1)
+        planets.Planets["Icarus"].planetBitmapToSphere(readyPlanet, terrainStart, eclipse = True)
+        displaySurface.blit(readyPlanet,(int(g.width/16),int(g.height/8)))
+        
+        #  Render text and bars.
+        
+        if self.crashLandingStep <= 4:
+            
+            currentTimer = 2
+            h.renderText(self.introText7[0:self.crashLandingStep], g.font,
+                         displaySurface, g.WHITE, g.offset,
+                         int((g.width/320)*11), int((g.height/200)*159))
+            
+            # Draw Bars.
+            displaySurface.blit(barLineHull, (int((g.width/320)*186), int((g.height/200)*35)), None, pygame.BLEND_MULT)
+            displaySurface.blit(barLinePri, (int((g.width/320)*186), int((g.height/200)*55)), None, pygame.BLEND_MULT)
+            displaySurface.blit(barLineAux, (int((g.width/320)*186), int((g.height/200)*75)), None, pygame.BLEND_MULT)
+            displaySurface.blit(barLineShld, (int((g.width/320)*186), int((g.height/200)*95)), None, pygame.BLEND_MULT)
+            
+        else:
             
             finished = True
+        
+        #  Our timer for this sequence.
+        if h.GameStopwatch.stopwatchSet:
+            
+            if h.GameStopwatch.getElapsedStopwatch() > currentTimer:
+                
+                h.GameStopwatch.resetStopwatch()
+                self.crashLandingStep += 1
+                
+        else:
+            
+            h.GameStopwatch.setStopwatch()
         
         return finished
     
