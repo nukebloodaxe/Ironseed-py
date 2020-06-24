@@ -666,7 +666,7 @@ class IronseedIntro(object):
     #  Use planet "Icarus" from Oban system for planet to left of main view.
     #  'Icarus' needs to be displayed at 1/3 size.
     #  Blue bars are used to indicate status as the ship comes under attack.
-    def ironseedCrash(self, width, height, displaySurface, count):
+    def ironseedCrash(self, width, height, displaySurface):
         
         displaySurface.fill(g.BLACK)
         displaySurface.blit(self.ironseedScaled, (0, 0))
@@ -674,9 +674,9 @@ class IronseedIntro(object):
         finished = False
         currentTimer = 0
         #  Bar reduction steps.  These appear to be no x 10 percentages.
-        #-1,0,0,-2
-        #-3,0,-1-1
-        #-1,-1,0,0
+        # -1,0,0,-2
+        # -3,0,-1-1
+        # -1,-1,0,0
         
         #  11, 159 - text box location.
 
@@ -694,6 +694,19 @@ class IronseedIntro(object):
                       2:(250, 200, 223, 249), 3:(240, 190, 223, 249),
                       4:(240, 190, 223, 249), 5:(240, 190, 223, 249)}
         
+        if self.crashLandingStep >= 1 and self.crashLandingStep <= 3 and self.count <= 10:
+            
+            tempLengths = [0,0,0,0]
+            
+            for index in range(0, 4):
+                
+                tempLength = barLengths[self.crashLandingStep-1][index] - barLengths[self.crashLandingStep][index]
+                tempLength /= 10  #  Based on 100ms per second.
+                tempLengths[index] = barLengths[self.crashLandingStep-1][index] - int(tempLength * self.count)
+                
+            barLengths[self.crashLandingStep] = (tempLengths[0], tempLengths[1],
+                                                 tempLengths[2], tempLengths[3])
+            
         defaultBar = h.colourLine(int((g.width/320)*110), g.BLUE)
         
         barLineHull = h.createBar(defaultBar, int((g.width/320)*(barLengths[self.crashLandingStep][0]-186)), int(g.height/200*10))
@@ -723,6 +736,8 @@ class IronseedIntro(object):
             displaySurface.blit(barLineAux, (int((g.width/320)*186), int((g.height/200)*75)), None, pygame.BLEND_MULT)
             displaySurface.blit(barLineShld, (int((g.width/320)*186), int((g.height/200)*95)), None, pygame.BLEND_MULT)
             
+            # TODO: These bars need to reduce in length smoothly from one value to the next.
+            
         else:
             
             finished = True
@@ -734,6 +749,7 @@ class IronseedIntro(object):
                 
                 h.GameStopwatch.resetStopwatch()
                 self.crashLandingStep += 1
+                self.count = 0
                 
         else:
             
@@ -743,10 +759,12 @@ class IronseedIntro(object):
     
     # Handle mouse events for user interaction.
     def interact(self, mouseButton):
+        
         self.resetIntro()
-        return 2 # Exit intro and go to main menu.
+        return 2  # Exit intro and go to main menu.
         
     def update(self, displaySurface):
+        
         return self.runIntro(displaySurface)
     
     #  Do all the heavy lifting of running the intro with timers.
@@ -754,15 +772,18 @@ class IronseedIntro(object):
         
         #  Start main intro music
         if self.introStage == 0:
+            
             pygame.mixer.music.load(os.path.join('sound', 'INTRO1.OGG'))
             pygame.mixer.music.play()
-            self.introStage = 1 #  normally 1, use other stages for debug.
+            self.introStage = 1  # normally 1, use other stages for debug.
 
         #  Start displaying screen of fuzzy static, make channel 7 logo
         #  gradually appear.
         
         if self.introStage == 1:
+            
             if self.length <= g.width and self.count < 255:
+                
                 newSurface = self.channel7LogoGenerate(self.C7LogoBlit,
                                                        g.width,g.height,
                                                        10,
@@ -770,13 +791,18 @@ class IronseedIntro(object):
                 displaySurface.blit(newSurface, (0,0))
                 displaySurface.blit(self.fade, (0,0))
                 #print(str(count)+"while loop")
+                
                 if self.length < g.width:
+                    
                     self.length += 10
+                    
                 # Fade out Channel 7 logo.
                 elif self.count < 300:
+                    
                     self.fade.set_alpha(self.count)
                     self.count += 10
             else:
+                
                 displaySurface.fill(g.BLACK)
                 self.resetCounts(2)
         
@@ -785,63 +811,81 @@ class IronseedIntro(object):
         #  self.count = 1
         
         if self.introStage == 2:
+            
             finished, self.centredX, self.centredY = h.convergeText(self.introText1,
                                                           g.font, g.offset,
                                                           g.WHITE, g.width,
                                                           g.height,
                                                           displaySurface,
                                                           self.count)
-            self.count +=1
+            self.count += 1
             #print("centred: ", finished, "centredX: ", centredX, "centredY: ", centredY)
             
 
             pygame.time.wait(10)
+            
             if finished:
+                
                 self.resetCounts(3)
         
         #  Display the destiny virtual Text at the centre of the screen.
         
         if self.introStage == 3:
+            
             finished = h.fadeInText(self.introText1, self.centredX, self.centredY,
                                     g.RED, displaySurface, self.count, True)
             self.count += 1
             pygame.time.wait(50)
+            
             if finished:
+                
                 if h.GameStopwatch.stopwatchSet:
+                    
                     if h.GameStopwatch.getElapsedStopwatch() > 5:
+                        
                         h.GameStopwatch.resetStopwatch()
                         self.resetCounts(4)
                         finished = True
                 else:
+                    
                     h.GameStopwatch.setStopwatch()
         
         #  We now bring in two surfaces, a starfield and mars.
         #  print location and date one line at a time afterwards.
         if self.introStage == 4:
+            
             finished = self.marsSceneGenerate(self.mars, self.starField,
                                               displaySurface, g.width, g.height,
                                               self.count)
-            self.count +=1
+            self.count += 1
             #print("centred: ", finished, "centredX: ", centredX, "centredY: ", centredY)        
             pygame.time.wait(50)
+            
             if finished:
+                
                 self.resetCounts(5)
         
         # Fade in the red text declaring the date and place.
         if self.introStage == 5:
+            
             finished = h.fadeInText(self.introText2, (g.width/2), (g.height/7),
                                     g.RED, displaySurface, self.count)
             self.count += 1
             pygame.time.wait(100)
+            
             if finished:
+                
                 self.resetCounts(6)
         
         #  Fade Out
         if self.introStage == 6:
+            
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
             self.count += 1
             pygame.time.wait(10)
+            
             if finished:
+                
                 self.resetCounts(7)
         
         #  The next scene is the rotating planet, Mars, on left post terraforming.
@@ -858,14 +902,18 @@ class IronseedIntro(object):
             self.count += 1
 
             if finished:
+                
                 self.resetCounts(8)
         
         #  Fade Out
         if self.introStage == 8:
+            
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
             self.count += 1
             pygame.time.wait(100)
+            
             if finished:
+                
                 self.resetCounts(9)
         
         #  In this scene the Ironseed is loading in its EGO banks as the
@@ -875,15 +923,20 @@ class IronseedIntro(object):
             finished = self.loadEncodes(displaySurface)
             self.count += 1
             #pygame.time.wait(500)
+            
             if finished:
+                
                 self.resetCounts(10)
             
         #  Fade Out
         if self.introStage == 10:
+            
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
             self.count += 1
             pygame.time.wait(100)
+            
             if finished:
+                
                 self.resetCounts(11)
         
         #  Ironseed crew wake up, spot problem of an alien horde being nearby.
@@ -896,16 +949,21 @@ class IronseedIntro(object):
                                                g.width, self.count)
             #h.fadeIn(g.width,g.height,displaySurface,self.count)
             
-            self.count +=1
+            self.count += 1
+            
             if finished:
+                
                 self.resetCounts(12)
         
         #  Fade Out
         if self.introStage == 12:
+            
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
-            self.count +=1
+            self.count += 1
             pygame.time.wait(100)
+            
             if finished:
+                
                 self.resetCounts(13)
         
         #  The Scavengers find the ironseed, and the Ironseed is destroyed,
@@ -913,45 +971,60 @@ class IronseedIntro(object):
         #  This scene features plenty of moving graphics, three overlays
         #  required for the monitors alone.
         if self.introStage == 13:
+            
             finished = self.scavengersAttack(displaySurface, g.width, g.height, self.count)
-            self.count +=1
+            self.count += 1
             pygame.time.wait(100)
+            
             if finished:
+                
                 self.resetCounts(14)
                 
         #  Fade Out.
         if self.introStage == 14:
+            
             #print("Stage 14")
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
-            self.count +=1
+            self.count += 1
             pygame.time.wait(100)
+            
             if finished:
+                
                 self.resetCounts(15)
         
         #  Ironseed crew under attack initiate crash landing on second planet
         #  of the OBAN system.
         if self.introStage == 15:
-            finished = self.ironseedCrash(g.width, g.height, displaySurface, self.count)
-            self.count +=1
-            pygame.time.wait(100)
+            
+            finished = self.ironseedCrash(g.width, g.height, displaySurface)
+            self.count += 1
+                
+            pygame.time.wait(50)
+            
             if finished:
+                
                 self.resetCounts(16)
         
         #  Fade Out, Using RED, quickly.
         if self.introStage == 16:
+            
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count, g.RED)
-            self.count +=1
+            self.count += 1
             pygame.time.wait(10)
+            
             if finished:
+                
                 self.resetCounts(17)
                 
         #  Fade red to black.
         if self.introStage == 17:
 
             finished = h.fadeOut(g.width, g.height, displaySurface, self.count)
-            self.count +=1
+            self.count += 1
             pygame.time.wait(100)
+            
             if finished:
+                
                 self.resetCounts(18)
         
         #  Synopsis of the goal, which is to reunite the Kendar, is given.
@@ -963,8 +1036,10 @@ class IronseedIntro(object):
                                                g.width, self.count)
             #h.fadeIn(g.width,g.height,displaySurface,self.count)
             
-            self.count +=1
+            self.count += 1
+            
             if finished:
+                
                 self.resetCounts(19)
 
         #  check to see if we have reached final intro stage here.
