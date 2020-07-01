@@ -5,7 +5,7 @@ Ship Datastructure
 @author: Nuke Bloodaxe
 """
 
-import io, pygame, crew, items, random, global_constants as g
+import pygame, crew, items, random, global_constants as g
 import weaponsAndShields
 
 #  The engineering repair teams, historically there are three.
@@ -71,8 +71,8 @@ class Ship(object):
         
         #  Prepare initial engineering job after new game start.
         self.engineeringTeam[0].timeLeft = self.systemDamage[6]*70+random.randrange(1,30)
-        self.engineeringTeam[0].job = 6 # Area we are working on.
-        self.engineeringTeam[0].jobType = 0 #Repairing
+        self.engineeringTeam[0].job = 6  # Area we are working on.
+        self.engineeringTeam[0].jobType = 0  # Repairing
         
         self.research = 0
         
@@ -108,7 +108,7 @@ class Ship(object):
         
         if len(self.shipMessages) == 0:
             
-            return ("",-1) # No message.
+            return ("", -1)  # No message.
         
         return self.shipMessages.pop()
     
@@ -120,7 +120,7 @@ class Ship(object):
     def addCargo(self, itemName, quantity):
         
         cargoAdded = False
-        itemWeight = items.itemDictionary[itemName].cargoSize
+        itemWeight = int(items.itemDictionary[itemName][1]) # .cargoSize
         totalWeight = itemWeight * quantity
         usedCargo = self.totalCargoSize()
         quantityLeft = quantity
@@ -158,7 +158,7 @@ class Ship(object):
         
         if quantityLeft > 0:
             
-            quantity = quantityLeft # Experiment.
+            quantity = quantityLeft  # Experiment.
             
             if cargoAdded == False:
                 
@@ -175,7 +175,7 @@ class Ship(object):
                 
     #  Remove a quantity of cargo, returning True and the quantity remaining on
     #  success, else False and quantity removed.
-    def removeCargo(self, itemName, quantity ):
+    def removeCargo(self, itemName, quantity):
         
         cargoRemoved = False
         quantityLeft = quantity
@@ -224,18 +224,18 @@ class Ship(object):
         
         totalSize = 0
         
-        for item in self.cargo:
-            
-            if item[1] >= 1:
+        for itemName in self.cargo:
+                        
+            if self.cargo[itemName][1] >= 1:
                 
-                count = item[1]
+                count = self.cargo[itemName][1]
                 
                 while count > 0:
                     
-                    totalSize += items.itemDictionary[item[0]].cargoSize
+                    totalSize += items.itemDictionary[itemName][1]  # .cargoSize
                     count -= 1
                     
-        return totalSize  #  This function does not judge...
+        return totalSize  # This function does not judge...
     
     #  Check to see if we are overweight.  Background switch determines
     #  if this is in the lower left corner log window, or somewhere else.
@@ -263,12 +263,12 @@ class Ship(object):
                 
             overweight = True
             
-        return overweight #  This function does judge...
+        return overweight  # This function does judge...
     
     #  Check to see if adding an item is possible.
     def willThisFit(self, item):
         
-        estimate = self.totalCargoSize() + items.itemDictionary[item].cargoSize
+        estimate = self.totalCargoSize() + items.itemDictionary[item][1]  # .cargoSize
         possible = True
         
         if estimate > self.cargoMax:
@@ -387,4 +387,5 @@ class Ship(object):
     #  changes or the application of upgrades.
     def recalculateShipStats(self):
         
-        pass
+        self.acceleration = 270000/self.mass
+        # TODO: Add more changes here, recalculate all?
