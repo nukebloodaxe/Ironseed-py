@@ -181,7 +181,7 @@ def loadItemData(file1=os.path.join('Data_Generators', 'Other', 'IronPy_items.ta
             try:
                 
                 itemDictionary[decodedItem[0]] = [decodedItem[0],
-                                                  decodedItem[1],
+                                                  int(decodedItem[1]),
                                                   decodedItem[2],
                                                   0,[1,1,1,1,1,1]]
             except:
