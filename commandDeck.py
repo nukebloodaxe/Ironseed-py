@@ -41,7 +41,7 @@ class CommandDeck(object):
     def drawInterface(self, displaySurface):
         
         displaySurface.fill(g.BLACK)
-        displaySurface.blit(self.commandDeckScaled, (0, 0))
+        displaySurface.blit(self.commandDeckGraphicScaled, (0, 0))
         
     
     
