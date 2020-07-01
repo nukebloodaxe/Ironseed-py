@@ -307,7 +307,7 @@ class Probot(object):
                     
                     #  Increment data gathered here.
                     #  Note, first time crew member skills + stress actually used in this engine.
-                    self.dataGathered += int((crewMembers.skillRange(crewMembers.science, 5, 10) + 20) * (10 / 100))
+                    self.dataGathered += 500 # int((crewMembers.skillRange(crewMembers.science, 5, 10) + 20) * (10 / 100))
                     
                     self.status = 3
                     self.setDataTarget()
@@ -425,8 +425,8 @@ class PlanetScanner(object):
                                  "Cybernetics", "Transcendent", "Unknowable"]
         
         # Scan Data Text
-        self.scanDataText = ["Information Gathered", " Lithosphere...",
-                             " Hydrosphere..", " Hydrosphere..",
+        self.scanDataText = ["Information Gathered", " Atmosphere...",
+                             " Hydrosphere..", " Lithosphere..",
                              " Biosphere....", " Anomaly......", "0/2", "1/2",
                              "Completed."]
         
@@ -652,6 +652,8 @@ class PlanetScanner(object):
         self.miniPlanet = pygame.transform.scale(preMiniPlanet,
                                                  (specialX, specialY))
         
+        #  We want to step the frames backwards, so we go from small to large.
+        #  /1 is max size after all.
         for count in range(3, 0, -1):
             
             tempFrame = pygame.transform.scale(self.miniPlanet, (int(specialX/count), int(specialY/count)))
@@ -672,6 +674,9 @@ class PlanetScanner(object):
             
         
     # Run an update tick of the probot timer logic.
+    # Important!  If there is an artifact, it must ALWAYS fit!
+    # If we don't take an artifact onboard, then we can end up breaking the 
+    # story progression, and thats going to result in maximum bug Voodoo.
     def probotTick(self):
                 
         for bot in self.probot:
@@ -902,7 +907,7 @@ class PlanetScanner(object):
                 
                 count += 1
                 
-                if count <= self.probotCount:
+                if count <= self.probotCount and len(self.anomalies) > 0:
                     
                     bot.anomaly = self.anomalies.pop()  # Much excitement!
                     bot.probotRetrieving = True
@@ -962,6 +967,7 @@ class PlanetScanner(object):
         if self.testScanData():
             
             self.scanningComplete = True
+            self.createAnomalies() #  Create the anomalies if first time.
         
         self.planetSynchronise()
 
