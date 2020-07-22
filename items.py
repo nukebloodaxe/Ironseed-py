@@ -112,6 +112,85 @@ def getAlternateName(item):
         
     return name
 
+# Generate all artifacts from the names Given in an array.
+# Also generate fixed special artifacts.
+def generateArtifacts(names):
+    
+    for count in range(900): # IronSeed has 900 generated elements.
+        
+        #print(count)
+    
+        if count > 500:
+            
+            name = names[int((((count-501)/10))%19+41)]+' '+names[int(((count-501)%10)+50)]
+        
+        else:
+            
+            name = names[int((count/20)+1)]+' '+names[int(count%20+21)]
+        
+        size = int(count%40)+1
+        
+        #print(name)
+        
+        try:
+                
+            itemDictionary[name] = [name,
+                                    size,
+                                    "ARTIFACT",
+                                    0,[1,1,1,1,1,1]]
+        except:
+                
+            print("Tried Key: ", name)
+            # Usually indicates the file we are loading is incorrectly
+            # formatted.  If you are modding, double-check your tabs.
+            print("Absolutely fatal error on creating Artifacts")  
+
+    #  Append hard-coded artifacts, these are special plot items.
+    itemDictionary["Shunt Drive"] = ["Shunt Drive",
+                                     0,
+                                     "ARTIFACT",
+                                     0,[1,1,1,1,1,1]]
+    itemDictionary["Channeler"] = ["Channeler",
+                                   0,
+                                   "ARTIFACT",
+                                   0,[1,1,1,1,1,1]]
+    itemDictionary["Iron Seed"] = ["Iron Seed",
+                                   0,
+                                   "ARTIFACT",
+                                   0,[1,1,1,1,1,1]]
+    itemDictionary["Homing Device"] = ["Homing Device",
+                                       0,
+                                       "ARTIFACT",
+                                       0,[1,1,1,1,1,1]]
+    itemDictionary["Detonator"] = ["Detonator",
+                                   0,
+                                   "ARTIFACT",
+                                   0,[1,1,1,1,1,1]]
+    itemDictionary["Thermal Plating"] = ["Thermal Plating",
+                                         0,
+                                         "ARTIFACT",
+                                         0,[1,1,1,1,1,1]]
+    itemDictionary["Ermigen Data Tapes"] = ["Ermigen Data Tapes",
+                                            0,
+                                            "ARTIFACT",
+                                            0,[1,1,1,1,1,1]]
+    itemDictionary["Glyptic Scythe"] = ["Glyptic Scythe",
+                                        0,
+                                        "ARTIFACT",
+                                        0,[1,1,1,1,1,1]]
+    itemDictionary["Multi-Imager"] = ["Multi-Imager",
+                                      0,
+                                      "ARTIFACT",
+                                      0,[1,1,1,1,1,1]]
+    itemDictionary["Ylinth Mutagenics"] = ["Ylinth Mutagenics",
+                                           0,
+                                           "ARTIFACT",
+                                           0,[1,1,1,1,1,1]]
+    itemDictionary["Goolas"] = ["Goolas",
+                                0,
+                                "ARTIFACT",
+                                0,[1,1,1,1,1,1]]
+
 
 # End of get random item functions.  These exist to make things easier.
 
@@ -121,7 +200,8 @@ def getAlternateName(item):
 def loadItemData(file1=os.path.join('Data_Generators', 'Other', 'IronPy_items.tab'),
                  file2=os.path.join('Data_Generators', 'Other', 'IronPy_itemdata.tab'),
                  file3=os.path.join('Data_Generators', 'Other', 'IronPy_iteminfo.tab'),
-                 file4=os.path.join('Data_Generators', 'Other', 'IronPy_alternateItemNames.tab')):
+                 file4=os.path.join('Data_Generators', 'Other', 'IronPy_alternateItemNames.tab'),
+                 file5=os.path.join('Data_Generators', 'Other', 'IronPy_anomalyNames.tab')):
     
     itemFile = io.open(file1, "r")
     itemString = itemFile.readline() # title line
@@ -135,10 +215,13 @@ def loadItemData(file1=os.path.join('Data_Generators', 'Other', 'IronPy_items.ta
     iteminfoString = iteminfoFile.readline() # immediate real data
     alternateNamesFile = io.open(file4, "r")
     alternateNamesString = alternateNamesFile.readline() # immediate real data.
+    anomalyNamesFile = io.open(file5, "r")
+    anomalyNamesFileString = anomalyNamesFile.readline() # immediate real data.
     S1 = itemString # used plenty, so must be short, is read string from file.
     S2 = constString # Used plenty, so must be short, is read string from file.
     S3 = iteminfoString # Used plenty, so must be short, is read string from file.
     S4 = alternateNamesString # Used plenty, so must be short, is read string from file.
+    S5 = anomalyNamesFileString
     
     while S2 != "":
         
@@ -248,7 +331,18 @@ def loadItemData(file1=os.path.join('Data_Generators', 'Other', 'IronPy_items.ta
         # An Item Description has now been loaded.
         S4 = alternateNamesFile.readline().split('\n')[0]
     
+    # Add Artifact names.
+    artifactSubNamesArray = []
+    
+    while S5 != "ENDF":
+        
+        artifactSubNamesArray.append(S5)
+        S5 = anomalyNamesFile.readline().split('\n')[0]
+    
+    generateArtifacts(artifactSubNamesArray)
+    
     itemFile.close()
     constructFile.close()
     iteminfoFile.close()
     alternateNamesFile.close()
+    anomalyNamesFile.close()
