@@ -306,7 +306,8 @@ class Probot(object):
                 elif self.status == 4:
                     
                     #  Increment data gathered here.
-                    #  Note, first time crew member skills + stress actually used in this engine.
+                    #  Note: First time crew member skills + stress actually used in this engine.
+                    #  Note: After testing, it's frankly not a good idea.
                     self.dataGathered += 500 # int((crewMembers.skillRange(crewMembers.science, 5, 10) + 20) * (10 / 100))
                     
                     self.status = 3
@@ -689,9 +690,13 @@ class PlanetScanner(object):
                     
                     if bot.haveCargo:
                         
+                        #print(bot.anomaly.item)
+                        
                         result = self.ironSeed.addCargo(bot.anomaly.item, 1)
                         
                         if result[1] == 0:
+                            
+                            #print("Item removed and in cargo")
                             
                             self.thePlanet.removeItemFromCache(bot.anomaly.item)
                             bot.anomaly = "placeholder"
@@ -718,6 +723,8 @@ class PlanetScanner(object):
                         #  Shouldn't happen!
                         else:  #  Cargo full!  Put item back in cache.
                             
+                            #print("Cargo Full, Item in Cache.")
+                        
                             #  Assume bot returns it.
                             bot.anomaly = "placeholder"
                             #  As this was popped, it won't try again.
@@ -841,8 +848,17 @@ class PlanetScanner(object):
                         
                     elif d100 == 74 or d100 == 75:
                         
-                        # TODO Artifact code.
-                        pass
+                        d500 = random.randint(1, 500)
+                        
+                        if d500 > 400:
+                            
+                            randomItem = items.getItemOfType("ARTIFACT",
+                                                             d500+100)
+                        
+                        else:
+                            
+                            randomItem = items.getItemofType("ARTIFACT",
+                                                             d500)
                     
                 elif self.thePlanet.state == 5:
                     
@@ -860,15 +876,33 @@ class PlanetScanner(object):
                             
                     elif d100 == 73 or d100 == 74 or d100 == 75:
                         
-                        # TODO Artifact code.
-                        pass
+                        d500 = random.randint(1, 500)
+                        
+                        if d500 > 400:
+                            
+                            randomItem = items.getItemOfType("ARTIFACT",
+                                                             d500+100)
+                        
+                        else:
+                            
+                            randomItem = items.getItemofType("ARTIFACT",
+                                                             d500)
                     
                 else:  # Must be 6.
                     
                     if d100 < 6:
                         
-                        # TODO Artifact code.
-                        pass
+                        d500 = random.randint(1, 500)
+                        
+                        if d500 > 400:
+                            
+                            randomItem = items.getItemOfType("ARTIFACT",
+                                                             d500+100)
+                        
+                        else:
+                            
+                            randomItem = items.getItemofType("ARTIFACT",
+                                                             d500)
                 
                 if randomItem != "placeholder":
                     
@@ -882,6 +916,8 @@ class PlanetScanner(object):
             #  Fill planet cache with generated items.
             self.thePlanet.addItemToCache(anomaly.item)
             
+        #print(self.anomalies)
+        
         # Reset random number seed.
         random.seed()
         self.thePlanet.anomalyGeneration = True
@@ -1533,7 +1569,7 @@ class PlanetScanner(object):
         
         if technologyLevel > 0:
             
-            tempTech = int(TechnologyLevel)
+            tempTech = int(technologyLevel)
         
         dataFeed.append(str(tempTech)+"."+str(int(self.thePlanet.technology2)))
         
@@ -1632,7 +1668,7 @@ class PlanetScanner(object):
             
             return  #  break out, execution not required.
         
-        #TODO:  Exit on planet state 7.
+        #TODO:  Exit on planet state 7 (or "I am a Star".)
         
         self.scanElementNameData = []  #  Tuples of (name, state)
         random.seed(self.thePlanet.seed)
