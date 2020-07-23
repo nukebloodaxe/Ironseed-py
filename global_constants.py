@@ -47,6 +47,7 @@ totalComponents = 22
 totalDevices = 13
 totalShields = 14
 totalWeapons = 57
+totalArtifacts = 911  #  Effectively unique items.
 maxCargo = totalElements + totalMaterials + totalMaterials + totalComponents
 maxCargo += totalDevices + totalShields + totalWeapons + 1
 
