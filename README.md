@@ -4,7 +4,7 @@ Gameplay is real-time, featuring trading, research, manufacturing, diplomacy, "r
 This repository contains an in-development Python 3 version of the game engine, using Pygame for sound and graphics support.
 The engine, as it stands, is not 1 to 1 for functionality with the DOS version.  However, where possible, areas that have been implemented have been done so with modern mechanics in mind.  This generally extends to making the interfaces more pleasent to use, while using upscaled graphics and higher-resolution procedural textures where possible.  The native resolution of the original is 320x200, this version runs at 640x480 with the necessary logic for dynamic resolution sizes in the future.
 
-It is very possible that several graphic/music/sound sets may be offered in the future, original, enhanced and... no, that'll be a surprise.  I am making this with the idea that those wanting to add mods will have an easier time in the future; the game state engine makes this simpler overall.
+It is very possible that several graphic/music/sound sets may be offered in the future, original, enhanced and... no, that'll be a surprise.  I am making this with the idea that those wanting to add mods will have an easier time later; the game state engine makes this simpler overall.
 
 I am not interested in implementing this as a 3D engine at this time, this is a learning project, with the idea being to use ancient 2D and 2.5D techniques where possible; and sometimes the findings of an occasional professor who has worked out how to do some things better.  However, modern techniques using lighting could be implemented, like bump-mapping.
 
