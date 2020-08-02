@@ -7,8 +7,117 @@ Main Command Deck, central operations for all systems in IronSeed.
 @author: Nuke Bloodaxe
 """
 
-import pygame, os
+import buttons, pygame, os, io
 import global_constants as g
+
+#  The side of a cube, including buttons.
+class CubeSide(object):
+    
+    def __init__(self):
+    
+        self.top = None
+        self.bottom = None
+        self.left = None
+        self.right = None
+        self.buttons = []
+                        
+    #  Add a button to this facet, and also convert for current resolution.
+    def addButton(self, x, y, height, width, returnValue):
+        
+        self.buttons.append((returnValue, buttons.Button(int((g.height/200)*height),
+                                                         int((g.width/320)*width),
+                                                         (int((g.width/320)*x),
+                                                          int((g.height/200)*y)))))
+    
+    #  Return tuple of False and 0 when nothing matched.
+    def checkButtonPress(self, position):
+        
+        match = False
+        buttonType = 0
+        
+        for button in self.buttons:
+        
+            if button[1].within(position):
+                
+                match = True
+                buttonType = button[0]
+                break
+        
+        return (match, buttonType)
+    
+#  A cube in memory, stores and interacts with the cube used on the command deck.
+class Cube(object):
+
+    def __init__(self):
+        
+        self.sides = [CubeSide(), CubeSide(), CubeSide(),
+                      CubeSide(), CubeSide(), CubeSide()]
+        self.currentSide = 0  # In crew role order.
+        self.oldFacet = 0  # previous facet
+        self.spinPosition = 0  # Where are we for a spin?
+        self.cubeSpinning = False  # Are we spinning the cube?  (can't interact.)
+        self.cubeSpinEnd = int((g.width/320)*50)
+
+
+    #  Check to see if the cube has had a button pressed.
+    def checkSideButton(self, position):
+        
+        return self.sides[self.currentSide].checkButtonPress(position)
+    
+    
+    #  Load and parse cube definition data.  This populates the 5 sides with
+    #  their button positions and return numbers.
+    def loadCubeData(self, file):
+
+        cubeFacetFile = io.open(file, "r")
+        temp = [""]
+
+        # Clear file comment lines.        
+        while temp[0] != "BEGINCUBE":
+
+            temp[0] = cubeFacetFile.readline().split('\n')[0]
+        
+        temp = (cubeFacetFile.readline().split('\n')[0]).split('\t') # Data Line
+    
+        #  Add buttons to facets.
+        while temp[0] != "ENDF":
+        
+            #print(temp)
+        
+            try:
+                
+                self.sides[int(temp[0])].addButton(int(temp[1]), int(temp[2]),
+                                                   int(temp[3]), int(temp[4]),
+                                                   int(temp[5]))
+            except:
+                    
+                print("Absolutely fatal Error loading cube data!")
+            
+            temp = (cubeFacetFile.readline().split('\n')[0]).split('\t') # Data Line
+        
+    
+    #  Run construction routine, this makes an actual memory cube.
+    def constructCube(self, file):
+        
+        self.loadCubeData(file)
+        
+        layout = [[0, 1, 2, 3, 4],
+                  [1, 5, 2, 0, 4],
+                  [2, 5, 3, 0, 1],
+                  [3, 5, 4, 0, 2],
+                  [4, 5, 1, 0, 3],
+                  [5, 1, 4, 3, 2]]
+        
+        #  link all six sides.
+        for side in layout:
+            
+            self.sides[side[0]].top = side[1]
+            self.sides[side[0]].right = side[2]
+            self.sides[side[0]].bottom = side[3]
+            self.sides[side[0]].left = side[4]
+            
+            
+            
 
 #  Store the current position of a subFunction, and which it is.
 class SubFunction(object):
@@ -30,11 +139,7 @@ class CommandDeck(object):
         self.commandStage = 0
         self.systemState = 10
         self.musicState = False
-        self.cubeFacet = 0  # cube for multi-button system access and control.
-        self.oldFacet = 0  # previous facet
-        self.spinPosition = 1  # Where are we for a spin?
-        self.cubeSpinning = False  # Are we spinning the cube?  (can't interact.)
-        self.cubeSpinEnd = int((g.width/320)*50)
+        self.cube = Cube()
         self.theCube = [0, 1, 2, 3, 4, 5, 6]  #  Cube function shortcut.
         self.subFunctions = []  # sub-functions in operation.
         
@@ -103,45 +208,48 @@ class CommandDeck(object):
             if check.subFunction == subFunction:
                 
                 check.active = False
-        
-
-    #  Interactive panel 1: Psychometry.
+    
+    
+    #  Interactive panel 0: Psychometry.
     def cubePsycho(self, currentPosition):
         
         pass
     
-    #  Interactive Panel 2: Engineering.
+    #  Interactive Panel 1: Engineering.
     def cubeEngineering(self, currentPosition):
         
         pass
     
-    #  Interactive Panel 3: Science.
+    #  Interactive Panel 2: Science.
     def cubeScience(self, currentPosition):
         
         pass
     
-    #  Interactive Panel 4: Security.
+    #  Interactive Panel 3: Security.
     def cubeSecurity(self, currentPosition):
         
         pass
     
-    #  Interactive Panel 5: Astrogation.
+    #  Interactive Panel 4: Astrogation.
     def cubeAstrogation(self, currentPosition):
         
         pass
     
-    #  Interactive Panel 6: Medical.
+    #  Interactive Panel 5: Medical.
     def cubeMedical(self, currentPosition):
         
         pass
-    
-        
+
     #  Mouse button interaction routine.
+    #TODO:  Lots of button support.
     def interact(self, mouseButton):
         
         currentPosition = pygame.mouse.get_pos()
         
-        self.systemState = self.theCube[self.cubeFacet](currentPosition)
+        cubeCheck = self.cube.checkSideButton(currentPosition)
+        
+        #self.systemState = self.theCube[self.cubeFacet](currentPosition)
+        
         
         return self.systemState
     
@@ -170,14 +278,9 @@ class CommandDeck(object):
                 pygame.mixer.music.play()
                 self.musicState = True
                 self.commandStage += 1
-                
-            #  Populate the cube shortcut function list.
-            self.theCube[1] = self.cubePsycho
-            self.theCube[2] = self.cubeEngineering
-            self.theCube[3] = self.cubeScience
-            self.theCube[4] = self.cubeSecurity
-            self.theCube[5] = self.cubeAstrogation
-            self.theCube[6] = self.cubeMedical
+            
+            #  Construct the cube.
+            self.cube.constructCube(os.path.join('Data_Generators', 'Other', 'IronPy_CubeFacets.tab'))
             
         elif self.commandStage == 1:
             
