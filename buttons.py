@@ -101,16 +101,16 @@ class BigDialogueBox(Button):
         # Draw OK button Highlight Rim.  We use an optical illusion here.
         pygame.draw.rect(displaySurface,
                          (g.GREY[0]-20, g.GREY[1]-20, g.GREY[2]-20),
-                         (int((g.height/200)*(position[0]+self.okButton.position[0])),
-                          int((g.width/320)*(position[1]+self.okButton.position[1])),
+                         (int((g.height/200)*(self.position[0]+self.okButton.position[0])),
+                          int((g.width/320)*(self.position[1]+self.okButton.position[1])),
                           int((g.height/200)*self.okButton.height),
                           int((g.width/320)*self.okButton.width)),
                          1)
         
         # Draw OK text.
         h.renderText(["OK"], g.font, displaySurface, g.BLACK, 0,
-                     int((g.width/320)*(position[1]+self.okButton.position[1])),
-                     int((g.height/200)*(position[0]+self.okButton.position[0])))
+                     int((g.width/320)*(self.position[1]+self.okButton.position[1])),
+                     int((g.height/200)*(self.position[0]+self.okButton.position[0])))
         
     
     def checkButtonClicked(self, position):
