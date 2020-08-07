@@ -1,5 +1,6 @@
 # Definition file for cube facets used in command deck cube.
-# SIDE, BUTTONHEIGHT, BUTTONWIDTH, BUTTONX, BUTTONY, BUTTONRETURNINT
+# Side order: Psychometry, Engineering, Science, Security, Astrogation, Medical.
+# CUBESIDE, BUTTONHEIGHT, BUTTONWIDTH, BUTTONX, BUTTONY, BUTTONRETURNINT
 BEGINCUBE
 0	0	0	0	0	0
 ENDF
