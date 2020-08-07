@@ -71,18 +71,26 @@ class IronSeed(object):
         print("Creating Main Menu")
         self.mainMenu = mainMenu.MainMenu()
         
+        # Note:  While in Alpha, the below state list is not exhaustive.
+        
         self.states = {1:self.generator.update,  # The crew + ship selection system.
                        2:self.mainMenu.update,  # Main menu.
                        3:self.intro.update,  # Game Intro - quite useful for testing.
-                       4:"cargo",  # Ship cargo system, includes item assembly.
+                       4:"cargo",  # Ship cargo system - make mistakes fast.
                        5:self.planetScanner.update,  # Planet surveys and drone ops.
-                       6:"Communications",  # Comms between ships/planets
+                       6:"Ship Hail",  # Comms between ships, with alien character portrait.
                        7:"Combat",  # Normal and simulated combat.
                        8:self.crewCom.update,  # "talk" with crew members.
                        9:self.EGOManipulation.update,  # Ego-synth manipulation.
                        10:self.commandDeck.update,  # Main game command deck.
-                       11: "Load Game",
-                       12: "Save Game" }
+                       11: "Load Game", # Load Game Screen
+                       12: "Save Game", # Save Game Screen (exists?)
+                       13: "Crew Status", # Crew character status screen.
+                       14: "Planet Comms", # Ship to planet comms.
+                       15: "Ship Logs", # Listing of all log files.
+                       16: "Creation",  # really item assembly/disassembly
+                       17: "Sector Map" # Inter-Sector travel.
+                       }
         
         self.interactive = {1:self.generator.interact,
                             2:self.mainMenu.interact,
@@ -95,7 +103,13 @@ class IronSeed(object):
                             9:self.EGOManipulation.interact,
                             10:self.commandDeck.interact,
                             11:"Load Game",
-                            12:"Save Game"}
+                            12:"Save Game",
+                            13: "Crew Status",
+                            14: "Planet Comms",
+                            15: "Ship Logs",
+                            16: "Creation",
+                            17: "Sector Map"
+                            }
         print("We Are GO!")
 
 
