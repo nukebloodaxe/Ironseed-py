@@ -123,7 +123,7 @@ class Probot(object):
 
         yes = False
 
-        if self.status == 3 or self.status == 4:
+        if self.status in [3, 4]:
 
             yes = True
 
@@ -1140,6 +1140,8 @@ class PlanetScanner(object):
     #  Check if Scanning and launch probots if not.
     #  Also check to make sure we are not launching Probots if we already
     #  have data.
+    #  Note:  When scanning star, if normal probots, launch one and destroy it.
+    #  A destroyed probot shows a screen of static.
     def scanAndLaunch(self, scanType):
 
         if self.testScanData():
@@ -1349,7 +1351,7 @@ class PlanetScanner(object):
                                     self.probotDockedScaled,
                                     bot)
 
-        elif bot.status == 1 or bot.status == 2 or bot.status == 5:
+        elif bot.status in [1, 2, 5]:
             
             displaySurface.blit(self.probotEmptyScaled, bot.BoundingBoxScaled)
             
@@ -1361,7 +1363,7 @@ class PlanetScanner(object):
                                     self.probotTransitScaled,
                                     bot)
 
-        elif bot.status == 3 or bot.status == 4:  #  Overlay on landscape
+        elif bot.status in [3, 4]:  #  Overlay on landscape
         
             self.drawLandscapeProbot(displaySurface, bot)
             
