@@ -21,7 +21,9 @@ CrewReplies = {} #crewmember{}->Key Respose Code->[responses]
 #Dictionary of replies, index by reponse code.  Contains lists.
 
 class crewComm(object):
+    
     def __init__(self, shipCrew):
+        
         self.crewMembers = shipCrew
         self.selectedCrew = 0 #nobody
         self.state = 8
@@ -34,10 +36,12 @@ class crewComm(object):
         self.musicState = False  #  Music playback?
         
     def update(self, displaySurface):
+        
         return self.communicate(displaySurface)
 
     #  Handle mouse events for user interaction.
     def interact(self, mouseButton):
+        
         return self.systemState
 
     #  Compare the keyword against all event entries and check to see which
@@ -50,6 +54,7 @@ class crewComm(object):
     #  Parse the string of text looking for keywords present in the crewKeywords
     #  Dictionary.  Returns a reply based on the best event flag for the text.
     def textInterpret(self, text=""):
+        
         tokenisedText = text.split()
         pass
     
@@ -59,12 +64,14 @@ class crewComm(object):
         
         #  Start main intro music
         if self.musicState == False:
+            
             pygame.mixer.music.load(os.path.join('sound', 'CREWCOMM.OGG'))
             pygame.mixer.music.play()
             self.musicState = True
             
         # rewind and start music playing again if track end reached.
         if not pygame.mixer.music.get_busy():
+            
             pygame.mixer.music.play()
 
         return 8 #  TODO, currently loops communication system for testing.
@@ -79,6 +86,7 @@ class crewComm(object):
 def loadCrewCommunications(file=os.path.join('Data_Generators', 'Other', 'crewcon'), count=6, extension='.tab'):
     
     for index in range(1,count+1):
+        
         commFile = io.open(file+str(index)+extension, "r")
         commDataString = []
         keyWords = []
@@ -86,27 +94,39 @@ def loadCrewCommunications(file=os.path.join('Data_Generators', 'Other', 'crewco
         CrewKeywords[index] = {}
         CrewReplies[index] = {}
         temp = [""]
+        
         while temp[0] != "ENDF":
+            
             commDataString = (commFile.readline().split('\n')[0]).split('\t') #Data Line
             #  print(commDataString) # for debug.
             keyWords = commDataString[4].split('*')
+            
             for word in keyWords:
+                
                 try:
+                    
                     CrewKeywords[index][word][commDataString[0]] = [commDataString[1],
                                                                     commDataString[2],
                                                                     commDataString[3]]
                 except:
+                    
                     CrewKeywords[index][word] = {}
                 
                 CrewKeywords[index][word][commDataString[0]] = [commDataString[1],
                                                                 commDataString[2],
                                                                 commDataString[3]]
             temp = (commFile.readline().split('\n')[0]).split('\t')
+            
             while temp[0] != "EOD" and temp[0] != "ENDF":
+                
                 try:
+                    
                     CrewReplies[index][temp[0]]
+                    
                 except:
+                    
                     CrewReplies[index][temp[0]] = []
+                    
                 CrewReplies[index][temp[0]].append(temp[1])
                 temp = (commFile.readline().split('\n')[0]).split('\t')
             

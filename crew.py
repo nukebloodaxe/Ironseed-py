@@ -38,9 +38,11 @@ insanityIndex = {0:'Out of memory error on brain ^.',
 
 #  Base crewmember class, all crew file data ultimately goes here.
 class CrewMember(object):
+    
     def __init__(self, name="UNNKNOWN", level = 1, sex = "O",
                  position="UNKNOWN", physical=0, mental=0, emotion=0, bio=[""],
                  image=0):
+        
         self.name = name
         self.experience = levelData[int(level)]
         self.level = int(level)
@@ -54,9 +56,11 @@ class CrewMember(object):
         #  Although the concept of an ego synth is a little limiting.
         self.image = image # hacky, but works ;)
         #  Resizing logic should be handled in another function.
+        
         if image < 10:
             
             self.image = pygame.image.load(os.path.join('Graphics_Assets', 'image0'+str(image)+'.png'))
+            
         else:
             
             self.image = pygame.image.load(os.path.join('Graphics_Assets', 'image'+str(image)+'.png'))
@@ -88,6 +92,7 @@ class CrewMember(object):
         levelUp = False
         
         if levelData[self.level+1] < self.experience:
+            
             self.level += 1
             levelUp = True
             
@@ -177,6 +182,7 @@ class CrewMember(object):
     #  returns a boolean declaring skill check success or failure.
     #  Failure causes Ego to decay, like a melting snowflake.
     def skillCheck(self):
+        
         skillSuccess = random.randint(1, 80)
         skillCheck = False
         sanityReport = ""
@@ -198,6 +204,7 @@ class CrewMember(object):
                     self.mental = 0
                     
                 if self.physical > 0: self.physical -= 1
+                
                 if self.emotion < 99: self.emotion += 1
                 
             #  Check to see if we've lost the plot completely.
@@ -216,8 +223,11 @@ class CrewMember(object):
                     self.physcial = 0
                     
                 if self.emotion > 0: self.emotion -= 1
+                
                 if self.mental < 99: self.mental += 1 #destroying things is cathartic
+                
         else:
+            
             skillCheck = True
             
         self.recalculateStatus()
@@ -237,6 +247,7 @@ class CrewMember(object):
                 pass
             
         else:
+            
             self.mental += 1
             self.physical += 1
             self.emotion -= 2
@@ -272,6 +283,7 @@ class CrewMember(object):
             pass
         
         else:
+            
             self.mental -= 2
             self.physical += 1
             self.emotion += 1
@@ -286,6 +298,7 @@ class CrewMember(object):
             pass
         
         else:
+            
             self.mental += 2
             
             if self.physical > 0:
@@ -321,6 +334,7 @@ class CrewMember(object):
             pass
         
         else:
+            
             if self.mental > 0:
                 
                 self.mental -= 1
@@ -345,8 +359,10 @@ class CrewMember(object):
 #  Crew module for main game, our selected crew members live here, along with
 #  all crew game-tick related functions.
 class Crew(object):
+    
     #  IronSeed has 6 roles, as given, this could be upped in Mods.
     def __init__(self):
+        
         self.prime = 0 #  Player Role, traditionally Role 0, name "PRIME".
         #  Note: Although IronSeed keeps this anonymous, no reason why we can't
         #  have a player name here.
@@ -362,6 +378,7 @@ class Crew(object):
         self.crewMessages = [] #  new internal feature, Messages from crew
                                 #  members that need printing can be queued
                                 #  for display later.
+                                
     #  Setup the internal objects to the actual crewmember objects we are using.
     def setCrew(self, psychometry, engineering, science, security, astrogation, medical):
         
@@ -508,6 +525,7 @@ class Crew(object):
             self.crewStress(crewMember, 0)
             
         else:
+            
             self.crewStress(crewMember, abs(diff-skill))
             
         if random.randint(1, 1000) < learn:
@@ -560,18 +578,27 @@ def findCrew(crewType, currentIndex, backward = False):
     while notFound:
     
         if backward:
+            
             if currentIndex == 0:
+                
                 currentIndex = len(CrewData) - 1
+                
             else:
+                
                 currentIndex -= 1
             
         else:
+            
             if currentIndex == len(CrewData) - 1:
+                
                 currentIndex = 0
+                
             else:
+                
                 currentIndex += 1
                 
         if CrewData[currentIndex].position == crewType:
+            
             return currentIndex
     
 

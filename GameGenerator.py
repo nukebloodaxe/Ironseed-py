@@ -10,7 +10,7 @@ are saved to disk as a savegame file.
 @author: Nuke Bloodaxe
 """
 
-import io, os, pygame, crew, ship, items, planets, random, buttons
+import os, pygame, crew, ship, items, planets, random, buttons
 import global_constants as g
 import helper_functions as h
 
@@ -154,22 +154,29 @@ class Generator(object):
         if self.crewSelectStage == 1:
             
             crewType = "Psychometry"
+            
         elif self.crewSelectStage == 2:
             
             crewType = "Engineering"
+            
         elif self.crewSelectStage == 3:
             
             crewType = "Science"
+            
         elif self.crewSelectStage == 4:
             
             crewType = "Security"
+            
         elif self.crewSelectStage == 5:
             
             crewType = "Astrogation"
+            
         elif self.crewSelectStage == 6:
             
             crewType = "Medical"
+            
         else:
+            
             pass
         
         displaySurface.fill(g.BLACK)
@@ -197,23 +204,28 @@ class Generator(object):
     def drawBall(self, displaySurface):
         
         if self.lowerBall:
+            
             displaySurface.blit(self.ballFrames[self.lowerBallFrame], ((g.width/320)*22, (g.height/200)*81))
             self.lowerBallFrame += 1
             
             if self.lowerBallFrame >= 30:
+                
                 self.lowerBall = False
                 self.raiseBall = True
                 self.lowerBallFrame = 0
             
         elif self.raiseBall:
+            
             displaySurface.blit(self.ballFrames[29 - self.raiseBallFrame], ((g.width/320)*22, (g.height/200)*81))
             self.raiseBallFrame += 1
             
             if self.raiseBallFrame >= 30:
+                
                 self.raiseBall = False
                 self.raiseBallFrame = 0
                 
         else:  #  Just draw the raised ball; default underlying image.
+        
             pass
     
     
@@ -240,7 +252,9 @@ class Generator(object):
         if self.pulseColourCycle == 0:
             
             self.pulseColourCycle = 255
+            
         else:
+            
             self.pulseColourCycle -= 15
         
         #print("Physical ", physical, " Emotional ", emotional, " Mental ", mental)
@@ -254,22 +268,29 @@ class Generator(object):
             randomNumber = random.choice([0, 1, 2, 3, 4, 5])
             
             randY = 0  #  Our random y position.
+            
             if randomNumber == 0:
+                
                 randY = physical * radiusMultiplier
                 
             if randomNumber == 1:
+                
                 randY = mental * radiusMultiplier
             
             if randomNumber == 2:
+                
                 randY = emotional * radiusMultiplier
         
             if randomNumber == 3:
+                
                 randY = -1 * (physical * radiusMultiplier)
                 
             if randomNumber == 4:
+                
                 randY = -1 * (mental * radiusMultiplier)
                 
             if randomNumber == 5:
+                
                 randY = -1 * (emotional * radiusMultiplier)
             
             randY += pulseWidth
@@ -298,63 +319,73 @@ class Generator(object):
         elif self.currentShip.frontHull == 3:
             
             shipFront = self.frontStrategicScaled
+            
         else:
+            
             pass
-    
+
         if self.currentShip.centerHull == 1:
-            
+
             shipCenter = self.centerShuttleScaled
-        
+
         elif self.currentShip.centerHull == 2:
-            
+
             shipCenter = self.centerAssaultScaled
-            
+
         elif self.currentShip.centerHull == 3:
-            
+
             shipCenter = self.centerStormScaled
-        else:
-            pass
             
+        else:
+            
+            pass
+
         if self.currentShip.rearHull == 1:
-            
+
             shipRear = self.rearTransportScaled
-        
+
         elif self.currentShip.rearHull == 2:
-            
+
             shipRear = self.rearFrigateScaled
-            
+
         elif self.currentShip.rearHull == 3:
-            
+
             shipRear = self.rearCruiserScaled
+            
         else:
+            
             pass
-        
+
         # 119, 99 - Text 0,0 position.
-        
 
         displaySurface.fill(g.BLACK)
         displaySurface.blit(shipFront, ((g.width/320)*121, (g.height/200)*14))
         displaySurface.blit(shipCenter, ((g.width/320)*179, (g.height/200)*14))
         displaySurface.blit(shipRear, ((g.width/320)*237, (g.height/200)*14))
-        
+
         #  Highlight the area of the ship being changed.
         #  This is not canon, but I accidentally made a better ship constructor.
         #  Which is what happens when you're coding something up from memory
         #  before checking the original game itself.
         if self.shipSelectStage == 1:
+            
             rectangle = ((g.width/320)*121, (g.height/200)*14, (g.width/320)*58, (g.height/200)*75)
             pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
             
         elif self.shipSelectStage == 2:
+            
             rectangle = ((g.width/320)*179, (g.height/200)*14, (g.width/320)*58, (g.height/200)*75)
-            pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)            
+            pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
         
         elif self.shipSelectStage == 3:
+            
             rectangle = ((g.width/320)*237, (g.height/200)*14, (g.width/320)*58, (g.height/200)*75)
-            pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)            
+            pygame.draw.rect(displaySurface, g.BLUE, rectangle, 1)
         
         else:
+            
             pass
+        
         #  Print what we are doing.
         h.renderText(["Ship Selection"], g.font, displaySurface, g.WHITE, 0, (g.width/320)*179, (g.height/200)*99, True)
         
@@ -388,27 +419,34 @@ class Generator(object):
     
     #  Update function for main game loop.
     def update(self, displaySurface):
+        
         return self.runGenerator(displaySurface)
     
     #  Adjust a given crewmember assignment based on selection stage.
     def assignCrew(self):
         
         if self.crewSelectStage == 1:
+            
             self.psychometry = self.crewArray
         
         elif self.crewSelectStage == 2:
+            
             self.engineering = self.crewArray
         
         elif self.crewSelectStage == 3:
+            
             self.science = self.crewArray
             
         elif self.crewSelectStage == 4:
+            
             self.security = self.crewArray
             
         elif self.crewSelectStage == 5:
+            
             self.astrogation = self.crewArray
             
         elif self.crewSelectStage == 6:
+            
             self.medical = self.crewArray
     
     #  Handle mouse events for user interaction.
@@ -416,6 +454,7 @@ class Generator(object):
         
         #  Turn off mouse interaction during transition animation.
         if self.raiseBall == True or self.lowerBall == True:
+            
             return self.systemState
         
         currentPosition = pygame.mouse.get_pos()
@@ -437,6 +476,7 @@ class Generator(object):
                 self.crewSelectStage += 1
                 
                 if self.crewSelectStage < 7:
+                    
                     self.crewArray = crew.findCrew(self.crewPositions[self.crewSelectStage], self.crewArray, False)
                 
                 if self.crewSelectStage == 7:
@@ -473,26 +513,36 @@ class Generator(object):
             if self.shipSelectStage == 1:
                 
                 if self.currentShip.frontHull <= 2:
+                    
                     self.currentShip.frontHull += 1
+                    
                 else:
+                    
                     self.currentShip.frontHull = 1
                 
             elif self.shipSelectStage == 2:
                 
                 if self.currentShip.centerHull <= 2:
+                    
                     self.currentShip.centerHull += 1
+                    
                 else:
+                    
                     self.currentShip.centerHull = 1
             
             elif  self.shipSelectStage == 3:
                 
                 if self.currentShip.rearHull <= 2:
+                    
                     self.currentShip.rearHull += 1
+                    
                 else:
+                    
                     self.currentShip.rearHull = 1
                 
             #  Fall through and check crew selection.
             if self.generationStage == 2:
+                
                 self.crewArray = crew.findCrew(self.crewPositions[self.crewSelectStage], self.crewArray, False)
             
             
@@ -501,36 +551,49 @@ class Generator(object):
             if self.shipSelectStage == 1:
                     
                 if self.currentShip.frontHull == 1:
+                    
                     self.currentShip.frontHull = 3
+                    
                 else:
+                    
                     self.currentShip.frontHull -= 1
                 
             elif self.shipSelectStage == 2:
                 
                 if self.currentShip.centerHull == 1:
+                    
                     self.currentShip.centerHull = 3
+                    
                 else:
+                    
                     self.currentShip.centerHull -= 1
             
             elif  self.shipSelectStage == 3:
                 
                 if self.currentShip.rearHull == 1:
+                    
                     self.currentShip.rearHull = 3
+                    
                 else:
+                    
                     self.currentShip.rearHull -= 1
                 
             #  Fall through and check crew selection.    
             if self.generationStage == 2:
+                
                 self.crewArray = crew.findCrew(self.crewPositions[self.crewSelectStage], self.crewArray, True)
                 
         return self.systemState
     
     #  Main generator game loop.
     def runGenerator(self, displaySurface):
+        
         #  Preparation routine
         if self.generationStage == 0:
+            
             #  Start generator screen music
             if self.musicState == False:
+                
                 pygame.mixer.music.load(os.path.join('sound', 'CHARGEN.OGG'))
                 pygame.mixer.music.play()
                 self.systemState = 1
@@ -539,6 +602,7 @@ class Generator(object):
                 
         #  Ship generator.
         elif self.generationStage == 1 and self.lowerBall == False:
+            
             self.currentShip.initialiseShip()
             self.drawShip(displaySurface)
             self.drawBall(displaySurface)
@@ -561,6 +625,7 @@ class Generator(object):
             
         #  Crew Selection.
         elif self.generationStage == 2 and self.lowerBall == False:
+            
             self.drawCrew(displaySurface)
             self.drawBall(displaySurface)
             #  Run slow!
@@ -577,14 +642,15 @@ class Generator(object):
         #  Save game.
         elif self.generationStage == 4:
             
-            #self.systemState = 9  #  We jump right into a game class for testing!
+            self.systemState = 5  #  We jump right into a game class for testing!
             self.musicState = False
             self.crewSelectStage = 0
             self.shipSelectStage = 0
             self.generationStage = 0
-            self.systemState = 12  #  Save Game.
+            #self.systemState = 12  #  Save Game.
             
         else:
+            
             self.musicState = False
             self.crewSelectStage = 0
             self.shipSelectStage = 0
@@ -593,6 +659,7 @@ class Generator(object):
         
         # rewind and start music playing again if track end reached.
         if not pygame.mixer.music.get_busy():
+            
             pygame.mixer.music.play()
         
         return self.systemState
