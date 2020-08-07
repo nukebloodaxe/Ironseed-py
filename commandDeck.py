@@ -4,10 +4,13 @@ Created on Sat May  9 13:10:10 2020
 
 Main Command Deck, central operations for all systems in IronSeed.
 
+Note:  State button logic will crash game for unimplmented states.
+TODO:  Ship damage check to see if function available.
+
 @author: Nuke Bloodaxe
 """
 
-import buttons, pygame, os, io
+import buttons, pygame, os, io, random
 import global_constants as g
 
 #  The side of a cube, including buttons.
@@ -55,6 +58,7 @@ class Cube(object):
         self.currentSide = 0  # In crew role order.
         self.oldFacet = 0  # previous facet
         self.spinPosition = 0  # Where are we for a spin?
+        self.cubeSpinQueue = []  # Queue of targets we spin through.
         self.cubeSpinning = False  # Are we spinning the cube?  (can't interact.)
         self.cubeSpinEnd = int((g.width/320)*50)
 
@@ -115,8 +119,6 @@ class Cube(object):
             self.sides[side[0]].right = side[2]
             self.sides[side[0]].bottom = side[3]
             self.sides[side[0]].left = side[4]
-            
-            
             
 
 #  Store the current position of a subFunction, and which it is.
@@ -184,6 +186,8 @@ class CommandDeck(object):
     #  However, the sub-functions can act as overlay windows on the command
     #  deck window.
     
+    #TODO: Sub-Function list and calls.
+    
     #  check to see if a sub-function is active.
     def subFunctionCheck(self, subFunction):
         
@@ -208,37 +212,313 @@ class CommandDeck(object):
             if check.subFunction == subFunction:
                 
                 check.active = False
+                
+    #  Activate a sub-function.
+    #  Note: Original game has only 1 window at a time.
+    #  Feature Enhancement: Multiple windows with widgets,
+    #  hey, it worked for Windows 3.11!
+    def subFunctionActivate(self, subFunction):
+        
+        if subFunction not in self.subFunctions:
+            
+            randX = int((g.width/200)*random.randint(30, 100))
+            randY = int((g.height/200)*random.randint(30, 100))
+            self.subFunctions.append(SubFunction(SubFunction, randX, randY))
     
     
     #  Interactive panel 0: Psychometry.
-    def cubePsycho(self, currentPosition):
+    def cubePsycho(self, currentButton):
         
-        pass
+        state = self.systemState
+        
+        # Psy Eval
+        if currentButton == 1:
+            
+            state = 9
+        
+        # Crew Status
+        elif currentButton == 2:
+            
+            state = 13
+        
+        # Planet Comm
+        #TODO: Evaluate if comms possible first.
+        elif currentButton == 3:
+            
+            # if comms possible
+            state = 14
+            
+            # else:
+            #  do nothing.
+        
+        # Ship Hail
+        #TODO: Evaluate if ship comms possible.
+        elif currentButton == 4:
+        
+            #if ship comms possible
+            state = 6
+            
+            #else:
+            # do nothing.
+            
+        # Research
+        #TODO: Activate research routine for team.
+        elif currentButton == 5:
+            
+            pass
+        
+        # Crew Comm
+        elif currentButton == 6:
+            
+            state = 8
+        
+        return state
     
     #  Interactive Panel 1: Engineering.
-    def cubeEngineering(self, currentPosition):
+    def cubeEngineering(self, currentButton):
         
-        pass
+        state = self.systemState
+        
+        # Damage control - Sub-Function.
+        if currentButton == 1:
+            
+            pass
+        
+        # Shields - Sub-Function
+        elif currentButton == 2:
+            
+            pass
+        
+        # Weapons - Sub-Function
+        elif currentButton == 3:
+            
+            pass
+        
+        # Configure - Sub-Function
+        elif currentButton == 4:
+            
+            pass
+        
+        # Ship Logs
+        elif currentButton == 5:
+            
+            state = 15
+        
+        # Research
+        #TODO: Activate research routine for team.
+        elif currentButton == 6:
+            
+            pass
+        
+        # Bot Control - Sub-Function
+        elif currentButton == 7:
+            
+            pass
+        
+        # Creation
+        elif currentButton == 6:
+            
+            state = 16
+        
+        # Cargo
+        elif currentButton == 7:
+        
+            state = 4
+            
+        return state
     
     #  Interactive Panel 2: Science.
-    def cubeScience(self, currentPosition):
+    def cubeScience(self, currentButton):
         
-        pass
+        state = self.systemState
+        
+        # Short Range - Sub-Function
+        if currentButton == 1:
+        
+            pass
+        
+        # Long Range - Sub-Function
+        elif currentButton == 2:
+            
+            pass
+        
+        # System Info - Sub-Function
+        elif currentButton == 3:
+            
+            pass
+        
+        # Planet Scan
+        elif currentButton == 4:
+            
+            state = 5
+        
+        # Research
+        #TODO: Activate research routine for team.
+        elif currentButton == 5:
+            
+            pass
+        
+        # Star Logs - Sub-Function
+        elif currentButton == 6:
+            
+            pass
+            
+        return state
     
     #  Interactive Panel 3: Security.
-    def cubeSecurity(self, currentPosition):
+    #  Note: Not really sub-functions, are ship state changers.
+    def cubeSecurity(self, currentButton):
         
-        pass
+        state = self.systemState
+            
+        # Retreat - Attempt to run away
+        if currentButton == 1:
+            
+            pass
+        
+        # Shields - Raise Shields (yellow alert?)
+        elif currentButton == 2:
+            
+            pass
+        
+        # Weapons - Activate Weapons (red alert?)
+        elif currentButton == 3:
+            
+            pass
+        
+        # Masking - Electronic masking, evasion, silent running (grey alert?)
+        elif currentButton == 4:
+            
+            pass
+        
+        # Research
+        #TODO: Activate research routine for team.
+        elif currentButton == 5:
+            
+            pass
+        
+        # Drones - combat practice.
+        # Attack - Real combat.
+        # Note: populate combat queue before entry.
+        # Note: Avoid gameover bug with drones.
+        elif currentButton in [6, 7]:
+            
+            state = 7
+        
+        return state
     
     #  Interactive Panel 4: Astrogation.
-    def cubeAstrogation(self, currentPosition):
+    def cubeAstrogation(self, currentButton):
         
-        pass
+        state = self.systemState
+            
+        # Star Map - Sub-Function
+        if currentButton == 1:
+            
+            pass
+        
+        # Sector Map
+        elif currentButton == 2:
+            
+            state = 17
+        
+        # History Map - Sub-Function
+        elif currentButton == 3:
+            
+            pass
+        
+        # Quick Stats - Sub-Function
+        elif currentButton == 4:
+            
+            pass
+        
+        # Target - Sub-Function
+        elif currentButton == 5:
+            
+            pass
+
+        # Research
+        #TODO: Activate research routine for team.
+        elif currentButton == 6:
+            
+            pass
+        
+        # Ship Status - Sub-Function
+        elif currentButton == 7:
+            
+            pass
+        
+        # Local Info - Sub-Function
+        elif currentButton == 8:
+            
+            pass
+        
+        return state
     
     #  Interactive Panel 5: Medical.
-    def cubeMedical(self, currentPosition):
+    def cubeMedical(self, currentButton):
         
-        pass
+        state = self.systemState
+        
+        # Game Options - Sub-Function
+        # Note: This really should be an option on the game main menu.
+        if currentButton == 1:
+            
+            pass
+        
+        # Time burst - accelerate game clock ticks.
+        elif currentButton == 2:
+            
+            pass
+        
+        # clear screen - Clear all Sub-Functions, gently.
+        elif currentButton == 3:
+            
+            for check in self.subFunctions:
+            
+                self.subFunctionDeactivate(check.subFunction)
+        
+        # Save - Sub-Function
+        elif currentButton == 4:
+            
+            pass
+        
+        # Load - Sub-Function
+        elif currentButton == 5:
+            
+            pass
+        
+        #TODO: Activate research routine for team.
+        elif currentButton == 6:
+            
+            pass
+        
+        # Encode - Sub-Function
+        elif currentButton == 7:
+            
+            pass
+        
+        # Decode - Sub-Function
+        elif currentButton == 8:
+            
+            pass
+        
+        # Exit - Quit from the game violently.
+        elif currentButton == 9:
+            
+            pass
+        
+        return state
+
+    #  Populate cube function shortcuts.
+    def cubeFunctionLoading(self):
+        
+        self.theCube[0] = self.cubePsycho
+        self.theCube[1] = self.cubeEngineering
+        self.theCube[2] = self.cubeScience
+        self.theCube[3] = self.cubeSecurity
+        self.theCube[4] = self.cubeAstrogation
+        self.theCube[5] = self.cubeMedical
 
     #  Mouse button interaction routine.
     #TODO:  Lots of button support.
@@ -248,17 +528,23 @@ class CommandDeck(object):
         
         cubeCheck = self.cube.checkSideButton(currentPosition)
         
+        if cubeCheck[0]:
+            
+            self.systemState = self.theCube[self.cube.currentSide](cubeCheck[1])
+        
         #self.systemState = self.theCube[self.cubeFacet](currentPosition)
         
         
         return self.systemState
     
     #  Spinning the cube between facets is a trapezoidal transformation.
+    #  Note:  only see two surfaces at any one time, no isomeric view.
     def drawCubeSpin(self):
         
         pass
     
-    #  Draw command deck interface
+    #  Draw command deck interface.
+    #  Note: The cube draws itself in at the start using multiple lasers.
     def drawInterface(self, displaySurface):
         
         displaySurface.fill(g.BLACK)
@@ -281,6 +567,7 @@ class CommandDeck(object):
             
             #  Construct the cube.
             self.cube.constructCube(os.path.join('Data_Generators', 'Other', 'IronPy_CubeFacets.tab'))
+            self.cubeFunctionLoading()
             
         elif self.commandStage == 1:
             
