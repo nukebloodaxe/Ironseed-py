@@ -40,6 +40,14 @@ The Projects tab for this repository contains the areas being worked on, and pro
 
 Various early areas of the game engine are testable, including the intro, new game generator, planet scanner, and the ego synth manipulator.  The command deck, to tie all those together, is a big project in itself, so you can skip between them by changing the state target for each on state exit; at the code level, just look at the return parameter for each class/module, and where it is getting it, and where it would go if it was changed [see the main ironSeed.py module for a list of all states].  I use this method for chain-testing modules.
 
+#### Execution Routine of Alpha
+In terminal, navigate to the IronSeed folder.  Now, run the following command set
+1) python3
+2) import ironSeed
+3) game = ironSeed.IronSeed()
+wait until the initialisation is finished.  (We Are GO!)
+4) game.main_loop()
+
 ## Data Storage
 
 Many systems and data were stored in binary, which created its own issues.  These have been converted to plain text and open standard graphics and sound where possible.  Save games and associated data will be stored in plain text, allowing cheating and easy portability + version upgrades + "exotic testing".  With plain-text save-games, it is also possible to insert Mods into previously existing games, enhancing flexibility further.
