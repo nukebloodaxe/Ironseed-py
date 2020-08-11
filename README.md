@@ -45,8 +45,8 @@ In terminal, navigate to the IronSeed folder.  Now, run the following command se
 1) python3
 2) import ironSeed
 3) game = ironSeed.IronSeed()
-wait until the initialisation is finished.  (We Are GO!)
-4) game.main_loop()
+4) Now wait until the initialisation is finished, a true test of the computational power of your PC.  (We Are GO!)
+5) game.main_loop()
 
 ## Data Storage
 
