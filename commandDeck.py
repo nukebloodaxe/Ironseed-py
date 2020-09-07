@@ -223,7 +223,7 @@ class CommandDeck(object):
             
             randX = int((g.width/200)*random.randint(30, 100))
             randY = int((g.height/200)*random.randint(30, 100))
-            self.subFunctions.append(SubFunction(SubFunction, randX, randY))
+            self.subFunctions.append(SubFunction(subFunction, randX, randY))
     
     
     #  Interactive panel 0: Psychometry.
@@ -316,12 +316,12 @@ class CommandDeck(object):
             pass
         
         # Creation
-        elif currentButton == 6:
+        elif currentButton == 8:
             
             state = 16
         
         # Cargo
-        elif currentButton == 7:
+        elif currentButton == 9:
         
             state = 4
             
