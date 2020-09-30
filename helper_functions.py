@@ -87,6 +87,8 @@ def createBar(tupleList=[], length=0, height=int((g.height/320)*2), rounded=Fals
 #  Create a targetting reticule from [quantity] circles and draw it on
 #  passed [surface] at [x],[y], with [spacing] between circles.
 #  Draw line of circle with [thickness] pixels and [colour].
+#  Note:  In the original game the cicles go towards the center.
+#  TODO:  True/False for draw circles from center or draw inwards from border.
 def targettingReticule(surface, x, y, colour, quantity, spacing, thickness):
     
     for count in range(quantity):
@@ -526,14 +528,29 @@ def fadeIn(width, height, surface, step, fillColour = g.BLACK):
 #  step indicates which step of the transformation to illustrate.
 def convergeText(text, font, offset, colour, width, height, surface, step=0, darken=True):
     
-    ratio = height/width
-    ratio2 = width/height
+    # Find text centre
+    widthHeightDifference = int((g.width - g.height)/2)
+    longestText = ""
+    
+    for line in text:
+    
+        if len(line) > len(longestText):
+            
+            longestText = line
+    
+    demoText = font.render(longestText, True, colour)
+    textCentreWidth = int(demoText.get_width()/2)
     centre = False
     
-    x1 = ((width*ratio)/8)*3.25#width/4#7*3.25
-    x2 = ((width*ratio)/8)*6.50#(width/4)*2#7*6.50
-    y1 = ((height*ratio2)/5)#/5)#height/4#7
-    y2 = ((height*ratio2)/5)*2.5#/5)*2.5#(height/4)*2#7*3.5
+    #  New method.
+    x1 = widthHeightDifference + textCentreWidth
+    #print("Text Centre Width:", str(x1))
+    x2 = g.width - widthHeightDifference - textCentreWidth
+    #print("Text Centre Width 2:", str(x2))
+    y1 = 0#textCentreHeight
+    #print("Text Centre Height:", str(y1))
+    y2 = x2-x1
+    #print("Text Centre Height 2:", str(y2))
     
     if darken:
         
@@ -542,10 +559,10 @@ def convergeText(text, font, offset, colour, width, height, surface, step=0, dar
         fade.set_alpha(10)
         surface.blit(fade, (0,0))
         
-    renderText(text, font,surface, colour, offset, x1+step, y1+step, True)
-    renderText(text, font,surface, colour, offset, x2-step, y1+step, True)
-    renderText(text, font,surface, colour, offset, x1+step, y2-step, True)
-    renderText(text, font,surface, colour, offset, x2-step, y2-step, True)
+    renderText(text, font, surface, colour, offset, x1+step, y1+step, True)
+    renderText(text, font, surface, colour, offset, x2-step, y1+step, True)
+    renderText(text, font, surface, colour, offset, x1+step, y2-step, True)
+    renderText(text, font, surface, colour, offset, x2-step, y2-step, True)
     
     if (int(x1+step) - int(x2-step)) <= 1 and (int(x1+step) - int(x2-step)) >= -1:
         
@@ -555,7 +572,7 @@ def convergeText(text, font, offset, colour, width, height, surface, step=0, dar
 
 #  Create TV Fuzz - Quickly, with stylish half-fill by default
 #  Based off of David "Futility" Clark's Static filled TV text font.
-#  Note: More shades required.
+#  Note: More shades of grey required; no, not 50...
 def makeFuzz(width, height, half=True):
         
     fuzzyScreen = pygame.Surface((width, height), 0)
