@@ -105,14 +105,22 @@ class Generator(object):
         self.oldPortrait = 0
         self.newPortrait = 0
         
-        #  define button positions for a 640x480 screen.
+        #  Define button positions scaled from a 320x200 screen.
         #  Note: expect this to be very buggy!  Placeholder class in effect.
         #  Button positions and handler objects.
         #  Positional buttons for the screen options.
-        self.accept = buttons.Button(15, 60, (559, 317)) # Based on 640x480
-        self.reject = buttons.Button(15, 60, (559, 337))
-        self.up = buttons.Button(20, 24, (566, 359))
-        self.down = buttons.Button(20, 24, (566, 394))
+        self.accept = buttons.Button(int((g.height/200)*8),
+                                  int((g.width/320)*31),
+                                  (int((g.width/320)*280), int((g.height/200)*133)))
+        self.reject = buttons.Button(int((g.height/200)*8),
+                                  int((g.width/320)*31),
+                                  (int((g.width/320)*280), int((g.height/200)*141)))
+        self.up = buttons.Button(int((g.height/200)*10),
+                                  int((g.width/320)*12),
+                                  (int((g.width/320)*283), int((g.height/200)*150)))
+        self.down = buttons.Button(int((g.height/200)*10),
+                                  int((g.width/320)*12),
+                                  (int((g.width/320)*283), int((g.height/200)*165)))
         
         #  Generate planetary systems.
         planets.loadPlanetarySystems()

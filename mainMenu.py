@@ -23,12 +23,20 @@ class MainMenu(object):
         
         #  Prepare menu graphic for blitting
         self.menuGraphicScaled = pygame.transform.scale(self.menuGraphic, (g.width, g.height))
-        
+
         #  Positional buttons for the screen options.
-        self.newGame = buttons.Button(35, 237,(71, 367))  # Based on 640x480
-        self.intro = buttons.Button(35, 191, (107, 415))
-        self.quitGame = buttons.Button(35, 177, (336, 416))
-        self.loadGame = buttons.Button(35, 209, (336, 367))
+        self.newGame = buttons.Button(int((g.height/200)*10),
+                                      int((g.width/320)*113),
+                                      (int((g.width/320)*35), int((g.height/200)*153)))
+        self.intro = buttons.Button(int((g.height/200)*10),
+                                      int((g.width/320)*96),
+                                      (int((g.width/320)*54), int((g.height/200)*173)))
+        self.quitGame = buttons.Button(int((g.height/200)*10),
+                                      int((g.width/320)*88),
+                                      (int((g.width/320)*168), int((g.height/200)*173)))
+        self.loadGame = buttons.Button(int((g.height/200)*10),
+                                      int((g.width/320)*105),
+                                      (int((g.width/320)*168), int((g.height/200)*153)))
         
     #  Mouse interactions, click on a menu item and make it work.
     def interact(self, mouseButton):
