@@ -41,12 +41,13 @@ The Projects tab for this repository contains the areas being worked on, and pro
 Various early areas of the game engine are testable, including the intro, new game generator, planet scanner, and the ego synth manipulator.  The command deck, to tie all those together, is a big project in itself, so you can skip between them by changing the state target for each on state exit; at the code level, just look at the return parameter for each class/module, and where it is getting it, and where it would go if it was changed [see the main ironSeed.py module for a list of all states].  I use this method for chain-testing modules.
 
 #### Execution Routine of Alpha
-In terminal, navigate to the IronSeed folder.  Now, run the following command set
-1) python3
-2) import ironSeed
-3) game = ironSeed.IronSeed()
-4) Now wait until the initialisation is finished, a true test of the computational power of your PC.  (We Are GO!)
-5) game.main_loop()
+In terminal, navigate to the IronSeed folder.  Now, run the following command set, assuming you already have pip insalled.
+1) python3 -m pip install -r requirements.txt
+2) python3
+3) import ironSeed
+4) game = ironSeed.IronSeed()
+5) Now wait until the initialisation is finished, a true test of the computational power of your PC.  (We Are GO!)
+6) game.main_loop()
 
 ## Data Storage
 
