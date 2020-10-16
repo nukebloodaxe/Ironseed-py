@@ -1463,20 +1463,20 @@ class PlanetScanner(object):
             random.seed(self.thePlanet.seed)
             gravity = gravity * 10 + random.randint(1, 10)
 
-        atmospherePressure = gravity*(atmosphereDensity[self.thePlanet.state]/(self.thePlanet.size+1))
+        atmospherePressure = round(gravity*(atmosphereDensity[self.thePlanet.state]/(self.thePlanet.size+1)), 2)
         dataFeed.append(str(atmospherePressure) + " Atm")
         dataFeed.append(self.dataSummary[5])
-        dataFeed.append(str(gravity) + " G")
+        dataFeed.append(str(round(gravity, 2)) + " G")
         
         # Prepare Hydrosphere data
         
         dataFeed.append(self.dataSummary[6])
-        waterCoverage = (self.thePlanet.waterCoverage/(g.planetHeight*g.planetWidth))*100
+        waterCoverage = round((self.thePlanet.waterCoverage/(g.planetHeight*g.planetWidth))*100, 2)
         dataFeed.append(str(round(waterCoverage, 2)) + "%")
         
         # Prepare biological data
         dataFeed.append(self.dataSummary[7])
-        biologicalCoverage = (self.thePlanet.biologicalLevel/(g.planetHeight*g.planetWidth))*100
+        biologicalCoverage = round((self.thePlanet.biologicalLevel/(g.planetHeight*g.planetWidth))*100, 2)
         dataFeed.append(str(round(biologicalCoverage, 2)) + "%")
         
         """
@@ -1593,7 +1593,7 @@ class PlanetScanner(object):
             
         #  Prepare Radiation data
         dataFeed.append(self.dataSummary[12])
-        radiationLevel = str(abs(self.thePlanet.orbit-7)/(atmospherePressure*5))
+        radiationLevel = str(round(abs(self.thePlanet.orbit-7)/(atmospherePressure*5), 2))
         dataFeed.append(radiationLevel+" RAD/Yr")
         
         #  Prepare planet/star state desciption

@@ -407,10 +407,10 @@ class Generator(object):
         
         #  Render right column of values.
         self.shipStatistics = [str(self.currentShip.gunMax),
-                               str(self.currentShip.maxFuel) + " KG",
+                               str(round(self.currentShip.maxFuel, 2)) + " KG",
                                str(self.currentShip.cargoMax) + " Units",
-                               str(self.currentShip.mass) + " Mt",
-                               str(self.currentShip.acceleration) + " M/S Sqr",
+                               str(round(self.currentShip.mass, 2)) + " Mt",
+                               str(round(self.currentShip.acceleration, 2)) + " M/S Sqr",
                                str(self.currentShip.hullMax) + " Pts"]
         h.renderText(self.shipStatistics, g.font, displaySurface, g.WHITE, 20, (g.width/320)*180, (g.height/200)*140)
         
