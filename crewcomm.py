@@ -27,6 +27,7 @@ class crewComm(object):
         self.crewMembers = shipCrew
         self.selectedCrew = 0 #nobody
         self.state = 8
+        self.commStage = 0  #  What Setup/Interaction stage are we at.
         #  Prepare background image
         self.charCom = pygame.image.load(os.path.join('Graphics_Assets', 'charcom.png'))
         self.charComScaled = pygame.transform.scale(self.charCom,(g.width,g.height))
@@ -41,6 +42,9 @@ class crewComm(object):
 
     #  Handle mouse events for user interaction.
     def interact(self, mouseButton):
+        
+        # click to exit.
+        self.systemState = 10  #  Untrap us.
         
         return self.systemState
 
@@ -58,23 +62,44 @@ class crewComm(object):
         tokenisedText = text.split()
         pass
     
-    def communicate(self,displaySurface):
+    #  Draw the interface for the crew communicator.
+    def drawInterface(self, displaySurface):
         
+        displaySurface.fill(g.BLACK)
         displaySurface.blit(self.charComScaled,(0,0)) # Set background.
         
-        #  Start main intro music
-        if self.musicState == False:
+    #  Main communication routine loop.
+    def communicate(self,displaySurface):
+        
+        if self.commStage == 0:
             
-            pygame.mixer.music.load(os.path.join('sound', 'CREWCOMM.OGG'))
-            pygame.mixer.music.play()
-            self.musicState = True
+            #  We need to ensure our system state is set.
+            self.systemState = 8
             
-        # rewind and start music playing again if track end reached.
-        if not pygame.mixer.music.get_busy():
+            #  Start comm music
+            if self.musicState == False:
+                
+                pygame.mixer.music.load(os.path.join('sound', 'CREWCOMM.OGG'))
+                pygame.mixer.music.play()
+                self.musicState = True
+                self.commStage += 1
             
-            pygame.mixer.music.play()
+            
+        elif self.commStage == 1:
+            
+            self.drawInterface(displaySurface)
 
-        return 8 #  TODO, currently loops communication system for testing.
+            # rewind and start music playing again if track end reached.
+            if not pygame.mixer.music.get_busy():
+
+                pygame.mixer.music.play()
+        
+        if self.systemState != 8:
+            
+            self.commStage = 0
+            self.musicState = False
+        
+        return self.systemState #  loop for the moment.
 
     
 
