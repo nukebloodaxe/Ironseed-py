@@ -25,7 +25,7 @@ class CubeSide(object):
         self.buttons = []
                         
     #  Add a button to this facet, and also convert for current resolution.
-    def addButton(self, x, y, height, width, returnValue):
+    def addButton(self, height, width, x, y, returnValue):
         
         self.buttons.append((returnValue, buttons.Button(int((g.height/200)*height),
                                                          int((g.width/320)*width),
@@ -61,13 +61,26 @@ class Cube(object):
         self.cubeSpinQueue = []  # Queue of targets we spin through.
         self.cubeSpinning = False  # Are we spinning the cube?  (can't interact.)
         self.cubeSpinEnd = int((g.width/320)*50)
+        #  Determine the x,y position of the facet when drawn.
+        self.relativePosition = (int((g.width/320)*214),
+                                 int((g.height/200)*145))
 
 
     #  Check to see if the cube has had a button pressed.
     def checkSideButton(self, position):
         
-        return self.sides[self.currentSide].checkButtonPress(position)
+        cubePositionX = position[0] - self.relativePosition[0]
+        cubePositionY = position[1] - self.relativePosition[1]
+        
+        return self.sides[self.currentSide].checkButtonPress((cubePositionX,
+                                                              cubePositionY))
     
+    #  Initiate a facet change.
+    #  ToDo:  Add spin logic.
+    def changeFacet(self, newFacet):
+        
+        self.oldFacet = self.currentSide
+        self.currentSide = newFacet
     
     #  Load and parse cube definition data.  This populates the 5 sides with
     #  their button positions and return numbers.
@@ -138,12 +151,14 @@ class CommandDeck(object):
         
         self.ironSeed = ship
         self.crewMembers = crew
-        self.commandStage = 0
+        self.commandStage = 0  #  What stage of setup/interaction are we at.
         self.systemState = 10
         self.musicState = False
         self.cube = Cube()
         self.theCube = [0, 1, 2, 3, 4, 5, 6]  #  Cube function shortcut.
+        self.cubeGraphic = [0, 1, 2, 3, 4, 5, 6]  #  Cube graphic shortcuts.
         self.subFunctions = []  # sub-functions in operation.
+        self.buttons = [] #  Command deck buttons, not on cube.
         
         #  Load Graphics Layers
         
@@ -154,33 +169,78 @@ class CommandDeck(object):
         self.psychoGraphic = pygame.Surface((50, 44), 0)
         self.psychoGraphic.blit(self.mainCubeGraphic, (0, 0), (0, 0, 50, 44))
         self.psychoGraphicScaled = pygame.transform.scale(self.psychoGraphic, (int((g.width/320)*50), int((g.height/200)*44)))
+        self.cubeGraphic[0] = self.psychoGraphicScaled
         
         self.engineeringGraphic = pygame.Surface((50, 44), 0)
         self.engineeringGraphic.blit(self.mainCubeGraphic, (0, 0), (0, 45, 50, 44))
         self.engineeringGraphicScaled = pygame.transform.scale(self.engineeringGraphic, (int((g.width/320)*50), int((g.height/200)*44)))
+        self.cubeGraphic[1] = self.engineeringGraphicScaled
         
         self.scienceGraphic = pygame.Surface((50, 44), 0)
         self.scienceGraphic.blit(self.mainCubeGraphic, (0, 0), (0, 90, 50, 44))
         self.scienceGraphicScaled = pygame.transform.scale(self.scienceGraphic, (int((g.width/320)*50), int((g.height/200)*44)))
+        self.cubeGraphic[2] = self.scienceGraphicScaled
         
         self.securityGraphic = pygame.Surface((50, 44), 0)
         self.securityGraphic.blit(self.mainCubeGraphic, (0, 0), (0, 135, 50, 44))
         self.securityGraphicScaled = pygame.transform.scale(self.securityGraphic, (int((g.width/320)*50), int((g.height/200)*44)))
+        self.cubeGraphic[3] = self.securityGraphicScaled
         
         self.astrogationGraphic = pygame.Surface((50, 44), 0)
         self.astrogationGraphic.blit(self.mainCubeGraphic, (0, 0), (0, 180, 50, 44))
         self.astrogationGraphicScaled = pygame.transform.scale(self.astrogationGraphic, (int((g.width/320)*50), int((g.height/200)*44)))
+        self.cubeGraphic[4] = self.astrogationGraphicScaled
         
         self.medicalGraphic = pygame.Surface((50, 44), 0)
         self.medicalGraphic.blit(self.mainCubeGraphic, (0, 0), (0, 225, 50, 44))
         self.medicalGraphicScaled = pygame.transform.scale(self.medicalGraphic, (int((g.width/320)*50), int((g.height/200)*44)))
+        self.cubeGraphic[5] = self.medicalGraphicScaled
         
         #  Command Deck Graphic
         self.commandDeckGraphic = pygame.image.load(os.path.join('Graphics_Assets', 'main.png'))
         
         #  Prepare Command Deck Graphic for blitting
         self.commandDeckGraphicScaled = pygame.transform.scale(self.commandDeckGraphic, (g.width, g.height))
+        
+        #  prepare major command deck buttons.
+        
+        #  Choose Psychometry
+        self.buttons.append((0, buttons.Button(int((g.height/200)*9),
+                                               int((g.width/320)*23),
+                                               (int((g.width/320)*183),
+                                                int((g.height/200)*149)))))
 
+        #  Choose Engineering
+        self.buttons.append((1, buttons.Button(int((g.height/200)*9),
+                                               int((g.width/320)*23),
+                                               (int((g.width/320)*183),
+                                                int((g.height/200)*161)))))
+        
+        #  Choose Science
+        self.buttons.append((2, buttons.Button(int((g.height/200)*9),
+                                               int((g.width/320)*23),
+                                               (int((g.width/320)*183),
+                                                int((g.height/200)*173)))))
+        
+        #  Choose Security
+        self.buttons.append((3, buttons.Button(int((g.height/200)*9),
+                                               int((g.width/320)*23),
+                                               (int((g.width/320)*274),
+                                                int((g.height/200)*149)))))
+        
+        #  Choose Astrogation
+        self.buttons.append((4, buttons.Button(int((g.height/200)*9),
+                                               int((g.width/320)*23),
+                                               (int((g.width/320)*274),
+                                                int((g.height/200)*161)))))
+        
+        #  Choose medical
+        self.buttons.append((5, buttons.Button(int((g.height/200)*9),
+                                               int((g.width/320)*23),
+                                               (int((g.width/320)*274),
+                                                int((g.height/200)*173)))))
+        
+        # Choose 
     #  The cube for interaction is fairly involved, it has major functions
     #  which take the player to a seperate screen and therefore class.
     #  However, the sub-functions can act as overlay windows on the command
@@ -239,27 +299,30 @@ class CommandDeck(object):
         # Crew Status
         elif currentButton == 2:
             
-            state = 13
+            #state = 13
+            pass
         
         # Planet Comm
         #TODO: Evaluate if comms possible first.
         elif currentButton == 3:
             
             # if comms possible
-            state = 14
+            #state = 14
             
             # else:
             #  do nothing.
+            pass
         
         # Ship Hail
         #TODO: Evaluate if ship comms possible.
         elif currentButton == 4:
         
             #if ship comms possible
-            state = 6
+            #state = 6
             
             #else:
             # do nothing.
+            pass
             
         # Research
         #TODO: Activate research routine for team.
@@ -302,7 +365,8 @@ class CommandDeck(object):
         # Ship Logs
         elif currentButton == 5:
             
-            state = 15
+            #state = 15
+            pass
         
         # Research
         #TODO: Activate research routine for team.
@@ -318,12 +382,14 @@ class CommandDeck(object):
         # Creation
         elif currentButton == 8:
             
-            state = 16
+            #state = 16
+            pass
         
         # Cargo
         elif currentButton == 9:
         
-            state = 4
+            #state = 4
+            pass
             
         return state
     
@@ -403,7 +469,8 @@ class CommandDeck(object):
         # Note: Avoid gameover bug with drones.
         elif currentButton in [6, 7]:
             
-            state = 7
+            #state = 7
+            pass
         
         return state
     
@@ -420,7 +487,8 @@ class CommandDeck(object):
         # Sector Map
         elif currentButton == 2:
             
-            state = 17
+            #state = 17
+            pass
         
         # History Map - Sub-Function
         elif currentButton == 3:
@@ -531,8 +599,21 @@ class CommandDeck(object):
         if cubeCheck[0]:
             
             self.systemState = self.theCube[self.cube.currentSide](cubeCheck[1])
+            
+        # Debug.
+        print("Cube Check: ", cubeCheck[0], " State: ", cubeCheck[1])
         
         #self.systemState = self.theCube[self.cubeFacet](currentPosition)
+        
+        #  Check buttons for cube facets.
+        for button in self.buttons:
+            
+            changeFacet = button[1].within(currentPosition)
+            
+            if changeFacet:
+                
+                self.cube.changeFacet(button[0])
+                break
         
         
         return self.systemState
@@ -548,7 +629,13 @@ class CommandDeck(object):
     def drawInterface(self, displaySurface):
         
         displaySurface.fill(g.BLACK)
+        # TODO: Draw planet here.
         displaySurface.blit(self.commandDeckGraphicScaled, (0, 0))
+        # TODO: check frames and drawing of spinning cube.
+        # Simply draw current cube side for now.
+        displaySurface.blit(self.cubeGraphic[self.cube.currentSide],
+                            (self.cube.relativePosition[0],
+                             self.cube.relativePosition[1]))
         
     
     
@@ -556,6 +643,9 @@ class CommandDeck(object):
     def runCommandDeck(self, displaySurface):
         
         if self.commandStage == 0:
+            
+            #  We need to ensure our system state is set.
+            self.systemState = 10
             
             #  Start deck music
             if self.musicState == False:
@@ -578,6 +668,10 @@ class CommandDeck(object):
 
                 pygame.mixer.music.play()
         
+        if self.systemState != 10:
+            
+            self.commandStage = 0
+            self.musicState = False
         
         return self.systemState #  loop for the moment.
     
