@@ -650,7 +650,7 @@ class Generator(object):
         #  Save game.
         elif self.generationStage == 4:
             
-            self.systemState = 5  #  We jump right into a game class for testing!
+            self.systemState = 10  #  We now jump to the test command deck!
             self.musicState = False
             self.crewSelectStage = 0
             self.shipSelectStage = 0
