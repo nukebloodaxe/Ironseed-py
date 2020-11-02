@@ -6,7 +6,7 @@ This system allows you to manipulate the EGO synths, shifting stats around
 in an attempt to keep them both stable and productive.
 @author: Nuke Bloodaxe
 """
-import crew, buttons, pygame, random, os
+import buttons, pygame, random, os
 import global_constants as g
 import helper_functions as h
 
@@ -20,7 +20,7 @@ class EGOManipulator(object):
         self.musicState = False
         self.currentCrewmember = 0
         self.crewPointer = 0  #  For code sanity!
-        self.manipulationStage = 0
+        self.manipulationStage = 0  #  Setup/interaction stage.
         #  Proposed figures from manipulation.
         self.maxBubbles = 50  #  Historical Max is 50.
         self.bubbles = []  #  All bubbles for a given character.
@@ -267,7 +267,7 @@ class EGOManipulator(object):
             
         elif self.exit.within(currentPosition):
             
-            self.manipulationStage += 1
+            self.systemState = 10
         
         return self.systemState
     
@@ -294,6 +294,9 @@ class EGOManipulator(object):
         #  Preparation routine
         if self.manipulationStage == 0:
             
+            #  We need to ensure our system state is set.
+            self.systemState = 9
+            
             self.crewPointer = self.crew.crew[self.currentCrewmember]
             
             #  Start main intro music
@@ -315,10 +318,9 @@ class EGOManipulator(object):
             #  Run slow!
             pygame.time.wait(50)
             
-        else:
-            self.musicState = False
+        if self.systemState != 9:
+            
             self.manipulationStage = 0
-            return 10  #  Return to Orbit view.
-            #return 2  #  Go to main menu, but should be 10, for orbit.
+            self.musicState = False
         
         return self.systemState
