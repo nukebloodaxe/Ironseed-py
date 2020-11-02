@@ -1891,5 +1891,10 @@ class PlanetScanner(object):
             if not pygame.mixer.music.get_busy():
 
                 pygame.mixer.music.play()
+                
+        if self.systemState != 5:
+            
+            self.scannerStage = 0
+            self.musicState = False
 
         return self.systemState
