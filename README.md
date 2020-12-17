@@ -58,3 +58,6 @@ Many systems and data were stored in binary, which created its own issues.  Thes
 From Nuke Bloodaxe on COVID-19 or SARS-COV2:  As essential personnel during this time, I have to work; harder.  I am adding to this project as time is freed up, commits will occur infrequently for a while; probably until I get my next holiday break, which always seems to elude my grasp.  In the mean-time, I am experimenting with and learning from aidungeon.io .  I am intrigued by its functionality, primative as it is, and am thinking it might be a viable system for the crew and ship communications systems at a later date.
 
 I am finding copious amounts of beer is helping with development progress as I can afford it.
+
+My Holiday break is finally here!  I can get back onto things now, please be aware I'll be getting back into the thick of the code now, which means re-reading it ;)
+I've also turned on the discussion forum, please join in and ask those questions you've wanted to ask without making a formal issue request.
