@@ -235,6 +235,7 @@ class IronseedIntro(object):
     def planetTextGenerate(self, text, planet, starfield, surface, height,
                            width, step):
         finished = False
+        surface.fill(g.BLACK)  #  Blank surface, as starfield = transparent.
         surface.blit(starfield, (0,0))
         lowerThird = int(3*(height/4))
         centerWidth = int(3*(width/6))
@@ -895,9 +896,10 @@ class IronseedIntro(object):
         #  This entire scene, preprepared, fades in.
         if self.introStage == 7:
             
-            finished = self.planetTextGenerate(self.introText3, "mars", self.starFieldScaled,
-                                          displaySurface, g.height, g.width,
-                                          self.count)
+            finished = self.planetTextGenerate(self.introText3, "mars",
+                                               self.starFieldScaled,
+                                               displaySurface, g.height,
+                                               g.width, self.count)
             
             self.count += 1
 
