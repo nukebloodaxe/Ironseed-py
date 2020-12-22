@@ -8,6 +8,7 @@ Handles the main render and tick loop.
 import pygame, sys, pygame.sndarray, intro_main
 import ship, crew, items, planets, weaponsAndShields, PlanetScanner
 import mainMenu, saveAndLoad, EGOSynthManipulator, commandDeck
+import cargoDeck
 import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
@@ -66,6 +67,8 @@ class IronSeed(object):
         self.planetScanner = PlanetScanner.PlanetScanner(self.ship, self.crew)
         print("EGO Synth Manipulation System")
         self.EGOManipulation = EGOSynthManipulator.EGOManipulator(self.crew)
+        print("Cargo Deck Objects")
+        self.cargoDeck = cargoDeck.CargoDeck(self.ship)
         print("Command Deck System")
         self.commandDeck = commandDeck.CommandDeck(self.ship, self.crew)
         print("Creating Main Menu")
@@ -76,7 +79,7 @@ class IronSeed(object):
         self.states = {1:self.generator.update,  # The crew + ship selection system.
                        2:self.mainMenu.update,  # Main menu.
                        3:self.intro.update,  # Game Intro - quite useful for testing.
-                       4:"cargo",  # Ship cargo system - make mistakes fast.
+                       4:self.cargoDeck.update,  # Ship cargo system - make mistakes fast.
                        5:self.planetScanner.update,  # Planet surveys and drone ops.
                        6:"Ship Hail",  # Comms between ships, with alien character portrait.
                        7:"Combat",  # Normal and simulated combat.
@@ -95,7 +98,7 @@ class IronSeed(object):
         self.interactive = {1:self.generator.interact,
                             2:self.mainMenu.interact,
                             3:self.intro.interact,
-                            4:"cargo",
+                            4:self.cargoDeck.interact,
                             5:self.planetScanner.interact,
                             6:"Communications",
                             7:"Combat",
