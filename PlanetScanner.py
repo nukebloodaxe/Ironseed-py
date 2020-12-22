@@ -600,7 +600,7 @@ class PlanetScanner(object):
     #  Reset the planet scanner back to default starting values.
     def resetScanner(self):
         
-        self.scannerStage = 0  # Forces reset when we return to scanner.
+        self.scannerStage = -1  # Forces reset when we return to scanner.
         self.scanning = [False, False, False, False, False]
         self.scanned = [0, 0, 0, 0, 0]  # Historically 0 to 2
         self.dataCollected = [0, 0, 0, 0, 0]  # Historically 1000 per point.
