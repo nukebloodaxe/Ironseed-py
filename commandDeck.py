@@ -388,8 +388,7 @@ class CommandDeck(object):
         # Cargo
         elif currentButton == 9:
         
-            #state = 4
-            pass
+            state = 4
             
         return state
     
