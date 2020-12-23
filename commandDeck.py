@@ -299,8 +299,7 @@ class CommandDeck(object):
         # Crew Status
         elif currentButton == 2:
             
-            #state = 13
-            pass
+            state = 13
         
         # Planet Comm
         #TODO: Evaluate if comms possible first.
