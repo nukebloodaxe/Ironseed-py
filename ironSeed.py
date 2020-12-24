@@ -70,7 +70,7 @@ class IronSeed(object):
         print("Cargo Deck Objects")
         self.cargoDeck = cargoDeck.CargoDeck(self.ship)
         print("Crew Status Objects")
-        self.crewStatus = crewStatus.CrewStatus(self.ship)
+        self.crewStatus = crewStatus.CrewStatus(self.crew)
         print("Command Deck System")
         self.commandDeck = commandDeck.CommandDeck(self.ship, self.crew)
         print("Creating Main Menu")
