@@ -28,6 +28,12 @@ class EGOManipulator(object):
         self.EGOInterfaceScaled = pygame.transform.scale(self.EGOInterface, (g.width, g.height))
         self.EGOInterfaceScaled.set_colorkey(g.BLACK)
         
+        #  Handle display area of the crew heartbeat line.
+        self.pulseDisplayArea = pygame.Rect((int((g.width/320)*145),
+                                             int((g.height/200)*111)),
+                                            (int((g.width/320)*140),
+                                             int((g.height/200)*68)))
+        
         # Gradient as a list of tuples.
         self.redBar = h.colourLine(int((g.width/320)*63), g.RED)
         
@@ -115,71 +121,6 @@ class EGOManipulator(object):
         
             displaySurface.blit(self.screenBracketScaled, bracketXY)
             
-            
-    
-    #  Draw the sine-wave status line.
-    #  I have a feeling the randomness in Python is much higher than that in
-    #  the pascal implementation, which is making it difficult to produce a
-    #  waveform that is similar to the original.
-    def drawStatusLine(self, displaySurface):
-        
-        random.seed(99)  #  Fix the generation, to provide consistency.
-        #  For Sanity.
-        self.crewPointer = self.crew.crew[self.currentCrewmember]
-        #  Quicken Python namespace lookups
-        physical = self.crewPointer.physical
-        mental = self.crewPointer.mental
-        emotional = self.crewPointer.emotion
-        radiusMultiplier = ((g.height/200)*34)/100  #  (based on original 200 pixel height screen)
-        lineStart = int((g.width/320)*145)
-        lineFinish = int((g.width/320)*285)
-        lineTop = int((g.height/200)*111)
-        lineBottom = int((g.height/200)*179)
-        pulseWidth = int((g.height/200)*145)  #  Mid-point of monitor.
-        oldXY = (lineStart, lineTop+radiusMultiplier)  # start at 0.
-        
-        if self.pulseColourCycle == 0:
-            
-            self.pulseColourCycle = 255
-        else:
-            self.pulseColourCycle -= 15
-        
-        #print("Physical ", physical, " Emotional ", emotional, " Mental ", mental)
-        
-        for x in range(lineStart, lineFinish, int((g.width/320)*4)):  #  2 pixel steps 
-            
-            #currentColour = (0, 0, ((x-16)%32)+128)  #  Really... it's blue.
-            currentColour = (0, 0, (x+self.pulseColourCycle)%255)  #  Really... it's blue.
-            #  I'm wondering if the colour changes are not agressive enough...
-            
-            randomNumber = random.choice([0, 1, 2, 3, 4, 5])
-            
-            randY = 0  #  Our random y position.
-            if randomNumber == 0:
-                randY = physical * radiusMultiplier
-                
-            if randomNumber == 1:
-                randY = mental * radiusMultiplier
-            
-            if randomNumber == 2:
-                randY = emotional * radiusMultiplier
-        
-            if randomNumber == 3:
-                randY = -1 * (physical * radiusMultiplier)
-                
-            if randomNumber == 4:
-                randY = -1 * (mental * radiusMultiplier)
-                
-            if randomNumber == 5:
-                randY = -1 * (emotional * radiusMultiplier)
-            
-            randY += pulseWidth
-            
-            pygame.draw.line(displaySurface, currentColour, oldXY, (x, randY), 1)
-            
-            oldXY = (x, randY)
-    
-        random.seed()  #  Make random random again ;)
     
     #  Draw the bars indicating the points total for each of the crew member's
     #  attributes.
@@ -287,7 +228,8 @@ class EGOManipulator(object):
             
             if self.screenStep == self.maxStep:
             
-                self.drawStatusLine(displaySurface)
+                #  Render pulse line.
+                self.crew.crew[self.currentCrewmember].drawStatusLine(displaySurface, self.pulseDisplayArea)
     
     def EGOInterfaceLoop(self, displaySurface):
         
