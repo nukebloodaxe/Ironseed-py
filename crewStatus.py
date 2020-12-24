@@ -15,12 +15,15 @@ import helper_functions as h
 #  Main class for the Crew Status screen, which is yet another minigame.
 class CrewStatus(object):
     
-    def __init__(self, theIronseed):
+    def __init__(self, theCrew):
         
-        self.ourShip = theIronseed  # We gain access to the crew via the ship.
+        self.crew = theCrew
         self.systemState = 13
         self.musicState = False
         self.crewStatusStage = 0  #  Setup/interaction stage.
+        self.pulseColourCycle = 255  #  for Ego Bio Status line.  Red Pulse.
+        self.currentCrewMember = 1
+        self.crewPositions = ["", "PSYCHOMETRY", "ENGINEERING", "SCIENCE", "SECURITY", "ASTROGATION", "MEDICAL"]
         
         #  Graphics related
         self.crewInterface = pygame.image.load(os.path.join('Graphics_Assets', 'char2.png'))
@@ -30,19 +33,27 @@ class CrewStatus(object):
         #  Create individual graphical elements.
         
         
+        #  Handle display area of the crew heartbeat line.
+        self.pulseDisplayArea = pygame.Rect((int((g.width/320)*16),
+                                             int((g.height/200)*14)),
+                                            (int((g.width/320)*180),
+                                             int((g.height/200)*76)))
+        
         #  Define button positions scaled from a 320x200 screen.
         #  Note: expect this to be very buggy!  Placeholder class in effect.
         #  Button positions and handler objects.
         #  Positional buttons for the screen options.
         self.exit = buttons.Button(int((g.height/200)*14),
                                    int((g.width/320)*9),
-                                   (int((g.width/320)*302), int((g.height/200)*155)))
+                                   (int((g.width/320)*302),
+                                    int((g.height/200)*155)))
         
     
     #  Reset the Crew Status system back to default starting values.
     def resetCrewStatus(self):
         
         self.crewStatusStage = -1  # Forces reset when we return.
+        self.pulseColourCycle = 255
         self.musicState = False
     
     
@@ -73,6 +84,7 @@ class CrewStatus(object):
         
         displaySurface.fill(g.BLACK)
         displaySurface.blit(self.crewInterfaceScaled, (0, 0))
+        self.crew.crew[self.currentCrewMember].drawStatusLine(displaySurface, self.pulseDisplayArea, 0)
         
     #  Our main interface loop, here we run all setup and stage checks.
     def crewInterfaceLoop(self, displaySurface):
