@@ -23,6 +23,7 @@ class CrewStatus(object):
         self.crewStatusStage = 0  #  Setup/interaction stage.
         self.pulseColourCycle = 255  #  for Ego Bio Status line.  Red Pulse.
         self.currentCrewMember = 1
+        self.crewPointer = "placeholder"  # For Sanity.
         self.crewPositions = ["", "PSYCHOMETRY", "ENGINEERING", "SCIENCE", "SECURITY", "ASTROGATION", "MEDICAL"]
         
         #  Graphics related
@@ -84,7 +85,24 @@ class CrewStatus(object):
         
         displaySurface.fill(g.BLACK)
         displaySurface.blit(self.crewInterfaceScaled, (0, 0))
-        self.crew.crew[self.currentCrewMember].drawStatusLine(displaySurface, self.pulseDisplayArea, 0)
+        
+        #  Render heartbeat pulse line in red.
+        self.crewPointer.drawStatusLine(displaySurface, self.pulseDisplayArea, 0)
+        
+        #  Render crewmember image.
+        displaySurface.blit(self.crewPointer.resizedImage, ((g.width/320)*220, (g.height/200)*16))
+        
+        #  Render Bio column of text.
+        h.renderText(self.crewPointer.bio, g.font, displaySurface, g.WHITE, 15, (g.width/320)*6, (g.height/200)*131)
+        
+        #  Render Character Level text.
+        h.renderText([str(self.crewPointer.level)], g.font, displaySurface, g.WHITE, 15, (g.width/320)*154, (g.height/200)*120)
+        
+        #  Render Character Experience points.
+        h.renderText([str(self.crewPointer.experience)], g.font, displaySurface, g.WHITE, 15, (g.width/320)*190, (g.height/200)*120)
+        
+        #  Render Character Name.  Note, using 180 for x as is centre of text field.
+        h.renderText([str(self.crewPointer.name)], g.font, displaySurface, g.WHITE, 15, (g.width/320)*180, (g.height/200)*103, True)
         
     #  Our main interface loop, here we run all setup and stage checks.
     def crewInterfaceLoop(self, displaySurface):
@@ -94,6 +112,7 @@ class CrewStatus(object):
             
             #  We need to ensure our system state is set.
             self.systemState = 13
+            self.crewPointer = self.crew.crew[self.currentCrewMember] # For Sanity.
             
             #  Start main intro music
             if self.musicState == False:
