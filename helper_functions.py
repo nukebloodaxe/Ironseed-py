@@ -610,3 +610,46 @@ def makeFuzz(width, height, half=True):
             S((x, y), C(colours))
             
     return fuzzyScreen
+
+#  Prepare an animation array by taking frame definition data, and
+#  using it to extract x rows and x columns of frames into a returned array.
+#  The texture is the graphic containing the frames.
+#  The Frame dimensions are defined using the following format:
+#  ((x,y)(width,height)(columns,rows))
+#  By default, frames are resized to current resolution, but this can be
+#  turned off by using False as the last parameter.
+def prepareAnimationArray(texture, frameDefinitions, resize=True):
+    
+    frames = []
+    
+    for column in range(0, frameDefinitions[2][0]):
+        
+        for row in range(0, frameDefinitions[2][1]):
+            
+            sourceRectangle = ((frameDefinitions[0][0] + (frameDefinitions[1][0]*column)),
+                               (frameDefinitions[0][1] + (frameDefinitions[1][1]*row)),
+                               frameDefinitions[1][0], frameDefinitions[1][1])
+
+            frame = pygame.Surface((frameDefinitions[1][0],
+                                    frameDefinitions[1][1]))
+            frame.blit(texture, (0, 0), sourceRectangle)
+            frames.append(frame)
+    
+    if resize:
+        
+        frames=resizeGraphicArray(frames)
+        
+    return frames
+                
+#  Resize an array of frames for an animation or similar to the current
+#  resolution.
+def resizeGraphicArray(graphicArray):
+    
+    resizedFrames = []
+    
+    for frame in graphicArray:
+        
+        newFrame = pygame.transform.scale(frame, (int((g.width/320)*frame.get_width()), int((g.height/200)*frame.get_height())))
+        resizedFrames.append(newFrame)
+
+    return resizedFrames
