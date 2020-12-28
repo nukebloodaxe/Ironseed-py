@@ -22,7 +22,7 @@ class CrewStatus(object):
         self.musicState = False
         self.crewStatusStage = 0  #  Setup/interaction stage.
         self.pulseColourCycle = 255  #  for Ego Bio Status line.  Red Pulse.
-        self.currentCrewMember = 1
+        self.currentCrewMember = 0
         self.crewPointer = "placeholder"  # For Sanity.
         self.crewPositions = ["", "PSYCHOMETRY", "ENGINEERING", "SCIENCE", "SECURITY", "ASTROGATION", "MEDICAL"]
         
@@ -33,12 +33,50 @@ class CrewStatus(object):
         
         #  Create individual graphical elements.
         
-        
+        #  left, top, width, height
         #  Handle display area of the crew heartbeat line.
         self.pulseDisplayArea = pygame.Rect((int((g.width/320)*16),
                                              int((g.height/200)*14)),
                                             (int((g.width/320)*180),
                                              int((g.height/200)*76)))
+        
+        #  Handle display area of horizontal pulse line.
+        self.pulseLineArea = pygame.Rect((int((g.width/320)*42),
+                                          int((g.height/200)*122)),
+                                         (int((g.width/320)*38),
+                                          int((g.height/200)*2)))
+        
+        #  Handle display area of the sanity bar; red.
+        self.sanityBarArea = pygame.Rect((int((g.width/320)*309),
+                                          int((g.height/200)*26)),
+                                         (int((g.width/320)*2),
+                                          int((g.height/200)*68)))
+        
+        #  Handle the blanking area to clear texture elements.
+        self.blankDisplayArea = pygame.Rect((int((g.width/320)*5),
+                                             int((g.height/200)*130)),
+                                            (int((g.width/320)*259),
+                                             int((g.height/200)*67)))
+        
+        #  Location of green crew pips when crewmember selected.
+        self.greenCrewLEDLocation = [(303, 142),(303, 145),(303, 148),
+                                     (310, 142),(310, 145),(310, 148)]
+        
+        self.currentGreenLED = pygame.Rect((int((g.width/320)*303),
+                                            int((g.height/200)*142)),
+                                           (int((g.width/320)*2),
+                                            int((g.height/200)*2)))
+        
+        #  Tuple list for the Sanity bar.
+        self.sanityBar = h.colourGradient(self.sanityBarArea.height, g.RED)
+        
+        #  Tuple list for micro pulse line.
+        self.pulseLine = h.colourGradient(self.pulseLineArea.width, g.RED)
+        
+        #  Animation array for text displayed in window above buttons.
+        self.titleText = []
+        self.pseudoText = []
+        
         
         #  Define button positions scaled from a 320x200 screen.
         #  Note: expect this to be very buggy!  Placeholder class in effect.
@@ -49,6 +87,15 @@ class CrewStatus(object):
                                    (int((g.width/320)*302),
                                     int((g.height/200)*155)))
         
+        self.up = buttons.Button(int((g.height/200)*14),
+                                   int((g.width/320)*17),
+                                   (int((g.width/320)*280),
+                                    int((g.height/200)*146)))
+        
+        self.down = buttons.Button(int((g.height/200)*14),
+                                   int((g.width/320)*17),
+                                   (int((g.width/320)*280),
+                                    int((g.height/200)*162)))
     
     #  Reset the Crew Status system back to default starting values.
     def resetCrewStatus(self):
@@ -70,7 +117,37 @@ class CrewStatus(object):
         
         currentPosition = pygame.mouse.get_pos()
         
-        if self.exit.within(currentPosition):
+        if self.up.within(currentPosition):
+            
+            self.currentCrewMember += 1
+            
+            if self.currentCrewMember > 5:
+                
+                self.currentCrewMember = 0
+                
+            self.crewPointer = self.crew.crew[self.currentCrewMember] # For Sanity.
+            
+            self.currentGreenLED = pygame.Rect((int((g.width/320)*self.greenCrewLEDLocation[self.currentCrewMember][0]),
+                                                int((g.height/200)*self.greenCrewLEDLocation[self.currentCrewMember][1])),
+                                               (int((g.width/320)*2),
+                                                int((g.height/200)*2)))
+                
+        elif self.down.within(currentPosition):
+            
+            self.currentCrewMember -= 1
+            
+            if self.currentCrewMember < 0:
+                
+                self.currentCrewMember = 5
+                
+            self.crewPointer = self.crew.crew[self.currentCrewMember] # For Sanity.
+            
+            self.currentGreenLED = pygame.Rect((int((g.width/320)*self.greenCrewLEDLocation[self.currentCrewMember][0]),
+                                                int((g.height/200)*self.greenCrewLEDLocation[self.currentCrewMember][1])),
+                                               (int((g.width/320)*2),
+                                                int((g.height/200)*2)))
+        
+        elif self.exit.within(currentPosition):
             
             self.resetCrewStatus()
                         
@@ -89,8 +166,38 @@ class CrewStatus(object):
         #  Render heartbeat pulse line in red.
         self.crewPointer.drawStatusLine(displaySurface, self.pulseDisplayArea, 0)
         
+        #  Render small pulse line in red.
+        pulse = h.createBar(self.pulseLine, len(self.pulseLine), self.pulseLineArea.height)
+        displaySurface.blit(pulse, self.pulseLineArea)
+        
+        #  Make pulse rotate right after each frame.
+        self.pulseLine = h.shiftArrayRight(self.pulseLine)
+        
         #  Render crewmember image.
-        displaySurface.blit(self.crewPointer.resizedImage, ((g.width/320)*220, (g.height/200)*16))
+        displaySurface.blit(self.crewPointer.resizedImage,
+                            ((g.width/320)*220, (g.height/200)*16))
+        
+        #  Render green LED for selected crew member.
+        displaySurface.fill(g.GREEN, self.currentGreenLED)
+        
+        #  Calculate sanity bar length
+        sanityBarLength = int((self.sanityBarArea.height/100)*self.crewPointer.sanity)
+        
+        #  Create sanity bar tuple list.
+        sanityBar = h.colourGradient(sanityBarLength, g.RED)
+        
+        #  Render sanity bar for selected crew member.
+        adjustedSanityBar = h.createBar(sanityBar,
+                                        sanityBarLength,
+                                        self.sanityBarArea.height)
+        rotatedSanityBar = pygame.transform.rotate(adjustedSanityBar, -90)
+        scaledSanityBar = pygame.transform.scale(rotatedSanityBar,
+                                                 (self.sanityBarArea.width,
+                                                  sanityBarLength))
+        displaySurface.blit(scaledSanityBar, self.sanityBarArea)
+        
+        #  Clear text area.
+        displaySurface.fill(g.BLACK, self.blankDisplayArea)
         
         #  Render Bio column of text.
         h.renderText(self.crewPointer.bio, g.font, displaySurface, g.WHITE, 15, (g.width/320)*6, (g.height/200)*131)
