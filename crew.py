@@ -154,7 +154,7 @@ class CrewMember(object):
         lineTop = int(displayArea.y)
         lineBottom = int(displayArea.y+displayArea.height)
         pulseWidth = int(displayArea.height/2)+lineTop  #  Mid-point of monitor.
-        oldXY = (lineStart, lineTop+radiusMultiplier)  # start at 0.
+        oldXY = (lineStart, int(displayArea.y+(displayArea.height/2)))  # start at 0.
         
         if self.pulseColourCycle == 0:
             
