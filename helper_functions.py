@@ -29,6 +29,17 @@ def colourGradient(length, colour):
     
     return pixels
 
+#  Rotate the elements of an array left by 1 and return the result.
+def shiftArrayLeft(array):
+    
+    return array[1:] + [array[0]]
+        
+
+#  Rotate the elements of an array right by 1 and return the result.
+def shiftArrayRight(array):
+
+    return [array[-1]] + array[:-1]
+
 #  Create a line from the given colour, as a list of tuples.
 #  The colour is expected to be a Tuple: (0, 0, 0)
 #  The return is a list of tuples; provides max compatibility.
