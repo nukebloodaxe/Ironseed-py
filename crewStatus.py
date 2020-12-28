@@ -31,6 +31,11 @@ class CrewStatus(object):
         self.crewInterfaceScaled = pygame.transform.scale(self.crewInterface, (g.width, g.height))
         self.crewInterfaceScaled.set_colorkey(g.BLACK)
         
+        self.frameCount = 0  #  For keeping track of animation frames.
+        self.titleFrameCount = 0  #  For keeping track of title frames.
+        self.pseudoTextCount1 = 0  #  For keeping track of pseudo text frames.
+        self.pseudoTextCount2 = 1  #  For keeping track of pseudo text frames.
+        
         #  Create individual graphical elements.
         
         #  left, top, width, height
@@ -77,6 +82,35 @@ class CrewStatus(object):
         self.titleText = []
         self.pseudoText = []
         
+        self.titleTextDraw = pygame.Rect((int((g.width/320)*273),
+                                          int((g.height/200)*121)),
+                                          (int((g.width/320)*38),
+                                           int((g.height/200)*9)))
+        
+        self.pseudoTextDraw1 = pygame.Rect((int((g.width/320)*273),
+                                            int((g.height/200)*132)),
+                                           (int((g.width/320)*18),
+                                            int((g.height/200)*9)))
+        
+        self.pseudoTextDraw2 = pygame.Rect((int((g.width/320)*292),
+                                            int((g.height/200)*132)),
+                                           (int((g.width/320)*18),
+                                            int((g.height/200)*9)))
+        
+        
+        # formatted (x,y)(width,height)(columns,rows)
+        self.textTitleLocations = ((9, 144), (39, 10), (3, 2))
+        self.pseudoTextLocations = ((129, 145), (20, 8), (2, 4))
+        
+        #  Scaled animation arrays for screen text.
+        self.scaledTitleText = []
+        self.scaledPseudoText = []
+        
+        #  Load in above textures.
+        self.prepareAnimationFrames()
+        
+        #  Scale above textures
+        self.scaleAnimationFrames()
         
         #  Define button positions scaled from a 320x200 screen.
         #  Note: expect this to be very buggy!  Placeholder class in effect.
@@ -97,6 +131,26 @@ class CrewStatus(object):
                                    (int((g.width/320)*280),
                                     int((g.height/200)*162)))
     
+    
+    #  Prepare all animation frames from the screen graphic.
+    def prepareAnimationFrames(self):
+        
+        self.titleText = h.prepareAnimationArray(self.crewInterface,
+                                                 self.textTitleLocations,
+                                                 False)
+        
+        self.pseudoText = h.prepareAnimationArray(self.crewInterface,
+                                                  self.pseudoTextLocations,
+                                                  False)
+
+    
+    #  Scale animation frames to current resolution.
+    def scaleAnimationFrames(self):
+        
+        self.scaledTitleText = h.resizeGraphicArray(self.titleText)
+        self.scaledPseudoText = h.resizeGraphicArray(self.pseudoText)
+
+    
     #  Reset the Crew Status system back to default starting values.
     def resetCrewStatus(self):
         
@@ -106,6 +160,9 @@ class CrewStatus(object):
     
     
     #  Update loop.
+    #  Note:  This is one of the basics of polymorphism, where functions
+    #  have common names across diffrent classes.  The idea being to simplify
+    #  overall coding.
     def update(self, displaySurface):
 
         return self.crewInterfaceLoop(displaySurface)
@@ -195,6 +252,43 @@ class CrewStatus(object):
                                                  (self.sanityBarArea.width,
                                                   sanityBarLength))
         displaySurface.blit(scaledSanityBar, self.sanityBarArea)
+        
+        #  Render pretty graphics in mini-monitor for ambiance.
+        
+        displaySurface.blit(self.scaledTitleText[self.titleFrameCount],
+                            self.titleTextDraw)
+        
+        displaySurface.blit(self.scaledPseudoText[self.pseudoTextCount1],
+                            self.pseudoTextDraw1)
+        
+        displaySurface.blit(self.scaledPseudoText[self.pseudoTextCount2],
+                            self.pseudoTextDraw2)
+        
+        #  Adjust frame counters and timers.
+        if self.frameCount >= 20:
+            
+            self.titleFrameCount += 1
+            
+            if self.titleFrameCount >= len(self.scaledTitleText):
+                
+                self.titleFrameCount = 0
+            
+            self.frameCount = 0
+        
+        elif self.frameCount in [0, 5, 10, 15, 20]:
+            
+            self.pseudoTextCount1 += 1
+            self.pseudoTextCount2 += 1
+            
+            if self.pseudoTextCount1 >= len(self.scaledPseudoText):
+                
+                self.pseudoTextCount1 = 0
+            
+            if self.pseudoTextCount2 >= len(self.scaledPseudoText):
+                
+                self.pseudoTextCount2 = 0
+        
+        self.frameCount += 1
         
         #  Clear text area.
         displaySurface.fill(g.BLACK, self.blankDisplayArea)
