@@ -8,7 +8,7 @@ Handles the main render and tick loop.
 import pygame, sys, pygame.sndarray, intro_main
 import ship, crew, items, planets, weaponsAndShields, PlanetScanner
 import mainMenu, saveAndLoad, EGOSynthManipulator, commandDeck
-import cargoDeck, crewStatus
+import cargoDeck, crewStatus, planetComms
 import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
@@ -39,42 +39,64 @@ class IronSeed(object):
         g.gameDate = h.IronSeedTime()
         
         # Populate Item dictionaries
-        print("Loading Items")
+        print("Loading Items: ", end='')
         items.loadItemData()
-        print("Loading Scan Data")
+        print("complete.")
+        print("Loading Scan Data: ", end='')
         planets.loadScanData()
-        print("Initialising Planets")
+        print("complete.")
+        print("Initialising Planets: ", end='')
         planets.initialisePlanets()
-        print("Loading Planetary Systems")
+        print("complete.")
+        print("Loading Planetary Systems: ", end='')
         planets.loadPlanetarySystems()
-        print("Populating Planetary Systems")
+        print("complete.")
+        print("Populating Planetary Systems: ", end='')
         planets.populatePlanetarySystems()
-        print("Loading Crew Data")
+        print("complete.")
+        print("Loading Crew Data: ", end='')
         crew.loadCrewData()
-        print("Initialising Internal Objects:")
+        print("complete.")
+        print("Initialising Internal Objects.")
+        print("Weapon and Shield Objects: ", end='')
         weaponsAndShields.loadWeaponsAndShields()
-        print("Crew Objects")
+        print("complete.")
+        print("Crew Objects: ", end='')
         self.crew = crew.Crew()
-        print("Ship Objects")
+        print("complete.")
+        print("Ship Objects: ", end='')
         self.ship = ship.Ship()
-        print("Intro Objects")
+        print("complete.")
+        print("Intro Objects: ", end='')
         self.intro = intro_main.IronseedIntro()
-        print("Game Generator Objects")
+        print("complete.")
+        print("Game Generator Objects: ", end='')
         self.generator = gen.Generator(self.ship, self.crew)  # Settings at new-game state.
-        print("Commnications System Objects")
+        print("complete.")
+        print("Commnications System Objects: ", end='')
         self.crewCom = crewC.crewComm(self.crew)  # Needs to have crew data set.
-        print("Planet Scanner Objects")
+        print("complete.")
+        print("Planet Scanner Objects: ", end='')
         self.planetScanner = PlanetScanner.PlanetScanner(self.ship, self.crew)
-        print("EGO Synth Manipulation System")
+        print("complete.")
+        print("EGO Synth Manipulation System: ", end='')
         self.EGOManipulation = EGOSynthManipulator.EGOManipulator(self.crew)
-        print("Cargo Deck Objects")
+        print("complete.")
+        print("Cargo Deck Objects: ", end='')
         self.cargoDeck = cargoDeck.CargoDeck(self.ship)
-        print("Crew Status Objects")
+        print("complete.")
+        print("Crew Status Objects: ", end='')
         self.crewStatus = crewStatus.CrewStatus(self.crew)
-        print("Command Deck System")
+        print("complete.")
+        print("Plant Comms Objects: ", end='')
+        self.planetComms = planetComms.PlanetComm(self.ship)
+        print("complete.")
+        print("Command Deck System: ", end='')
         self.commandDeck = commandDeck.CommandDeck(self.ship, self.crew)
-        print("Creating Main Menu")
+        print("complete.")
+        print("Creating Main Menu: ", end='')
         self.mainMenu = mainMenu.MainMenu()
+        print("complete.")
         
         # Note:  While in Alpha, the below state list is not exhaustive.
         
@@ -91,9 +113,9 @@ class IronSeed(object):
                        11: "Load Game", # Load Game Screen
                        12: "Save Game", # Save Game Screen (exists?)
                        13: self.crewStatus.update, # Crew character status screen.
-                       14: "Planet Comms", # Ship to planet comms.
+                       14: self.planetComms.update, # Ship to planet comms.
                        15: "Ship Logs", # Listing of all log files.
-                       16: "Creation",  # really item assembly/disassembly
+                       16: "Creation",  # really item assembly/disassembly.
                        17: "Sector Map" # Inter-Sector travel.
                        }
         
@@ -110,7 +132,7 @@ class IronSeed(object):
                             11:"Load Game",
                             12:"Save Game",
                             13: self.crewStatus.interact,
-                            14: "Planet Comms",
+                            14: self.planetComms.interact,
                             15: "Ship Logs",
                             16: "Creation",
                             17: "Sector Map"
