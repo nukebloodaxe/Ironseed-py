@@ -10,7 +10,7 @@ TODO:  Ship damage check to see if function available.
 @author: Nuke Bloodaxe
 """
 
-import buttons, pygame, os, io, random
+import buttons, pygame, sys, os, io, random
 import global_constants as g
 
 #  The side of a cube, including buttons.
@@ -305,12 +305,8 @@ class CommandDeck(object):
         #TODO: Evaluate if comms possible first.
         elif currentButton == 3:
             
-            # if comms possible
-            #state = 14
+            state = 14
             
-            # else:
-            #  do nothing.
-            pass
         
         # Ship Hail
         #TODO: Evaluate if ship comms possible.
@@ -572,7 +568,7 @@ class CommandDeck(object):
         # Exit - Quit from the game violently.
         elif currentButton == 9:
             
-            pass
+            sys.exit()
         
         return state
 
