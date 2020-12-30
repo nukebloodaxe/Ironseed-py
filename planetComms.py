@@ -30,7 +30,32 @@ class PlanetComm(object):
         self.planetCommsInterfaceScaled = pygame.transform.scale(self.planetCommsInterface, (g.width, g.height))
         self.planetCommsInterfaceScaled.set_colorkey(g.WHITE)  # !
         
+        #  There are rather a lot of alien backgrounds, so we will
+        #  Use an array to store them.
+        self.alienBackground = []
+        
+        self.loadBackgrounds()
+        
+        #  The alien textures are much the same.
+        self.alienTextures = []
+        
+        self.loadAlienTextures()
+        
+        #  Alien graphics as an array of arrays.
+        
+        self.aliens = []
+        
+        #  With the alien textures, they appear to almost be unique per alien
+        #  in terms of available elements, sizes etc.
+        #  It will necessary to create an alien texture format tab delimited
+        #  file with some semblance of formatting along the lines of:
+        #  Alien Type
+        #  Graphic, frame amount
+        #  co-ordinate 1 etc.
+        #  Keep repeating until EOA, then next alien entry.
+        
         #  Create individual graphical elements.
+        
         
         
         #  Define button positions scaled from a 320x200 screen.
@@ -49,6 +74,34 @@ class PlanetComm(object):
         self.planetCommsStage = -1  # Forces reset when we return.
         self.musicState = False
     
+    
+    #  Load all alien related graphics files.
+    def loadAlienTextures(self):
+
+        self.alienTextures.append("placeholder")        
+
+        for image in range(1,10):
+        
+            self.alienTextures.append( pygame.image.load(os.path.join('Graphics_Assets', 'alien'+str(image)+'.png')))
+            self.alienTexturesScaled = pygame.transform.scale(self.alienTextures[image], (g.width, g.height))
+        
+    
+    #  Load all background related graphics files.
+    #  Note:  Not as easy as it seems, they are out-of-order, based on race.
+    def loadBackgrounds(self):
+        
+        #  List represents the background iamge order for the predefined races.
+        #  Other backgrounds begin after image 11.
+        imageList = ["01", "07", "18", "09", "15", "22", "17", "04", "14", "02",
+                     "21", "19", "01", "03", "05", "06", "08", "10", "11", "12",
+                     "13", "16", "20"]
+        count = 0
+        
+        for image in imageList:
+        
+            self.alienBackground.append( pygame.image.load(os.path.join('Graphics_Assets', 'back'+image+'.png')))
+            self.alienBackgroundScaled = pygame.transform.scale(self.alienBackground[count], (g.width, g.height))
+            count = 1
     
     #  Update loop.
     def update(self, displaySurface):
