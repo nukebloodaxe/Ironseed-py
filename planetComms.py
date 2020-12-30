@@ -1,0 +1,147 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Dec 30 17:09:37 2020
+
+Planet communications module, the is the ship to planet communications
+screen.  Oddly, planets don't initiate communications, but I personally
+feel this is an oversight; probably not possible in original constraints of
+engine.
+
+@author: Nuke Bloodaxe
+"""
+
+import planets, buttons, pygame, os
+import global_constants as g
+import helper_functions as h
+
+#  Main class for the Planet Comms Deck, which is yet another minigame.
+class PlanetComm(object):
+    
+    def __init__(self, playerShip):
+        
+        self.ironSeed = playerShip
+        self.thePlanet = "Placeholder"
+        self.systemState = 14
+        self.planetCommsStage = 0  #  Setup/interaction stage.
+        self.musicState = False
+        
+        #  Graphics related
+        self.planetCommsInterface = pygame.image.load(os.path.join('Graphics_Assets', 'com.png'))
+        self.planetCommsInterfaceScaled = pygame.transform.scale(self.planetCommsInterface, (g.width, g.height))
+        self.planetCommsInterfaceScaled.set_colorkey(g.WHITE)  # !
+        
+        #  Create individual graphical elements.
+        
+        
+        #  Define button positions scaled from a 320x200 screen.
+        #  Note: expect this to be very buggy!  Placeholder class in effect.
+        #  Button positions and handler objects.
+        #  Positional buttons for the screen options.
+        self.exit = buttons.Button(int((g.height/200)*9),
+                                   int((g.width/320)*16),
+                                   (int((g.width/320)*310),
+                                    int((g.height/200)*152)))
+        
+    
+    #  Reset the planet communications Deck back to default starting values.
+    def resetPlanetComms(self):
+        
+        self.planetCommsStage = -1  # Forces reset when we return.
+        self.musicState = False
+    
+    
+    #  Update loop.
+    def update(self, displaySurface):
+
+        return self.planetCommsInterfaceLoop(displaySurface)
+        
+        
+        
+    #  Mouse handling routines, handles all button press logic.
+    def interact(self, mouseButton):
+        
+        currentPosition = pygame.mouse.get_pos()
+        
+        if self.exit.within(currentPosition):
+            
+            self.resetPlanetComms()
+                        
+            self.systemState = 10
+            #  Reset planet communications stage and enter command deck state.
+        
+        return self.systemState
+    
+    
+    #  Interface drawing routine.
+    def drawInterface(self, displaySurface):
+        
+        displaySurface.fill(g.BLACK)
+        displaySurface.blit(self.planetCommsInterfaceScaled, (0, 0))
+        
+    #  Our main interface loop, here we run all setup and stage checks.
+    def planetCommsInterfaceLoop(self, displaySurface):
+        
+        #  Preparation routine
+        if self.planetCommsStage == 0:
+            
+            #  We need to ensure our system state is set.
+            self.systemState = 14
+            
+            #  Establish ship position and planet for pointer.
+            X, Y, Z = self.ironSeed.getPosition()
+            self.thePlanet = planets.findPlanetarySystem(X, Y, Z).getPlanetAtOrbit(self.ironSeed.getOrbit())
+            
+            alienMusic = ['SECTOR.OGG', #  Lifeless, comms auto fail.
+                          'SENGZHAC.OGG', #  The Sengzhac live here.
+                          'DPAK.OGG', #  The Dpak live here.
+                          'AARD.OGG', #  The Aard live here.
+                          'EMERGEN.OGG', #  The Emergen live here.
+                          'Titarian.OGG', #  The Titarian live here.
+                          'QUAI.OGG', #  The Quai live here.
+                          'SCAVENG.OGG', #  The Scavengers live here.
+                          'ICON.OGG', #  The Icon live here.
+                          'GUILD.OGG', #  The Guild live here.
+                          'PHADOR.OGG', #  The Phador live here.
+                          'VOID.OGG', #  The Void Dwellers live here.
+                          ]
+            
+            #  Start comms music
+            if self.musicState == False:
+                
+                #  Comms music changes according to alien type,
+                #  or lack thereof.
+                if self.thePlanet.owned >= 0 and self.thePlanet.owned <= 11:
+                    
+                    pygame.mixer.music.load(os.path.join('sound', alienMusic[self.thePlanet.owned]))
+         
+                elif self.thePlanet.owned > 29:
+                    
+                    #  Life present.
+                    pygame.mixer.music.load(os.path.join('sound', 'PROBE.OGG'))
+                    
+                else:
+                    
+                    #  Lifeless, comms autofail.
+                    pygame.mixer.music.load(os.path.join('sound', 'SECTOR.OGG'))
+                    
+                pygame.mixer.music.play()
+                self.musicState = True
+                self.planetCommsStage += 1
+        
+        elif self.planetCommsStage == 1:
+            
+            # rewind and start music playing again if track end reached.
+            if not pygame.mixer.music.get_busy():
+                
+                pygame.mixer.music.play()
+            
+            self.drawInterface(displaySurface)
+            #  Run slow!
+            pygame.time.wait(50)
+            
+        if self.systemState != 14:
+            
+            self.planetCommsStage = 0
+            self.musicState = False
+        
+        return self.systemState
