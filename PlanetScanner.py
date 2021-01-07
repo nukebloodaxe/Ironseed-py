@@ -1611,11 +1611,14 @@ class PlanetScanner(object):
         #  Prepare Most Common compounds Data.
         dataFeed.append(self.dataSummary[15])
         
+        #TODO: generate and append common compounds list in following format:
+        # [(compound, %), etc]
+        
         self.planetData = dataFeed
         self.planetDataDone = True
 
-    #  Draw planet summary information; this is drawn after all data
-    #  from the planet is collected.
+    #  Draw planet summary information in main view; this is drawn after all
+    #  data from the planet is collected.
     #  mainViewBoundary
     # renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0, centred=False, justifyRight=False):
     def drawPlanetDataSummary(self, displaySurface):
@@ -1638,8 +1641,7 @@ class PlanetScanner(object):
 
         #TODO
         
-        #  Prepare pie graph.
-        #TODO
+        #  Prepare pie graph data.
         
         #  Draw prepared data on-screen.
         
@@ -1661,6 +1663,24 @@ class PlanetScanner(object):
                          False, True)
             finalCountdown += 2
         
+        '''
+        #  finalCountdown == 15 is the common compounds text title.
+        #  16 should contain values.
+        
+        #  Make a list of the percentages of each compound.
+        compoundPercentages = []
+        
+        #  Include "Other" as last value, making up remaining %.
+        
+        for values in self.planetData[finalCountdown]:
+            
+            compoundPercentages.append(values[1])
+        
+        #  TODO:  Draw the pie graph, and print pie graph data here.
+        #textColours = h.drawPieGraph(displaySurface, (), g.RED, compoundPercentage)
+        
+        #  Print common compounds text, using gradient colours as legend.
+        '''
     
     #  Generate data for data summary panel.
     #  State represents the type of data, lithosphere, atmosphere etc.
