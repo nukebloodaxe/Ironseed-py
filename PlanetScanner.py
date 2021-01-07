@@ -1703,14 +1703,6 @@ class PlanetScanner(object):
              True)
         
         #  Draw the pie graph.
-        
-        #  Create a pie graph from a given set of values in %.
-#  The values are expected to be in size order, largest to smallest.
-#  The pie graph is drawn to the given surface.
-#  an array of colours is returned, representing the assigned colours for each
-#  value.  This is provided in value order, from the passed array.
-#  centre is a tuple(x, y), colour is an 8-bit tuple (r,g,b)
-#def drawPieGraph(surface, centre, radius, colour, values):
     
         percentageList = []
         
@@ -1718,14 +1710,29 @@ class PlanetScanner(object):
             
             percentageList.append(percentage[1])
         
+        colourIncrement = 5
+        
         segmentColours = h.drawPieGraph(displaySurface,
                                         ((g.width/320)*63, (g.height/200)*114),
-                                        (g.width/320)*20, g.RED, percentageList)
+                                        (g.width/320)*20, g.RED, percentageList,
+                                        colourIncrement)
     
         count = 0
         
         for summary in self.planetData[finalCountdown-1]:
             
+            h.renderText([str(summary[1])+' %'],
+                         g.font, displaySurface,
+                         segmentColours[count+colourIncrement], 0,
+                         screenCentre,
+                         int(self.mainViewBoundary[1]+((finalCountdown+2+(count*2))/2)*g.offset),
+                         False)
+            h.renderText([str(summary[0])],
+                         g.font, displaySurface,
+                         segmentColours[count+colourIncrement], 0,
+                         self.mainViewBoundary[2],
+                         int(self.mainViewBoundary[1]+((finalCountdown+2+(count*2))/2)*g.offset),
+                         False, True)
             
             count += 1
             
