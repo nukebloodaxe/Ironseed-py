@@ -8,29 +8,30 @@ import pygame, random, time, math
 import global_constants as g
 
 #  Create a colour gradient, from black to the colour in the given length.
+#  An optional increment can be added, to have a gradient without black.
 #  The colour is expected to be a Tuple: (0, 0, 0)
 #  The return is a list of tuples; provides max compatibility.
-def colourGradient(length, colour, invert=False):
+def colourGradient(length, colour, invert=False, increment=0):
     
     pixels = [(0, 0, 0)]
     
     if invert:
         
-        step0 = -1*(colour[0]/length)
-        step1 = -1*(colour[1]/length)
-        step2 = -1*(colour[2]/length)
+        step0 = -1*((colour[0] - increment)/length)
+        step1 = -1*((colour[1] - increment)/length)
+        step2 = -1*((colour[2] - increment)/length)
         pixel0 = colour[0]
         pixel1 = colour[1]
         pixel2 = colour[2]
     
     else:
         
-        step0 = colour[0]/length
-        step1 = colour[1]/length
-        step2 = colour[2]/length
-        pixel0 = 0
-        pixel1 = 0
-        pixel2 = 0
+        step0 = (colour[0]/length)
+        step1 = (colour[1]/length)
+        step2 = (colour[2]/length)
+        pixel0 = (0 + increment)
+        pixel1 = (0 + increment)
+        pixel2 = (0 + increment)
     
     for pixel in range(length):
         
@@ -672,17 +673,18 @@ def resizeGraphicArray(graphicArray):
 #  an array of colours is returned, representing the assigned colours for each
 #  value.  This is provided in value order, from the passed array.
 #  centre is a tuple(x, y), colour is an 8-bit tuple (r,g,b)
+#  An optional increment gives a different gradient colour start position.
 #  Note:  Might need to make this return both the values and a surface to work.
-def drawPieGraph(surface, centre, radius, colour, values):
+def drawPieGraph(surface, centre, radius, colour, values, increment=0):
     
     #  Generate the pie segment colours, invert colour gradient.
-    pieGraphColours = colourGradient(len(values), colour, True)
+    pieGraphColours = colourGradient(len(values)+increment, colour, True)
     
     currentAngle = 270  #  Polar co-ordinates, want graph to start at top.
     colourIndex = 0
     
     #  Draw the largest value as a circle, other values will overlay.
-    pygame.draw.circle(surface, pieGraphColours[0], centre, radius)
+    pygame.draw.circle(surface, pieGraphColours[0+increment], centre, radius)
     
     for segment in values:
         
@@ -697,7 +699,7 @@ def drawPieGraph(surface, centre, radius, colour, values):
     
         if len(targetArc) > 2:
             
-            pygame.draw.polygon(surface, pieGraphColours[colourIndex], targetArc)
+            pygame.draw.polygon(surface, pieGraphColours[colourIndex+increment], targetArc)
         
         currentAngle += (360/100)*segment
         colourIndex += 1
