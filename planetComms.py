@@ -7,12 +7,46 @@ screen.  Oddly, planets don't initiate communications, but I personally
 feel this is an oversight; probably not possible in original constraints of
 engine.
 
+Note: Ironseed does not feature Space Stations...  which is plain weird,
+probably a design and time restraint, plus new mechanics required all over.
+
 @author: Nuke Bloodaxe
 """
 
 import planets, buttons, pygame, os
 import global_constants as g
 import helper_functions as h
+
+#  Alien class for alien graphics, and thei timers for display.
+#  Note:  May be moved into alien.py in a later consolidation effort.
+#  textureDetails is a list of tuples of (x, y, time, rows, columns)
+class AlienCommGraphics(object):
+    
+    def __init(self, comboTexture, textureDetails):
+        
+        self.originalTexture = comboTexture
+        self.textureDetails = textureDetails
+        self.animations = []
+        # An entry in animations consists of an entry containing the following
+        # tuple entry:
+        # ([frames], time, x, y)
+        #  This way we can cycle each frame every "time" and render at x,y.
+        
+        #  resize all animation frames by regenerating them.
+        def resize(self):
+    
+            pass
+        
+        #  Convert the texture into animation frames.
+        def makeAnimations(self):
+            
+            #  Using each entry in "textureDetails", we create a series of
+            #  animation frames, add them to a list, then combine the
+            #  information from "textureDetails" and these frames into
+            #  "animations" tuple entries.
+            
+            pass
+    
 
 #  Main class for the Planet Comms Deck, which is yet another minigame.
 class PlanetComm(object):
@@ -75,7 +109,7 @@ class PlanetComm(object):
         self.musicState = False
     
     
-    #  Load all alien related graphics files.
+    #  Load all alien related graphics files, these are in array order.
     def loadAlienTextures(self):
 
         self.alienTextures.append("placeholder")        
@@ -144,6 +178,7 @@ class PlanetComm(object):
             X, Y, Z = self.ironSeed.getPosition()
             self.thePlanet = planets.findPlanetarySystem(X, Y, Z).getPlanetAtOrbit(self.ironSeed.getOrbit())
             
+            #TODO: Reorder to fit game logic.
             alienMusic = ['SECTOR.OGG', #  Lifeless, comms auto fail.
                           'SENGZHAC.OGG', #  The Sengzhac live here.
                           'DPAK.OGG', #  The Dpak live here.
