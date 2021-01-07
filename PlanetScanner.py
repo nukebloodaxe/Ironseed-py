@@ -1675,17 +1675,17 @@ class PlanetScanner(object):
         
         #  Draw prepared data on-screen.
         
-        finalCountdown = 2
+        finalCountdown = 2  #  This does create an offset of 2 lines.
 
-        while(finalCountdown <= 14):  #TODO should be 16
+        while(finalCountdown <= 24):  #TODO should be 24
             
-            h.renderText([self.planetData[finalCountdown]],
+            h.renderText([self.planetData[finalCountdown-2]],
                          g.font, displaySurface,
                          g.WHITE, 0,
                          self.mainViewBoundary[0],
                          int(self.mainViewBoundary[1]+(finalCountdown/2)*g.offset),
                          False)
-            h.renderText([self.planetData[finalCountdown+1]],
+            h.renderText([self.planetData[finalCountdown-1]], #  -2 + 1
                          g.font, displaySurface,
                          g.WHITE, 0,
                          self.mainViewBoundary[2],
@@ -1693,18 +1693,45 @@ class PlanetScanner(object):
                          False, True)
             finalCountdown += 2
         
-        '''
-        #  finalCountdown == 15 is the common compounds text title.
-        #  16 should contain values.
+        #  Render the common compounds title.
         
-        #  Make a list of the percentages of each compound.
-        compoundPercentages = []
+        h.renderText([self.planetData[finalCountdown-2]],
+             g.font, displaySurface,
+             g.WHITE, 0,
+             screenCentre,
+             int(self.mainViewBoundary[1]+(finalCountdown/2)*g.offset),
+             True)
         
-        #  Include "Other" as last value, making up remaining %.
+        #  Draw the pie graph.
         
-        for values in self.planetData[finalCountdown]:
+        #  Create a pie graph from a given set of values in %.
+#  The values are expected to be in size order, largest to smallest.
+#  The pie graph is drawn to the given surface.
+#  an array of colours is returned, representing the assigned colours for each
+#  value.  This is provided in value order, from the passed array.
+#  centre is a tuple(x, y), colour is an 8-bit tuple (r,g,b)
+#def drawPieGraph(surface, centre, radius, colour, values):
+    
+        percentageList = []
+        
+        for percentage in self.planetData[finalCountdown-1]:
             
-            compoundPercentages.append(values[1])
+            percentageList.append(percentage[1])
+        
+        segmentColours = h.drawPieGraph(displaySurface,
+                                        ((g.width/320)*63, (g.height/200)*114),
+                                        (g.width/320)*20, g.RED, percentageList)
+    
+        count = 0
+        
+        for summary in self.planetData[finalCountdown-1]:
+            
+            
+            count += 1
+            
+        '''
+        #  finalCountdown == 24 is the common compounds text title.
+        #  25 should contain values.
         
         #  TODO:  Draw the pie graph, and print pie graph data here.
         #textColours = h.drawPieGraph(displaySurface, (), g.RED, compoundPercentage)
