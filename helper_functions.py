@@ -653,3 +653,37 @@ def resizeGraphicArray(graphicArray):
         resizedFrames.append(newFrame)
 
     return resizedFrames
+
+#  Create a pie graph from a given set of values in %.
+#  The values are expected to be in size order, largest to smallest.
+#  The pie graph is drawn to the given surface.
+#  an array of colours is returned, representing the assigned colours for each
+#  value.  This is provided in value order, from the passed array.
+#  centre is a tuple(x, y), colour is an 8-bit tuple (r,g,b)
+def drawPieGraph(surface, centre, radius, colour, values):
+    
+    pieGraphColours = colourGradient(len(values), colour)
+    currentAngle = 0
+    colourIndex = 0
+    
+    #  Draw the largest value as a circle, other values will overlay.
+    pygame.draw.circle(surface, pieGraphColours[0], centre, radius)
+    
+    for segment in values:
+        
+        targetArc = []
+        
+        for degree in range(currentAngle, currentAngle+segment):
+            
+            targetArc.append(int(radius*math.cos(degree*math.pi/180)),
+                             int(radius*math.sin(degree*math.pi/180)))
+            
+        targetArc.append(centre)
+    
+        if len(targetArc) > 2:
+            
+            pygame.draw.polygon(surface, pieGraphColours[colourIndex], targetArc)
+        
+        colourIndex += 1
+    
+    return pieGraphColours
