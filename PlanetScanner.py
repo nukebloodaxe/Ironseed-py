@@ -448,6 +448,10 @@ class PlanetScanner(object):
         self.scanElementNameData = []  # Tuples of (name, state)
         self.scanElementNameDataState = False
         
+        #  Element distribution based on scan data.
+        self.elementDistributionSummary = [] # Tuples of (name, quantity)
+        self.elementDistributionSummaryState = False
+        
         #  ScanData sublists.
         self.scanDataSubLists = [[], [], [], [], []]  # list of lists.
         self.scanDataSubListsDone = False
@@ -610,6 +614,8 @@ class PlanetScanner(object):
         self.planetDataDone = False
         self.scanElementNameData = []
         self.scanElementNameDataState = False
+        self.elementDistributionSummary = []
+        self.elementDistributionSummaryState = False
         self.scanDataSubLists = [[], [], [], [], []]
         self.scanDataSubListsDone = False
         self.zoomLevel = 1
@@ -1611,8 +1617,32 @@ class PlanetScanner(object):
         #  Prepare Most Common compounds Data.
         dataFeed.append(self.dataSummary[15])
         
-        #TODO: generate and append common compounds list in following format:
-        # [(compound, %), etc]
+        #  Generate and append common compounds list in following format:
+        #  [(compound, %), etc]
+        
+        commonCompounds = []
+        totalQuantities = 0
+        
+        for element in self.elementDistributionSummary:
+            
+            totalQuantities += element[1]
+        
+        reducingQuantity = totalQuantities
+        
+        count = 0  #  counter for while loop, we can only print a limited
+                   #  amount of lines on the display.
+        
+        while count < 4:
+            
+            reducingQuantity -= self.elementDistributionSummary[count][1]
+            percentage = (self.elementDistributionSummary[count][1]/totalQuantities)*100
+            commonCompounds.append((self.elementDistributionSummary[count][0],
+                                    round(percentage, 2)))
+            count += 1
+        
+        percentage = (reducingQuantity/totalQuantities)*100
+        commonCompounds.append(("Other", round(percentage, 2)))
+        dataFeed.append(commonCompounds)
         
         self.planetData = dataFeed
         self.planetDataDone = True
@@ -1696,6 +1726,8 @@ class PlanetScanner(object):
         random.seed(self.thePlanet.seed)
         elements, materials, components = self.thePlanet.getItemAmounts()
 
+        elementDistribution = {}
+
         elementIndex = 0
         
         for amount in elements:
@@ -1710,6 +1742,16 @@ class PlanetScanner(object):
                               5: self.thePlanet.getScanDataEntry(elementIndex, 10),
                               6: self.thePlanet.getScanDataEntry(elementIndex, 11)}
                 
+                try:
+                
+                    elementDistribution[items.getItemOfType("ELEMENT", elementIndex+1)] = (items.getItemOfType("ELEMENT", elementIndex+1),
+                                                                                           elementDistribution[items.getItemOfType("ELEMENT", elementIndex+1)][1] + amount)
+                
+                except KeyError:
+                    
+                    elementDistribution[items.getItemOfType("ELEMENT", elementIndex+1)] = (items.getItemOfType("ELEMENT", elementIndex+1),
+                                                                                           amount)
+                
                 for index in range(0, amount):
                     
                     self.scanElementNameData.append((items.getAlternateName(items.getItemOfType("ELEMENT", elementIndex+1)),
@@ -1718,7 +1760,24 @@ class PlanetScanner(object):
                     
             elementIndex += 1
         
+        #  Sort the element distribution dictionary out into  a list.
+        
+        mostElement = ("", 0)
+        
+        while len(elementDistribution) > 0:
+            
+            for element in elementDistribution:
+                
+                if elementDistribution[element][1] > mostElement[1]:
+                    
+                    mostElement = elementDistribution[element]
+                
+            self.elementDistributionSummary.append(elementDistribution[mostElement[0]])
+            elementDistribution.pop(mostElement[0])
+            mostElement = ("", 0)
+        
         self.scanElementNameDataState = True
+        self.elementDistributionSummaryState = True
     
     
     # Generate the data for the sublists, from Data Panel Summary data.
