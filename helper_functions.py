@@ -10,15 +10,27 @@ import global_constants as g
 #  Create a colour gradient, from black to the colour in the given length.
 #  The colour is expected to be a Tuple: (0, 0, 0)
 #  The return is a list of tuples; provides max compatibility.
-def colourGradient(length, colour):
+def colourGradient(length, colour, invert=False):
     
     pixels = [(0, 0, 0)]
-    step0 = colour[0]/length
-    step1 = colour[1]/length
-    step2 = colour[2]/length
-    pixel0 = 0
-    pixel1 = 0
-    pixel2 = 0
+    
+    if invert:
+        
+        step0 = -1*(colour[0]/length)
+        step1 = -1*(colour[1]/length)
+        step2 = -1*(colour[2]/length)
+        pixel0 = colour[0]
+        pixel1 = colour[1]
+        pixel2 = colour[2]
+    
+    else:
+        
+        step0 = colour[0]/length
+        step1 = colour[1]/length
+        step2 = colour[2]/length
+        pixel0 = 0
+        pixel1 = 0
+        pixel2 = 0
     
     for pixel in range(length):
         
@@ -660,10 +672,13 @@ def resizeGraphicArray(graphicArray):
 #  an array of colours is returned, representing the assigned colours for each
 #  value.  This is provided in value order, from the passed array.
 #  centre is a tuple(x, y), colour is an 8-bit tuple (r,g,b)
+#  Note:  Might need to make this return both the values and a surface to work.
 def drawPieGraph(surface, centre, radius, colour, values):
     
-    pieGraphColours = colourGradient(len(values), colour)
-    currentAngle = 0
+    #  Generate the pie segment colours, invert colour gradient.
+    pieGraphColours = colourGradient(len(values), colour, True)
+    
+    currentAngle = 270  #  Polar co-ordinates, want graph to start at top.
     colourIndex = 0
     
     #  Draw the largest value as a circle, other values will overlay.
@@ -671,12 +686,12 @@ def drawPieGraph(surface, centre, radius, colour, values):
     
     for segment in values:
         
-        targetArc = []
+        targetArc = [centre]
         
-        for degree in range(currentAngle, currentAngle+segment):
+        for degree in range(int(currentAngle), int(currentAngle+((360/100)*segment))):
             
-            targetArc.append(int(radius*math.cos(degree*math.pi/180)),
-                             int(radius*math.sin(degree*math.pi/180)))
+            targetArc.append((centre[0]+(radius*math.cos((degree*math.pi)/180)),
+                             centre[1]+(radius*math.sin((degree*math.pi)/180))))
             
         targetArc.append(centre)
     
@@ -684,6 +699,7 @@ def drawPieGraph(surface, centre, radius, colour, values):
             
             pygame.draw.polygon(surface, pieGraphColours[colourIndex], targetArc)
         
+        currentAngle += (360/100)*segment
         colourIndex += 1
     
     return pieGraphColours
