@@ -12,7 +12,7 @@ size = width, height = 640, 480  # screen dimensions
 planetHeight = 240  # 120
 planetWidth = 480  # 240
 #  It's certainly not a lively python...
-version = "IronPython 0.01 - Frigid Snake Alpha"
+version = "IronPython 0.02 - Frigid Snake Alpha"
 
 #  Initialise music system and pygame
 pygame.mixer.pre_init(44100, -16, 2, 2048)
