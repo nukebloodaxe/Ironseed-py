@@ -4,54 +4,74 @@ Created on Sun Nov 24 15:08:39 2019
 Ironseed helper functions
 @author: Nuke Bloodaxe
 """
-import pygame, random, time, math
 import global_constants as g
+import math
+import pygame
+import random
+import time
+
+
+# Load a line of text data from a file, stripping comments marked with a #.
+def loadLineStripComment(file):
+
+    temp = '#'
+
+    while temp[0] == '#':
+
+        temp = file.readline()
+
+#    print("temp is: ", temp)
+
+    return temp
+
 
 #  Create a colour gradient, from black to the colour in the given length.
 #  An optional increment can be added, to have a gradient without black.
 #  The colour is expected to be a Tuple: (0, 0, 0)
 #  The return is a list of tuples; provides max compatibility.
 def colourGradient(length, colour, invert=False, increment=0):
-    
+
     pixels = [(0, 0, 0)]
-    
+
     if invert:
-        
+
         step0 = -1*((colour[0] - increment)/length)
         step1 = -1*((colour[1] - increment)/length)
         step2 = -1*((colour[2] - increment)/length)
         pixel0 = colour[0]
         pixel1 = colour[1]
         pixel2 = colour[2]
-    
+
     else:
-        
+
         step0 = (colour[0]/length)
         step1 = (colour[1]/length)
         step2 = (colour[2]/length)
         pixel0 = (0 + increment)
         pixel1 = (0 + increment)
         pixel2 = (0 + increment)
-    
+
     for pixel in range(length):
-        
+
         pixel0 += step0
         pixel1 += step1
         pixel2 += step2
         pixels.append((int(pixel0), int(pixel1), int(pixel2)))
-    
+
     return pixels
+
 
 #  Rotate the elements of an array left by 1 and return the result.
 def shiftArrayLeft(array):
     
     return array[1:] + [array[0]]
-        
+
 
 #  Rotate the elements of an array right by 1 and return the result.
 def shiftArrayRight(array):
 
     return [array[-1]] + array[:-1]
+
 
 #  Create a line from the given colour, as a list of tuples.
 #  The colour is expected to be a Tuple: (0, 0, 0)
@@ -65,6 +85,7 @@ def colourLine(length, colour):
         pixels.append(colour)
     
     return pixels
+
 
 #  Create a bar using a colourGradient tuple list.
 #  Length is the required element width from the tuple list.
@@ -107,6 +128,7 @@ def createBar(tupleList=[], length=0, height=int((g.height/320)*2), rounded=Fals
                 
     barArray.close()
     return bar
+
 
 #  Create a targetting reticule from [quantity] circles and draw it on
 #  passed [surface] at [x],[y], with [spacing] between circles.
@@ -230,8 +252,8 @@ def sphereMap(x, y, xWidth, yHeight):
     
     return xRealSpace, yRealSpace
 
-#  Very simple stopwatch.
 
+#  Very simple stopwatch.
 class StopWatch(object):
 
     def __init__(self):
@@ -277,6 +299,7 @@ class StopWatch(object):
 #  Create a global stopwatch, this gets used all over the place.
 GameStopwatch = StopWatch()  #  Very much needed.
 
+
 #  Prefix a number with zeros for places width and return it as a string.
 #  If the places figure is 0 or less, return the number as a string.
 #  If the number is greater than the length of the places, return the number.
@@ -302,8 +325,8 @@ def zeroPrefix(self, number, places):
     
     return result
 
-# Implement "game" time, this is IronSeed universe time.
 
+# Implement "game" time, this is IronSeed universe time.
 class IronSeedTime(object):
     
     def __init__(self):
@@ -391,7 +414,6 @@ class IronSeedTime(object):
                 
                 self.starDateMinute = 0
                 self.incrementTime(False, False, False, True)
-                
 
 
 #  Check event flags to see if the event has been tripped.
@@ -414,6 +436,7 @@ def checkEvent(event):
         
         return False
 
+
 #  Safe wrapping at a given step and number
 def safeWrap(width, step, current):
     
@@ -424,6 +447,7 @@ def safeWrap(width, step, current):
         return whereAt % width
     
     return whereAt
+
 
 #  Return a subset of a list, safely
 #  Start is the start of the index in the list.
@@ -447,6 +471,7 @@ def subsetList(theList, start, end):
             break
         
     return subSet
+
 
 #  Render the given text onto a surface.
 #  With right justification, make sure you provide the width where the text
@@ -476,6 +501,7 @@ def renderText(text, font, Surface, colour=g.WHITE, offset=0, width=0, height=0,
             Surface.blit(renderedText, (width, height+position))
             
         position += offset
+
 
 #  Print text at height+width of given surface, fading in.
 def fadeInText(text, width, height, colour, surface, step=0, darken=False, centreText=True):
@@ -532,6 +558,7 @@ def fadeOut(width, height, surface, step, fillColour = g.BLACK):
         
     return finished
 
+
 #  Fade in a given surface.
 def fadeIn(width, height, surface, step, fillColour = g.BLACK):
     
@@ -546,6 +573,7 @@ def fadeIn(width, height, surface, step, fillColour = g.BLACK):
         finished = True
         
     return finished
+
 
 #  Take a piece of text and converge it on a central location from 4
 #  different directions, with god-ray effects.
@@ -594,6 +622,7 @@ def convergeText(text, font, offset, colour, width, height, surface, step=0, dar
         
     return (centre, x1+step, y1+step)
 
+
 #  Create TV Fuzz - Quickly, with stylish half-fill by default
 #  Based off of David "Futility" Clark's Static filled TV text font.
 #  Note: More shades of grey required; no, not 50...
@@ -624,6 +653,7 @@ def makeFuzz(width, height, half=True):
             
     return fuzzyScreen
 
+
 #  Prepare an animation array by taking frame definition data, and
 #  using it to extract x rows and x columns of frames into a returned array.
 #  The texture is the graphic containing the frames.
@@ -653,7 +683,8 @@ def prepareAnimationArray(texture, frameDefinitions, resize=True):
         frames=resizeGraphicArray(frames)
         
     return frames
-                
+
+
 #  Resize an array of frames for an animation or similar to the current
 #  resolution.
 def resizeGraphicArray(graphicArray):
@@ -666,6 +697,7 @@ def resizeGraphicArray(graphicArray):
         resizedFrames.append(newFrame)
 
     return resizedFrames
+
 
 #  Create a pie graph from a given set of values in %.
 #  The values are expected to be in size order, largest to smallest.
