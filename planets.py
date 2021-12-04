@@ -66,7 +66,7 @@ class Planet(object):
         self.owned = 0 #  Extra feature, the owner of the planet.
         self.anomalyGeneration = False #  Have anomalies been generated?
         # Planet bitmap of terrain data.
-        self.planetTerrain = [[0 for i in range(g.planetWidth)] for j in range(g.planetHeight)]
+        self.planetTerrain = [[0] * g.planetWidth] * g.planetHeight
         self.eclipsePhase = random.randint(0, 4)  #  Area covered by eclipse shadow.
         #  Planet texture related data
         self.planetTexture = pygame.Surface((g.planetWidth, g.planetHeight), 0)
@@ -78,7 +78,7 @@ class Planet(object):
         #        then you have a serious problem.
         
         # Probot scan related Data points.
-        # 1 for each hemesphere.  When value is 2, scan is complete.
+        # 1 for each hemisphere.  When value is 2, scan is complete.
         self.lithosphere = 0
         self.hydrosphere = 0
         self.atmosphere = 0
@@ -761,41 +761,34 @@ class Planet(object):
         #print("I am creating a planet: ", self.name)
         currentX, currentY = 0, 0
         random.seed(self.seed)
-        step = 0
         technologyLevel = self.getTechLevel()
         #print("Technology Level is: ", technologyLevel)
-        
-        for index in range(600000):  #  8 x canon version.
-        
-            step += 1
-            currentX = currentX-1+random.randrange(0, 3)
-            currentY = currentY-1+random.randrange(0, 3)
-            
+
+        step_count = 600000  #  8 x canon version.
+        steps_x = random.choices( [-1, 0, 1], k=step_count)
+        steps_y = random.choices( [-1, 0, 1], k=step_count)
+        for walk_x, walk_y in zip( steps_x, steps_y) :
+
+            # Take a step
+            currentX = currentX+walk_x
+            currentY = currentY+walk_y
+
+            # Wrap around if we reach edge of map
             if currentX > g.planetWidth-1:
-                
                 currentX = 0
-                
             elif currentX < 1:
-                
                 currentX = g.planetWidth-1
-            
             if currentY > g.planetHeight-1:
-                
                 currentY = 0
-                
             elif currentY < 1:
-                
                 currentY = g.planetHeight-1
-            
+
             if self.planetTerrain[currentY][currentX] < 240:
-                
                 self.planetTerrain[currentY][currentX] += 7
-            
             #  Avoid random tech pixels, or non-valid colours.
             if self.planetTerrain[currentY][currentX] >= 255:
-                
                 self.planetTerrain[currentY][currentX] = 254
-                
+
         #  Make bright spots representing buildings/tech.
         if technologyLevel > 0:
             
