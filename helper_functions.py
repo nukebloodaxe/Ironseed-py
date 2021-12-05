@@ -25,6 +25,29 @@ def loadLineStripComment(file):
     return temp
 
 
+# Create a rotating line based on 9 points of movement.
+def rotatingLine(position=0):
+
+    rotator = ['|', '/', '-', '\\', '|', '/', '-', '\\', '|']
+
+    return rotator[position]
+
+
+# Based on a starting position, how many lines of text can we print before we
+# reach a defined vertical pixel limit.
+# Note:  It's expected that you check your start and finish limits are sane.
+def textLinesWithin(topY, bottomY):
+
+    return int((bottomY - topY)/g.offset)
+
+
+# Based on a starting position, how many characters can we print before we
+# reach a defined horizontal pixel limit.
+# Note: I know this is a little silly right now, but it'll get better later.
+def charactersWithin(leftX, rightX):
+
+    return int((rightX-leftX)/g.offset)
+
 #  Create a colour gradient, from black to the colour in the given length.
 #  An optional increment can be added, to have a gradient without black.
 #  The colour is expected to be a Tuple: (0, 0, 0)
