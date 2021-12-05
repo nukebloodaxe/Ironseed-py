@@ -22,11 +22,11 @@ class IronSeed(object):
         self.state = 3  # Initialise with intro set, normally 3.
 
         self.creditText = ["1994 Channel 7, Destiny: Virtual",
-                           "Released Under GPL V3.0 in 2013 by Jeremy D Stanton of IronSeed.net",
-                           "2013 y-salnikov - Converted IronSeed to FreePascal and GNU/Linux",
-                           "2016 Nuke Bloodaxe - Pascal Code Tidying/Prep",
-                           "2020 Nuke Bloodaxe - Complete Python Refactor/Rewrite",
-                           "All rights reserved."]
+                          "Released Under GPL V3.0 in 2013 by Jeremy D Stanton of IronSeed.net",
+                          "2013 y-salnikov - Converted IronSeed to FreePascal and GNU/Linux",
+                          "2016 Nuke Bloodaxe - Pascal Code Tidying/Prep",
+                          "2020 Nuke Bloodaxe - Complete Python Refactor/Rewrite",
+                          "All rights reserved."]
         self.versionText = ["Ironseed", g.version]
 
         # Set Window version and Display surface

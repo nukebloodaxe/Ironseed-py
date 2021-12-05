@@ -775,18 +775,28 @@ class Planet(object):
 
             # Wrap around if we reach edge of map
             if currentX > g.planetWidth-1:
+
                 currentX = 0
+
             elif currentX < 1:
+
                 currentX = g.planetWidth-1
+
             if currentY > g.planetHeight-1:
+
                 currentY = 0
+
             elif currentY < 1:
+
                 currentY = g.planetHeight-1
 
             if self.planetTerrain[currentY][currentX] < 240:
+
                 self.planetTerrain[currentY][currentX] += 7
+
             #  Avoid random tech pixels, or non-valid colours.
             if self.planetTerrain[currentY][currentX] >= 255:
+
                 self.planetTerrain[currentY][currentX] = 254
 
         #  Make bright spots representing buildings/tech.
