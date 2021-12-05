@@ -3,12 +3,12 @@
 #
 ###### Requirements without Version Specifiers ######
 pygame
-io
-os
-math
-random
-sys
-time
+#io
+#os
+#math
+#random
+#sys
+#time
 numpy
 #
 ###### Requirements with Version Specifiers ######

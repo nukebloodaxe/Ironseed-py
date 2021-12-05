@@ -4,5 +4,7 @@ At the moment, it would be best to refrain from contributing, beyond pointing ou
 The code is under heavy work and not in a workable state at this time, but once it is stable I'll replace this file with
 proper contributing directions.
 
+Formatting changes are considered pwot: a pointless waste of time.  Most of the line spacing is to assist me in being able to read the code, thus why they are not crammed together.  Spending lots of time of refomatting is time that is better spent on writing quality code, with comments.
+
 Regards,
 Nuke Bloodaxe.
