@@ -1832,10 +1832,15 @@ def populatePlanetarySystems():
             break
 
 # Load in scanData, used during planet scans.
-def loadScanData(scannerFile=os.path.join('Data_Generators', 'Other', 'IronPy_scandata.tab')):
+def loadScanData(loadAndSetup,
+                 scannerFile=os.path.join('Data_Generators', 'Other', 'IronPy_scandata.tab')):
     
     scanFile = io.open(scannerFile, "r")
     scanDataString = (scanFile.readline().split('\n')[0]).split('\t')  # Data Line line
+    
+    # 100% increments on progress bar.
+    progress = 0
+    loadAndSetup.setProcessStep(1)
     
     while scanDataString[0] != "ENDF":
         
@@ -1849,4 +1854,8 @@ def loadScanData(scannerFile=os.path.join('Data_Generators', 'Other', 'IronPy_sc
         # A scan entry line has now been loaded.
         scanDataString = (scanFile.readline().split('\n')[0]).split('\t')  # Data Line line
 
+        loadAndSetup.update(progress)
+
+    progress = 100
+    loadAndSetup.update(progress)
     scanFile.close()

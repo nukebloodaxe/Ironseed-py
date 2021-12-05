@@ -18,6 +18,7 @@ import intro_main
 import initializationScreen
 import items
 import mainMenu
+import os
 import planetComms
 import planets
 import PlanetScanner
@@ -27,6 +28,7 @@ import saveAndLoad
 import ship
 import sys
 import weaponsAndShields
+
 
 class IronSeed(object):
 
@@ -42,6 +44,16 @@ class IronSeed(object):
                            "All rights reserved."]
         self.versionText = ["Ironseed", g.version]
 
+        #  Initialise music system and pygame
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
+        pygame.init()
+
+        # Note: Font should resize according to resolution, but logic needed.
+        # Note: This should really be externalised into a conf file.
+        #  Fonts:  this is a temporary google font, get it from them.
+        g.font = pygame.font.Font(os.path.join('Fonts', 'Inconsolata-ExtraBold.ttf'), 14)
+        g.offset = 15
+
         # Set Window version and Display surface
         print("Initialize Screen.")
         self.displaySurface = pygame.display.set_mode(g.size)
@@ -54,14 +66,14 @@ class IronSeed(object):
 
         # Prepare initilization screen.
         initializationScreen.loadScreenData()
+        # Note:  We can now reset the entire session with another call.
+        self.loadAndSetup = initializationScreen.initScreen(self.displaySurface)
 
         # Populate Item dictionaries
-        print("Loading Items: ", end='')
-        items.loadItemData()
-        print("complete.")
-        print("Loading Scan Data: ", end='')
-        planets.loadScanData()
-        print("complete.")
+        self.loadAndSetup.addLoadingBar(None, None, "Loading Items: ")
+        items.loadItemData(self.loadAndSetup)
+        self.loadAndSetup.addLoadingBar(None, None, "Loading Scan Data: ")
+        planets.loadScanData(self.loadAndSetup)
         print("Initialising Planets: ", end='')
         planets.initialisePlanets()
         print("complete.")
@@ -135,7 +147,7 @@ class IronSeed(object):
                        16: "Creation",  # really item assembly/disassembly.
                        17: "Sector Map"  # Inter-Sector travel.
                        }
-        
+
         self.interactive = {1: self.generator.interact,
                             2: self.mainMenu.interact,
                             3: self.intro.interact,
@@ -156,7 +168,6 @@ class IronSeed(object):
                             }
         print("We Are GO!")
 
-
     def main_loop(self):
 
         # Display copyright credits on start.
@@ -168,8 +179,9 @@ class IronSeed(object):
         pygame.time.wait(4000)
 
         Initializing = True
+        progress = 0  # progress %
 
-        # Enter substate, data initialization screen with pretty graphics.
+        # Enter substate, initialization screen with pretty/retro graphics.
         while Initializing:
 
             # We'll still handle quit routines here.
@@ -180,6 +192,7 @@ class IronSeed(object):
                     pygame.quit()
                     sys.exit()
 
+            #Initializing = self.loadAndSetup.update(progress)
             pygame.display.update()  # update displayed frames.
             break  # skip for now.
 
