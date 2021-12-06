@@ -59,5 +59,6 @@ From Nuke Bloodaxe on COVID-19 or SARS-COV2:  As essential personnel during this
 
 I am finding copious amounts of beer is helping with development progress as I can afford it.
 
-My Holiday break is finally here!  I can get back onto things now, please be aware I'll be getting back into the thick of the code now, which means re-reading it ;)
+06/12/2021:  My holiday break is approaching, and Otzen provided me with some inspiration in terms of some of the things he was looking at.  Right now the key area of work is an initialisation screen, which also revealed some double-load bugs that have now been corrected.  The screen will be expanded with extra functions, including load timers and prettier bars etc in the future.  Once that is mostly ready, I have a variety of screens which need their button functions implemented.
+
 I've also turned on the discussion forum, please join in and ask those questions you've wanted to ask without making a formal issue request.
