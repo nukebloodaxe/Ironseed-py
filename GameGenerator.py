@@ -15,7 +15,7 @@ import global_constants as g
 import helper_functions as h
 
 class Generator(object):
-    def __init__(self, givenShip, givenCrew):
+    def __init__(self, givenShip, givenCrew, loadAndSetup, firstRun=False):
         self.currentShip = givenShip #  Should be initialised to default start values.
         self.systemState = 1 #  By default, the game Generator points at itself.
         self.generationStage = 0 #  The stage of generation are we at.
@@ -127,9 +127,11 @@ class Generator(object):
                                   (int((g.width/320)*283), int((g.height/200)*165)))
         
         #  Generate planetary systems.
-        planets.loadPlanetarySystems()
-        planets.initialisePlanets()
-        planets.populatePlanetarySystems()
+        if not firstRun:
+
+            planets.loadPlanetarySystems(loadAndSetup)
+            planets.initialisePlanets(loadAndSetup)
+            planets.populatePlanetarySystems(loadAndSetup)
     
     #  take the loaded ball texture and divide it into its component frames,
     #  Assigning them to the animation array.

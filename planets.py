@@ -1626,21 +1626,24 @@ def findPlanetarySystem(X = 0.0, Y = 0.0, Z = 0.0):
 
 #  Note: Original code had name of planet based on orbit.
 #  ALPHA, BETA, GAMMA, DELTA, EPISILON, ZETA, ETA, THETA
-def initialisePlanets(planetNamesFile = os.path.join('Data_Generators', 'Other', 'IronPy_PlanetNames.tab')):
-    
+def initialisePlanets(loadAndSetup, planetNamesFile = os.path.join('Data_Generators', 'Other', 'IronPy_PlanetNames.tab')):
+
+    # Set the process step.
+    loadAndSetup.setProcessStep(2)
+
     #  Load planet files and populate planet structure
 
     planetsFile = io.open(planetNamesFile, "r")
     planetDataString = planetsFile.readline().split('\n')[0] #  Data Line
-    
+
     while planetDataString != "ENDF":
-        
+
         PlanetNames.append(planetDataString)
         #  A scan entry line has now been loaded.
         planetDataString = planetsFile.readline().split('\n')[0] #  Data Line line
 
     planetsFile.close()
-    
+
     # Planet by name = (planet name, state, variation, tech level/life)
     Planets["mars"] = Planet()  # For intro.
     Planets["mars"].generate("mars")
@@ -1652,7 +1655,7 @@ def initialisePlanets(planetNamesFile = os.path.join('Data_Generators', 'Other',
     Planets["mars"].age = 1000000
     Planets["mars"].orbit = 4
     Planets["mars"].createPlanet()
-    
+
     # Oban planet orbit 2.
     Planets["Icarus"] = Planet()  # For intro.
     Planets["Icarus"].generate("Icarus")
@@ -1664,23 +1667,27 @@ def initialisePlanets(planetNamesFile = os.path.join('Data_Generators', 'Other',
     Planets["Icarus"].age = 2000
     Planets["Icarus"].orbit = 2
     Planets["Icarus"].createPlanet()
-    
+
+    progress = 0  # Our progress in %
+
     for newPlanet in range(0, 1001):
-        
+
         Planets[newPlanet] = Planet()
         Planets[newPlanet].name = PlanetNames[newPlanet]
         Planets[newPlanet].seed = random.random()
         Planets[newPlanet].generate(newPlanet)
-        
-    
+        progress = int(newPlanet/10)
+        loadAndSetup.update(progress)
+
 def transformCheckPlanet(planet):
-    
+
     name, state, grade, life = Planets[planet]
     # chance of transformation.
     # TODO
     # BIG ALGO HERE
     Planets[planet] = (name, state, grade)
-    
+
+
 """
 # Render a planet using an approximation of the old IronSeed Algorithm.
 # Note: I'm thinking high-quality pre-renders might be a better choice.
@@ -1695,18 +1702,18 @@ def renderPlanet(width, height, planetType, surface, step=0):
     safeCombo = pygame.PixelArray(comboSurface)
     # we create the planet first, then blit the pixels onto the original
     # surface.  Unfortunately, the creation process is not fast.
-    
-    
-    
+
+
+
     # Now to the copy, taking into account the transparency layer.
     line = 0
     while line<g.height:
         for pixel in range(g.width):
             if safeCombo[pixel][line] != 0:
                 safeSurface[pixel][line]=safeCombo[pixel][line]
-            
+
         line += 1
-            
+
     # surface.blit(comboSurface,(0,0))
     del safeSurface
     del safeCombo
@@ -1714,56 +1721,65 @@ def renderPlanet(width, height, planetType, surface, step=0):
         finished = True
     return finished
 """
+
+
 #  Load in system data, which includes co-ordinates.
 #  Planet quantities and orbits + types are determined via random generation.
 #  This makes Ironseed somewhat roguelike, making no game the same twice.
 #  Note: Might be interesting to see if we can implement the travelling salesman
 #  Algo for working out shortest distance between systems on the starmap.
-def loadPlanetarySystems(planetarySystemsFile=os.path.join('Data_Generators', 'Other', 'IronPy_SystemData.tab')):
-    
+def loadPlanetarySystems(loadAndSetup, planetarySystemsFile=os.path.join('Data_Generators', 'Other', 'IronPy_SystemData.tab')):
+
+    progress = 0  # Load progress in %
+    loadAndSetup.setProcessStep(3)
     systemsFile = io.open(planetarySystemsFile, "r")
     systemDataString = (systemsFile.readline().split('\n')[0]).split('\t') #Data Line line
-    
+
     while systemDataString[0] != "ENDF":
-        
+
         SystemData.append([systemDataString[0], float(systemDataString[1]),
                            float(systemDataString[2]), float(systemDataString[3])])
         #systemDataString = temp.split('\t')
         #  A scan entry line has now been loaded.
         systemDataString = (systemsFile.readline().split('\n')[0]).split('\t') #Data Line line
+        loadAndSetup.update(progress)
 
     #  Populate the Planetary Systems Dictionary.
-    
+
     for system in SystemData:
-        
+
         PlanetarySystems[system[0]] = PlanetarySystem(system[0],
                                                       system[1],
                                                       system[2],
                                                       system[3])
+        progress += 1
+        loadAndSetup.update(int(progress/2.5))
 
     systemsFile.close()
+
 
 #  Here we use a python generator to iterate over the planets dictionary.
 #  This produces a noticible improvement to both speed and comprehension of
 #  what the code is doing.
 #  Note: support function for populatePlanetary systems, run it nowhere else.
 def iteratePlanetDictionary():
-    
+
     count = 0
-    
+
     while 1:
-        
+
         count = 0
-        
+
         for planet in Planets:
-            
+
             count += 1
-            
+
             if count > 1000:
-                
+
                 break
-            
+
             yield Planets[planet], count
+
 
 # Add in planets to all systems.  Breakout when all planets used up.
 # Note: I might dispense with the planet limit later.
@@ -1771,32 +1787,34 @@ def iteratePlanetDictionary():
 # system lines shows that OBAN is line 127; I will use "OBAN" as the
 # planetary system value.
 # Note: run this function only Once!
-def populatePlanetarySystems():
-    
+def populatePlanetarySystems(loadAndSetup):
+
+    loadAndSetup.setProcessStep(4)
+
     lastPlanet = False
-    count = 0
-    
+    count = 0  # Also using for Load progress in %
+
     for pSystem in PlanetarySystems:
-        
+
         system = PlanetarySystems[pSystem]
         system.createPlanetCount()
-        
+
         if system.systemName == "OBAN":
-            
+
             system.numberOfPlanets = 3 # Including the star
-        
+
         #  TODO: Random orbits for the count of planets.
         for orbit in range(0, system.numberOfPlanets):
-            
+
             #planet, count = iteratePlanetDictionary()
             #planet.index = count #  Possible: adjust index to dictionary order.
             Planets[count].orbit = orbit
             Planets[count].systemName = system.systemName
-            
+
             if system.systemName == "OBAN":
-                
+
                 if orbit == 1:
-                    
+
                     Planets[count].water = 0
                     Planets[count].seed = 7007
                     Planets[count].state = 2
@@ -1804,7 +1822,7 @@ def populatePlanetarySystems():
                     Planets[count].orbit = 2
                     Planets[count].age = 2000
                     Planets[count].createPlanet()
-                
+
                 elif orbit == 2:
 
                     Planets[count].state = 5
@@ -1812,24 +1830,26 @@ def populatePlanetarySystems():
                     Planets[count].orbit = 4
                     Planets[count].age = 2000
                     Planets[count].createPlanet()
-                    
+
             system.planets.append(Planets[count])
-            
+
             #  Add Sun Here.
             if orbit == 0:
                 Planets[count].generate(count, True)  # activate sun code.
                 system.starGrade = Planets[count].state
-            
+
             count += 1
-            
+            loadAndSetup.update(int(count/10))
+
             if count >= 1000:
-                
+
                 lastPlanet = True
                 break
-            
+
         if lastPlanet:
-            
+
             break
+
 
 # Load in scanData, used during planet scans.
 def loadScanData(loadAndSetup,

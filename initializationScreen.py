@@ -81,7 +81,7 @@ class initScreen(object):
 
     def __init__(self, displaySurface):
 
-        self.loadingBars = []  # Progress bars and text for each section.
+        self.loadingBars = InitData  # Progress bars and text for each section.
         self.step = 0  # We need to keep track of our process steps.
         self.barIndex = 0  # Index of first bar drawn on screen.
 
@@ -122,10 +122,11 @@ class initScreen(object):
         # now coalate the text and render it.
         textToPrint = []
 
-        for bar in self.loadingBars[self.barIndex:]:
+        for bar in self.loadingBars[self.barIndex:self.step+1]:
 
-            textToPrint.append(bar.barText)
+            textToPrint.append(bar.barText[0])
             textToPrint.append(bar.getProgressBar())
+            #print(bar.barText)
 
         # Note: Very simple for now.
         h.renderText(textToPrint, g.font, self.displaySurface, g.WHITE, g.offset)
@@ -169,7 +170,7 @@ def loadScreenData(file=os.path.join('Data_Generators', 'Other', 'IronPy_Initial
     while temp != "ENDF":
 
         barText = (h.loadLineStripComment(initializationFile).split('\n')[0]).split('\t')  # Data Line
-#        print("BarText", barText)
+        #print("BarText", barText)
 
         if barText[0] == "ENDF":
 

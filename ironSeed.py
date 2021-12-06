@@ -70,19 +70,11 @@ class IronSeed(object):
         self.loadAndSetup = initializationScreen.initScreen(self.displaySurface)
 
         # Populate Item dictionaries
-        self.loadAndSetup.addLoadingBar(None, None, "Loading Items: ")
         items.loadItemData(self.loadAndSetup)
-        self.loadAndSetup.addLoadingBar(None, None, "Loading Scan Data: ")
         planets.loadScanData(self.loadAndSetup)
-        print("Initialising Planets: ", end='')
-        planets.initialisePlanets()
-        print("complete.")
-        print("Loading Planetary Systems: ", end='')
-        planets.loadPlanetarySystems()
-        print("complete.")
-        print("Populating Planetary Systems: ", end='')
-        planets.populatePlanetarySystems()
-        print("complete.")
+        planets.initialisePlanets(self.loadAndSetup)
+        planets.loadPlanetarySystems(self.loadAndSetup)
+        planets.populatePlanetarySystems(self.loadAndSetup)
         print("Loading Crew Data: ", end='')
         crew.loadCrewData()
         print("complete.")
@@ -100,7 +92,7 @@ class IronSeed(object):
         self.intro = intro_main.IronseedIntro()
         print("complete.")
         print("Game Generator Objects: ", end='')
-        self.generator = gen.Generator(self.ship, self.crew)  # Settings at new-game state.
+        self.generator = gen.Generator(self.ship, self.crew, self.loadAndSetup, True)  # Settings at new-game state.
         print("complete.")
         print("Communications System Objects: ", end='')
         self.crewCom = crewC.crewComm(self.crew)  # Needs to have crew data set.
