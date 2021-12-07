@@ -72,8 +72,11 @@ def colourLine(length, colour):
 #  Rounded indicates if the end of the bar needs to be drawn as
 #  half a hemesphere with Height diameter.
 #  Returns a pygame surface with the required elements added.
-def createBar(tupleList=[], length=0, height=int((g.height/320)*2), rounded=False):
-    
+def createBar(tupleList=None, length=0, height=None, rounded=False):
+    if height is None:
+        height = int((g.height / 320) * 2)
+    if tupleList is None:
+        tupleList = []
     bar = pygame.Surface((length, height))
     bar.set_colorkey(g.BLACK)
     barArray = pygame.PixelArray(bar)
