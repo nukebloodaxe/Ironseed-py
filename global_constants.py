@@ -7,16 +7,16 @@ Note:  The constant bit refers to the naming...
 """
 import pygame, os
 
+
+# Simple objects is declared and initialized here,
+# class object types is declared here and initialized in the init method.
+
 size = width, height = 640, 480  # screen dimensions
 #  Planet texture constants.
 planetHeight = 240  # 120
 planetWidth = 480  # 240
 #  It's certainly not a lively python...
 version = "IronPython 0.02 - Frigid Snake Alpha"
-
-#  Initialise music system and pygame
-pygame.mixer.pre_init(44100, -16, 2, 2048)
-pygame.init()
 
 #  Colours
 WHITE = (255, 255, 255)
@@ -36,9 +36,7 @@ TECH3 = (150, 150, 0)
 TECH4 = (200, 200, 0)
 TECH5 = (250, 250, 0)
 
-# Note: Font should resize according to resolution, but logic needed.
-#  Fonts:  this is a temporary google font, get it from them.
-font = pygame.font.Font(os.path.join('Fonts', 'Inconsolata-ExtraBold.ttf'), 14)
+font: object
 offset = 15  # for this font.
 
 #  Totals for items
@@ -60,5 +58,20 @@ eventFlags = []  #  Having as event list of flags makes things much simpler
 
 systemsVisited = []
 
-starDate = [2, 3, 3784, 8, 75]  #M,D,Y,H,M, Default entry here is for new game.
-gameDate = "Placeholder"  #  The game time needs to be accessible everywhere.
+starDate = [2, 3, 3784, 8, 75]  # M,D,Y,H,M, Default entry here is for new game.
+gameDate: object  #  The game time needs to be accessible everywhere.
+
+
+# Class objects need a separate init function
+def init(init_game_date):
+    #  Initialise music system and pygame
+    pygame.mixer.pre_init(44100, -16, 2, 2048)
+    pygame.init()
+    global font
+    # Note: Font should resize according to resolution, but logic needed.
+    #  Fonts:  this is a temporary google font, get it from them.
+    font = pygame.font.Font(os.path.join('Fonts', 'Inconsolata-ExtraBold.ttf'), 14)
+
+    # Initialise game objects
+    global gameDate
+    gameDate = init_game_date

@@ -13,12 +13,13 @@ import GameGenerator as gen
 import crewcomm as crewC
 import global_constants as g
 import helper_functions as h
+from show_execution import show_execution as se
 
 class IronSeed(object):
-    
+
     def __init__(self):
-        
-        self.state = 3  # Initilise with intro set, normally 3.
+
+        self.state = 3  # Initialise with intro set, normally 3.
 
         self.creditText = ["1994 Channel 7, Destiny: Virtual",
                           "Released Under GPL V3.0 in 2013 by Jeremy D Stanton of IronSeed.net",
@@ -27,79 +28,58 @@ class IronSeed(object):
                           "2020 Nuke Bloodaxe - Complete Python Refactor/Rewrite",
                           "All rights reserved."]
         self.versionText = ["Ironseed", g.version]
-        
+
         # Set Window version and Display surface
         print("Initialise Screen.")
         self.displaySurface = pygame.display.set_mode(g.size)
         pygame.display.set_caption(self.versionText[0]+' '+self.versionText[1])
-        
-        # Initialise game objects
-        print("Initilising IronSeed Game Time")
-        g.starDate = [2, 3, 3784, 8, 75] # M,D,Y,H,M.
-        g.gameDate = h.IronSeedTime()
-        
+
+        # init globals
+        g.init(h.IronSeedTime())
+
         # Populate Item dictionaries
-        print("Loading Items: ", end='')
-        items.loadItemData()
-        print("complete.")
-        print("Loading Scan Data: ", end='')
-        planets.loadScanData()
-        print("complete.")
-        print("Initialising Planets: ", end='')
-        planets.initialisePlanets()
-        print("complete.")
-        print("Loading Planetary Systems: ", end='')
-        planets.loadPlanetarySystems()
-        print("complete.")
-        print("Populating Planetary Systems: ", end='')
-        planets.populatePlanetarySystems()
-        print("complete.")
-        print("Loading Crew Data: ", end='')
-        crew.loadCrewData()
-        print("complete.")
+        se("Loading Items: ",
+           items.loadItemData)
+        se("Loading Scan Data: ",
+           planets.loadScanData)
+        se("Initialising Planets: ",
+           planets.initialisePlanets)
+        se("Loading Planetary Systems: ",
+           planets.loadPlanetarySystems)
+        se("Populating Planetary Systems: ",
+           planets.populatePlanetarySystems)
+        se("Loading Crew Data: ",
+           crew.loadCrewData)
         print("Initialising Internal Objects.")
-        print("Weapon and Shield Objects: ", end='')
-        weaponsAndShields.loadWeaponsAndShields()
-        print("complete.")
-        print("Crew Objects: ", end='')
-        self.crew = crew.Crew()
-        print("complete.")
-        print("Ship Objects: ", end='')
-        self.ship = ship.Ship()
-        print("complete.")
-        print("Intro Objects: ", end='')
-        self.intro = intro_main.IronseedIntro()
-        print("complete.")
-        print("Game Generator Objects: ", end='')
-        self.generator = gen.Generator(self.ship, self.crew)  # Settings at new-game state.
-        print("complete.")
-        print("Commnications System Objects: ", end='')
-        self.crewCom = crewC.crewComm(self.crew)  # Needs to have crew data set.
-        print("complete.")
-        print("Planet Scanner Objects: ", end='')
-        self.planetScanner = PlanetScanner.PlanetScanner(self.ship, self.crew)
-        print("complete.")
-        print("EGO Synth Manipulation System: ", end='')
-        self.EGOManipulation = EGOSynthManipulator.EGOManipulator(self.crew)
-        print("complete.")
-        print("Cargo Deck Objects: ", end='')
-        self.cargoDeck = cargoDeck.CargoDeck(self.ship)
-        print("complete.")
-        print("Crew Status Objects: ", end='')
-        self.crewStatus = crewStatus.CrewStatus(self.crew)
-        print("complete.")
-        print("Plant Comms Objects: ", end='')
-        self.planetComms = planetComms.PlanetComm(self.ship)
-        print("complete.")
-        print("Command Deck System: ", end='')
-        self.commandDeck = commandDeck.CommandDeck(self.ship, self.crew)
-        print("complete.")
-        print("Creating Main Menu: ", end='')
-        self.mainMenu = mainMenu.MainMenu()
-        print("complete.")
-        
+        se("Weapon and Shield Objects: ",
+           weaponsAndShields.loadWeaponsAndShields)
+        self.crew = se("Crew Objects: ",
+                       crew.Crew)
+        self.ship = se("Ship Objects: ",
+                       ship.Ship)
+        self.intro = se("Intro Objects: ",
+                        intro_main.IronseedIntro)
+        self.generator = se("Game Generator Objects: ",
+                            gen.Generator, self.ship, self.crew)  # Settings at new-game state.
+        self.crewCom = se("Communications System Objects: ",
+                          crewC.crewComm, self.crew)  # Needs to have crew data set.
+        self.planetScanner = se("Planet Scanner Objects: ",
+                                PlanetScanner.PlanetScanner, self.ship, self.crew)
+        self.EGOManipulation = se("EGO Synth Manipulation System: ",
+                                  EGOSynthManipulator.EGOManipulator, self.crew)
+        self.cargoDeck = se("Cargo Deck Objects: ",
+                            cargoDeck.CargoDeck, self.ship)
+        self.crewStatus = se("Crew Status Objects: ",
+                             crewStatus.CrewStatus, self.crew)
+        self.planetComms = se("Plant Comms Objects: ",
+                              planetComms.PlanetComm, self.ship)
+        self.commandDeck = se("Command Deck System: ",
+                              commandDeck.CommandDeck, self.ship, self.crew)
+        self.mainMenu = se("Creating Main Menu: ",
+                           mainMenu.MainMenu)
+
         # Note:  While in Alpha, the below state list is not exhaustive.
-        
+
         self.states = {1:self.generator.update,  # The crew + ship selection system.
                        2:self.mainMenu.update,  # Main menu.
                        3:self.intro.update,  # Game Intro - quite useful for testing.
@@ -118,7 +98,7 @@ class IronSeed(object):
                        16: "Creation",  # really item assembly/disassembly.
                        17: "Sector Map" # Inter-Sector travel.
                        }
-        
+
         self.interactive = {1:self.generator.interact,
                             2:self.mainMenu.interact,
                             3:self.intro.interact,
@@ -152,20 +132,27 @@ class IronSeed(object):
 
         # enter main state and logic loop.
         while 1:
-            
+
             for evt in pygame.event.get():
-                
+
                 if evt.type == pygame.QUIT:
-                    
+
                     pygame.quit()
                     sys.exit()
-                    
+
                 # Handle mouse input.
                 elif evt.type == pygame.MOUSEBUTTONDOWN:
-                    
+
                     self.state = self.interactive[self.state](evt.button)
-                    
+
             g.gameDate.update()  #  Update game time in "realtime"
             self.state = self.states[self.state](self.displaySurface)
             # self.state(self.displaySurface)
             pygame.display.update()
+
+
+if __name__ == "__main__":
+    game = IronSeed()
+    game.main_loop()
+    pygame.quit()
+    sys.exit(0)
