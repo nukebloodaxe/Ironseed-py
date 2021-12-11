@@ -1,0 +1,48 @@
+# Definition file used for initialization graphics, bar appearance, graphics used etc.
+# This should make it much easier for someone to skin the screen later.
+# ENDF = End of File
+# EOO = End of Object
+# EOD = End of Data, should surround a title, which has no associated object structure.
+# The format of a text line is [text to print], [end character], [completion text]
+# As we keep the text to 1 line, it is important to ensure the end character is correct, and the total length is short.
+Loading Items: 	 	Complete.
+EOO
+Loading Scan Data: 	 	Complete.
+EOO
+Initializing Planets: 	 	Complete.
+EOO
+Loading Planetary Systems: 	 	Complete.
+EOO
+Populating Planetary Systems: 	 	Complete.
+EOO
+Loading Crew Data: 	 	Complete.
+EOO
+INITIALIZING INTERNAL OBJECTS
+EOD
+Weapon and Shield Objects: 	 	Complete.
+EOO
+Crew Objects: 	 	Complete.
+EOO
+Ship Objects: 	 	Complete.
+EOO
+Indroduction Objects: 	 	Complete.
+EOO
+Game Generator Objects: 	 	Complete.
+EOO
+Communications System Objects: 	 	Complete.
+EOO
+Planet Scanner Objects: 	 	Complete.
+EOO
+Cargo Deck Objects: 	 	Complete.
+EOO
+Crew Status Objects: 	 	Complete.
+EOO
+Planet Communications Objects: 	 	Complete.
+EOO
+EGO Synth Manipulation System: 	 	Complete.
+EOO
+Command Deck System: 	 	Complete.
+EOO
+Creating Main Menu: 	 	Complete.
+EOO
+ENDF
