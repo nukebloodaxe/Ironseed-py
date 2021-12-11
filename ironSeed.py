@@ -75,49 +75,63 @@ class IronSeed(object):
         planets.initialisePlanets(self.loadAndSetup)
         planets.loadPlanetarySystems(self.loadAndSetup)
         planets.populatePlanetarySystems(self.loadAndSetup)
-        print("Loading Crew Data: ", end='')
-        crew.loadCrewData()
-        print("complete.")
-        print("Initialising Internal Objects.")
-        print("Weapon and Shield Objects: ", end='')
-        weaponsAndShields.loadWeaponsAndShields()
-        print("complete.")
-        print("Crew Objects: ", end='')
+        crew.loadCrewData(self.loadAndSetup)
+
+        # Section title.
+
+        self.loadAndSetup.setProcessStep(6)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
+        #  Initialising Internal Objects.
+
+        weaponsAndShields.loadWeaponsAndShields(self.loadAndSetup)
         self.crew = crew.Crew()
-        print("complete.")
-        print("Ship Objects: ", end='')
+        self.loadAndSetup.setProcessStep(8)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.ship = ship.Ship()
-        print("complete.")
-        print("Intro Objects: ", end='')
+        self.loadAndSetup.setProcessStep(9)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.intro = intro_main.IronseedIntro()
-        print("complete.")
-        print("Game Generator Objects: ", end='')
+        self.loadAndSetup.setProcessStep(10)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.generator = gen.Generator(self.ship, self.crew, self.loadAndSetup, True)  # Settings at new-game state.
-        print("complete.")
-        print("Communications System Objects: ", end='')
+        self.loadAndSetup.setProcessStep(11)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.crewCom = crewC.crewComm(self.crew)  # Needs to have crew data set.
-        print("complete.")
-        print("Planet Scanner Objects: ", end='')
+        self.loadAndSetup.setProcessStep(12)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.planetScanner = PlanetScanner.PlanetScanner(self.ship, self.crew)
-        print("complete.")
-        print("Cargo Deck Objects: ", end='')
+        self.loadAndSetup.setProcessStep(13)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.cargoDeck = cargoDeck.CargoDeck(self.ship)
-        print("complete.")
-        print("Crew Status Objects: ", end='')
+        self.loadAndSetup.setProcessStep(14)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.crewStatus = crewStatus.CrewStatus(self.crew)
-        print("complete.")
-        print("Planet Comms Objects: ", end='')
+        self.loadAndSetup.setProcessStep(15)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+        
         self.planetComms = planetComms.PlanetComm(self.ship)
-        print("complete.")
-        print("EGO Synth Manipulation System: ", end='')
+        self.loadAndSetup.setProcessStep(16)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.EGOManipulation = EGOSynthManipulator.EGOManipulator(self.crew)
-        print("complete.")
-        print("Command Deck System: ", end='')
+        self.loadAndSetup.setProcessStep(17)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.commandDeck = commandDeck.CommandDeck(self.ship, self.crew)
-        print("complete.")
-        print("Creating Main Menu: ", end='')
+        self.loadAndSetup.setProcessStep(18)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
+
         self.mainMenu = mainMenu.MainMenu()
-        print("complete.")
+        self.loadAndSetup.setProcessStep(19)  # Title.
+        self.loadAndSetup.update(100)  # Box the title.
 
         # Note:  While in Alpha, the below state list is not exhaustive.
 
