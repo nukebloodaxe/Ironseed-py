@@ -109,9 +109,9 @@ class initScreen(object):
 
         # Check to see which step we need to render from, so we don't overshoot
         # the bottom of the screen.
-        if self.step > self.lineLimit:
+        if self.step*2 > self.lineLimit:
 
-            self.barIndex = self.lineLimit - self.step
+            self.barIndex += 2
 
     #  Rendering routine, we use the default screen size.
     def screenRender(self):
