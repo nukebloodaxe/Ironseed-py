@@ -681,7 +681,7 @@ def findCrew(crewType, currentIndex, backward = False):
 
 #  Loads all crew data from the given file location.
 #  Note: Crew images are in numerical order for entries in IronPy_crew.tab
-def loadCrewData(file=os.path.join('Data_Generators', 'Other', 'IronPy_crew.tab')):
+def loadCrewData(loadAndSetup, file=os.path.join('Data_Generators', 'Other', 'IronPy_crew.tab')):
     
     crewFile = io.open(file, "r")
     crewName = ""
