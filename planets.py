@@ -1419,7 +1419,7 @@ class Planet(object):
                 
                 try:
                     
-                    xLocus, yLocus = h.sphereMap(x, y, g.planetHeight, g.planetHeight)
+                    xLocus, yLocus = h.cSphereMap(x, y, g.planetHeight, g.planetHeight)
                     tempPlanet4[xLocus][yLocus] = tempPlanet2[x][y]
                     #count += 1
                     
@@ -1427,7 +1427,7 @@ class Planet(object):
                     
                     exceptions += 1
                     
-        #print("Data Points Succeeded: ", count, " Exceptions: ", exceptions)
+        # print("Data Points Succeeded: ", count, " Exceptions: ", exceptions)
         tempPlanet2.close()
         tempPlanet4.close()
         
