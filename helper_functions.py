@@ -869,3 +869,55 @@ def drawPieGraph(surface, centre, radius, colour, values, increment=0):
         colourIndex += 1
 
     return pieGraphColours
+
+
+# Take an input texture, and based on the current step, create a frame of an
+# animation where pixels are sprayed vertically, top to bottom, left to right,
+# from a central point to form the final image.
+# Note: Centre is an x, y coordinate as a tuple.
+def drawSprayFrame(texture, centre, increment=0):
+
+    # The surface which will be returned.
+    sprayResult = pygame.Surface((texture.get_width(), texture.get_height()), 0)
+    sprayResult.set_colorkey(g.BLACK)
+    sprayResult.fill(g.BLACK)
+
+    # Lock surfaces for per-pixel access.
+    texture.lock()
+    sprayResult.lock()
+    currentPixelCount = 0
+    currentX = 0
+    currentY = 0
+
+    # For speed, python function lookups are expensive.
+    S = sprayResult.set_at
+    G = texture.get_at
+
+    # copy all pixels before the increment value.
+    while(currentPixelCount < increment):
+
+        S((currentX, currentY), G((currentX, currentY)))
+
+        if (currentY < (texture.get_height() - 1)):
+
+            currentY += 1
+
+        else:
+
+            currentY = 0
+            currentX += 1
+
+        currentPixelCount += 1
+
+    # We now unlock the spray result surface, for normal pygame function use.
+    sprayResult.unlock()
+
+    #print("currentX = ", currentX, "currentY = ", currentY)
+
+    # Draw a line the same colour as the origin pixel.
+    pygame.draw.line(sprayResult, G((currentX, currentY)), centre,
+                     (currentX, currentY))
+
+    # Unlock the surfaces.
+    texture.unlock()
+    return sprayResult
