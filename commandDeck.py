@@ -12,6 +12,7 @@ TODO:  Ship damage check to see if function available.
 
 import buttons, pygame, sys, os, io, random
 import global_constants as g
+import helper_functions as h
 
 #  The side of a cube, including buttons.
 class CubeSide(object):
@@ -155,8 +156,10 @@ class CommandDeck(object):
         self.systemState = 10
         self.musicState = False
         self.cube = Cube()
-        self.theCube = [0, 1, 2, 3, 4, 5, 6]  #  Cube function shortcut.
-        self.cubeGraphic = [0, 1, 2, 3, 4, 5, 6]  #  Cube graphic shortcuts.
+        self.theCube = [0, 1, 2, 3, 4, 5, 6]  # Cube function shortcut.
+        self.cubeGraphic = [0, 1, 2, 3, 4, 5, 6]  # Cube graphic shortcuts.
+        self.cubeFirstDraw = True  # Are we still drawing the cube with lasers?
+        self.cubeFirstDrawIncrement = 0
         self.subFunctions = []  # sub-functions in operation.
         self.buttons = [] #  Command deck buttons, not on cube.
         
@@ -195,6 +198,9 @@ class CommandDeck(object):
         self.medicalGraphic.blit(self.mainCubeGraphic, (0, 0), (0, 225, 50, 44))
         self.medicalGraphicScaled = pygame.transform.scale(self.medicalGraphic, (int((g.width/320)*50), int((g.height/200)*44)))
         self.cubeGraphic[5] = self.medicalGraphicScaled
+        
+        #  Set cube pixel count, based on one side.
+        self.cubePixelCount = int((g.width/320)*50) * int((g.height/200)*44)
         
         #  Command Deck Graphic
         self.commandDeckGraphic = pygame.image.load(os.path.join('Graphics_Assets', 'main.png'))
@@ -583,7 +589,7 @@ class CommandDeck(object):
         self.theCube[5] = self.cubeMedical
 
     #  Mouse button interaction routine.
-    #TODO:  Lots of button support.
+    # TODO:  Lots of button support.
     def interact(self, mouseButton):
         
         currentPosition = pygame.mouse.get_pos()
@@ -608,8 +614,7 @@ class CommandDeck(object):
                 
                 self.cube.changeFacet(button[0])
                 break
-        
-        
+
         return self.systemState
     
     #  Spinning the cube between facets is a trapezoidal transformation.
@@ -617,19 +622,39 @@ class CommandDeck(object):
     def drawCubeSpin(self):
         
         pass
-    
+
     #  Draw command deck interface.
     #  Note: The cube draws itself in at the start using multiple lasers.
     def drawInterface(self, displaySurface):
-        
+
         displaySurface.fill(g.BLACK)
         # TODO: Draw planet here.
         displaySurface.blit(self.commandDeckGraphicScaled, (0, 0))
-        # TODO: check frames and drawing of spinning cube.
-        # Simply draw current cube side for now.
-        displaySurface.blit(self.cubeGraphic[self.cube.currentSide],
-                            (self.cube.relativePosition[0],
-                             self.cube.relativePosition[1]))
+
+        # Draw the cube if it is the first time entering the deck.
+        if self.cubeFirstDraw:
+
+            sprayedFrame = h.drawSprayFrame(self.cubeGraphic[self.cube.currentSide],
+                                            (self.psychoGraphic.get_width(),
+                                            self.psychoGraphic.get_height()),
+                                            self.cubeFirstDrawIncrement)
+
+            displaySurface.blit(sprayedFrame, (self.cube.relativePosition[0],
+                                               self.cube.relativePosition[1]))
+
+            self.cubeFirstDrawIncrement += 1
+
+            if self.cubeFirstDrawIncrement >= self.cubePixelCount:
+
+                self.cubeFirstDraw = False
+
+        else:
+
+            # TODO: check frames and drawing of spinning cube.
+            # Simply draw current cube side for now.
+            displaySurface.blit(self.cubeGraphic[self.cube.currentSide],
+                                (self.cube.relativePosition[0],
+                                 self.cube.relativePosition[1]))
         
     
     
