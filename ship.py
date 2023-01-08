@@ -49,9 +49,11 @@ class Ship(object):
         
         #  Planetary System related variables: initialised to New Game values.
         self.orbiting = 2  #  Icarus.
+        self.planetarySystem = "OBAN"
         self.positionX = 16.6
         self.positionY = 22.6
         self.positionZ = 3.3
+        self.planet = object  # placeholder for later planet pointer.
         
         #  Engineering related variables
         self.systemDamage = [25, 15, 2, 3, 16, 55, 22]#New game start values.
@@ -89,12 +91,22 @@ class Ship(object):
     def getPosition(self):
         
         return self.positionX, self.positionY, self.positionZ
-    
+
     #  Get our orbit.
     def getOrbit(self):
-        
+
         return self.orbiting
-    
+
+    #  Get the name of the System we are in as a string.
+    def getSystem(self):
+
+        return self.planetarySystem
+
+    #  Get the current planetary body object as a planet object.
+    def getPlanet(self):
+
+        return self.planet
+
     #  Add a message to the pending messages queue, these are printed onscreen
     #  later.  CrewMember is the EGO Synth containment unit number.
     def addMessage(self, message, crewMember):
