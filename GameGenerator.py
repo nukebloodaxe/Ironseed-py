@@ -579,6 +579,7 @@ class Generator(object):
             #  By default this is already done on starting IronSeed fresh.
             #  The only time we need to do it again is if we are starting
             #  a new game after loading an old one, or running a fresh game.
+            self.currentShip.planet = planets.PlanetarySystems[self.currentShip.getSystem()].getPlanetAtOrbit(self.currentShip.getOrbit())
             self.generationStage += 1 #  TODO - Variable gen.
     
         #  Save game.
