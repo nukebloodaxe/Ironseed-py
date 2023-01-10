@@ -282,6 +282,9 @@ class CommandDeck(object):
 
         # Choose
 
+        # Position where the date and time should be printed
+        self.timePosition = (int((g.width/320)*45), int((g.height/200)*194))
+
         # Planet prerender ; placeholder
         self.planetPrerender = object
 
@@ -660,6 +663,19 @@ class CommandDeck(object):
     def drawCubeSpin(self):
 
         pass
+    
+    #  If we are drawing the cube for the first time, then we need to draw
+    # it pixel by pixel, with a laser line from the centre of its location.
+    def drawCubeFirstTime(self):
+        
+        sprayedResult, self.cubeFirstDrawBuffer, self.cubeFirstDrawXY = h.drawSprayFrame(self.cubeGraphic[self.cube.currentSide],
+                                                                                        (int(self.psychoGraphicScaled.get_width()/2),
+                                                                                         int(self.psychoGraphicScaled.get_height()/2)),
+                                                                                        self.cubeFirstDrawIncrement,
+                                                                                        self.cubeFirstDrawBuffer,
+                                                                                        True,
+                                                                                        self.cubeFirstDrawXY)
+        return sprayedResult
 
     #  Draw command deck interface.
     #  Note: The cube draws itself in at the start using multiple lasers.
@@ -694,16 +710,9 @@ class CommandDeck(object):
         # Draw the cube if it is the first time entering the deck.
         if self.cubeFirstDraw:
 
-            sprayedFrame, self.cubeFirstDrawBuffer, self.cubeFirstDrawXY = h.drawSprayFrame(self.cubeGraphic[self.cube.currentSide],
-                                                                                            (int(self.psychoGraphicScaled.get_width()/2),
-                                                                                             int(self.psychoGraphicScaled.get_height()/2)),
-                                                                                            self.cubeFirstDrawIncrement,
-                                                                                            self.cubeFirstDrawBuffer,
-                                                                                            True,
-                                                                                            self.cubeFirstDrawXY)
-
-            displaySurface.blit(sprayedFrame, (self.cube.relativePosition[0],
-                                               self.cube.relativePosition[1]))
+            displaySurface.blit(self.drawCubeFirstTime(),
+                                (self.cube.relativePosition[0],
+                                 self.cube.relativePosition[1]))
 
             self.cubeFirstDrawIncrement += 1
 
@@ -718,6 +727,14 @@ class CommandDeck(object):
             displaySurface.blit(self.cubeGraphic[self.cube.currentSide],
                                 (self.cube.relativePosition[0],
                                  self.cube.relativePosition[1]))
+
+        # Draw the current date and time on the lower left log screen.
+        # return [self.starDateYear, self.starDateMonth, self.starDateDay,
+        #         self.starDateHour, self.starDateMinute]
+        # Format is 2-digit-Day/2-digit-Month/5-digit-Year[space]hours:minutes.
+        h.renderText([str(g.gameDate)], g.font, displaySurface, g.BLUE,
+                     0, self.timePosition[0], self.timePosition[1])
+
 
     #  Check stage and run routines for initialization, ongoing ops or exit.
     def runCommandDeck(self, displaySurface):
