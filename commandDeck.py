@@ -234,6 +234,14 @@ class CommandDeck(object):
         #  Set cube pixel count, based on area of one side.
         self.cubePixelCount = (int((g.width/320)*50)-1) * (int((g.height/200)*44)-1)
 
+        #  Stars for background.
+        self.starBackground = pygame.image.load(
+            os.path.join('Graphics_Assets', 'cloud.png'))
+        
+        #  Prepare Stars for blitting.
+        self.starBackgroundScaled = pygame.transform.scale(
+            self.starBackground, (g.width, g.height))
+
         #  Command Deck Graphic
         self.commandDeckGraphic = pygame.image.load(
             os.path.join('Graphics_Assets', 'main.png'))
@@ -682,6 +690,9 @@ class CommandDeck(object):
     def drawInterface(self, displaySurface):
 
         displaySurface.fill(g.BLACK)
+        
+        # Draw the starfield background:
+        displaySurface.blit(self.starBackgroundScaled, (0, 0))
 
         # Draw planet.
         #currentPlanet = planets.PlanetarySystems[self.ironSeed.getSystem()].getPlanetAtOrbit(self.ironSeed.getOrbit())
