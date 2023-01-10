@@ -179,6 +179,8 @@ class CommandDeck(object):
         self.cubeGraphic = [0, 1, 2, 3, 4, 5, 6]  # Cube graphic shortcuts.
         self.cubeFirstDraw = True  # Are we still drawing the cube with lasers?
         self.cubeFirstDrawIncrement = 0
+        self.cubeFirstDrawBuffer = None
+        self.cubeFirstDrawXY = (0, 0)
         self.subFunctions = []  # sub-functions in operation.
         self.buttons = []  # Command deck buttons, not on cube.
 
@@ -229,8 +231,8 @@ class CommandDeck(object):
             self.medicalGraphic, (int((g.width/320)*50), int((g.height/200)*44)))
         self.cubeGraphic[5] = self.medicalGraphicScaled
 
-        #  Set cube pixel count, based on one side.
-        self.cubePixelCount = int((g.width/320)*50) * int((g.height/200)*44)
+        #  Set cube pixel count, based on area of one side.
+        self.cubePixelCount = (int((g.width/320)*50)-1) * (int((g.height/200)*44)-1)
 
         #  Command Deck Graphic
         self.commandDeckGraphic = pygame.image.load(
@@ -692,19 +694,22 @@ class CommandDeck(object):
         # Draw the cube if it is the first time entering the deck.
         if self.cubeFirstDraw:
 
-            sprayedFrame=h.drawSprayFrame(self.cubeGraphic[self.cube.currentSide],
-                                            (self.psychoGraphic.get_width(),
-                                            self.psychoGraphic.get_height()),
-                                            self.cubeFirstDrawIncrement)
+            sprayedFrame, self.cubeFirstDrawBuffer, self.cubeFirstDrawXY = h.drawSprayFrame(self.cubeGraphic[self.cube.currentSide],
+                                                                                            (int(self.psychoGraphicScaled.get_width()/2),
+                                                                                             int(self.psychoGraphicScaled.get_height()/2)),
+                                                                                            self.cubeFirstDrawIncrement,
+                                                                                            self.cubeFirstDrawBuffer,
+                                                                                            True,
+                                                                                            self.cubeFirstDrawXY)
 
             displaySurface.blit(sprayedFrame, (self.cube.relativePosition[0],
                                                self.cube.relativePosition[1]))
 
             self.cubeFirstDrawIncrement += 1
 
-            if self.cubeFirstDrawIncrement >= self.cubePixelCount:
+            if self.cubeFirstDrawXY[0] >= (self.psychoGraphicScaled.get_width() - 1):
 
-                self.cubeFirstDraw=False
+                self.cubeFirstDraw = False
 
         else:
 
@@ -713,31 +718,29 @@ class CommandDeck(object):
             displaySurface.blit(self.cubeGraphic[self.cube.currentSide],
                                 (self.cube.relativePosition[0],
                                  self.cube.relativePosition[1]))
-        
-    
-    
+
     #  Check stage and run routines for initialization, ongoing ops or exit.
     def runCommandDeck(self, displaySurface):
-        
+
         if self.commandStage == 0:
-            
+
             #  We need to ensure our system state is set.
             self.systemState = 10
-            
+
             #  Start deck music
             if self.musicState == False:
-                
+
                 pygame.mixer.music.load(os.path.join('sound', 'SECTOR.OGG'))
                 pygame.mixer.music.play()
                 self.musicState = True
                 self.commandStage += 1
-            
+
             #  Construct the cube.
             self.cube.constructCube(os.path.join('Data_Generators', 'Other', 'IronPy_CubeFacets.tab'))
             self.cubeFunctionLoading()
-            
+
         elif self.commandStage == 1:
-            
+
             self.ironSeedTime = g.gameDate.getGameTime()
             self.drawInterface(displaySurface)
 
@@ -745,15 +748,15 @@ class CommandDeck(object):
             if not pygame.mixer.music.get_busy():
 
                 pygame.mixer.music.play()
-        
+
         if self.systemState != 10:
-            
+
             self.commandStage = 0
             self.musicState = False
-        
+
         return self.systemState #  loop for the moment.
-    
-    
+
+    # Update tick for the command deck.
     def update(self, displaySurface):
 
         return self.runCommandDeck(displaySurface)

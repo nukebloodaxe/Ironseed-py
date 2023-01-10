@@ -875,49 +875,49 @@ def drawPieGraph(surface, centre, radius, colour, values, increment=0):
 # animation where pixels are sprayed vertically, top to bottom, left to right,
 # from a central point to form the final image.
 # Note: Centre is an x, y coordinate as a tuple.
-def drawSprayFrame(texture, centre, increment=0):
+# The buffer is a preexisting predrawn surface, and the haveBuffer indicator
+# tells the funtion to use it if present.  We always return a buffer image.
+def drawSprayFrame(texture, centre, increment=0, buffer=object,
+                   haveBuffer=False, priorXY=(0, 0)):
 
     # The surface which will be returned.
-    sprayResult = pygame.Surface((texture.get_width(), texture.get_height()), 0)
+    sprayResult = pygame.Surface(texture.get_size(), 0)
     sprayResult.set_colorkey(g.BLACK)
     sprayResult.fill(g.BLACK)
 
-    # Lock surfaces for per-pixel access.
-    texture.lock()
-    sprayResult.lock()
-    currentPixelCount = 0
-    currentX = 0
-    currentY = 0
+    currentX = priorXY[0]
+    currentY = priorXY[1]
 
-    # For speed, python function lookups are expensive.
-    S = sprayResult.set_at
-    G = texture.get_at
+    # Use a preexisting buffer?
+    if haveBuffer and increment == 0:
 
-    # copy all pixels before the increment value.
-    while(currentPixelCount < increment):
+        buffer = sprayResult.copy()
 
-        S((currentX, currentY), G((currentX, currentY)))
+    else:
 
-        if (currentY < (texture.get_height() - 1)):
+        sprayResult = buffer.copy()
 
-            currentY += 1
+    #print("Current X: ", currentX, "Current Y: ", currentY)
+    #print("Texture-Width: ", buffer.get_width(), "Texture-Height: ", buffer.get_height())
 
-        else:
+    textureHeight = texture.get_height() - 1
 
-            currentY = 0
-            currentX += 1
+    sprayResult.set_at((currentX, currentY), texture.get_at((currentX, currentY)))
+    buffer.set_at((currentX, currentY), texture.get_at((currentX, currentY)))
 
-        currentPixelCount += 1
+    if (currentY < textureHeight):
 
-    # We now unlock the spray result surface, for normal pygame function use.
-    sprayResult.unlock()
+        currentY += 1
+
+    else:
+
+        currentY = 0
+        currentX += 1
 
     #print("currentX = ", currentX, "currentY = ", currentY)
 
     # Draw a line the same colour as the origin pixel.
-    pygame.draw.line(sprayResult, G((currentX, currentY)), centre,
+    pygame.draw.line(sprayResult, texture.get_at((currentX, currentY)), centre,
                      (currentX, currentY))
 
-    # Unlock the surfaces.
-    texture.unlock()
-    return sprayResult
+    return sprayResult, buffer, (currentX, currentY)
