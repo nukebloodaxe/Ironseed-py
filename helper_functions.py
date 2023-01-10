@@ -430,7 +430,7 @@ GameStopwatch = StopWatch()  # Very much needed.
 #  Prefix a number with zeros for places width and return it as a string.
 #  If the places figure is 0 or less, return the number as a string.
 #  If the number is greater than the length of the places, return the number.
-def zeroPrefix(self, number, places):
+def zeroPrefix(number, places):
 
     if places <= 0:
 
@@ -444,7 +444,7 @@ def zeroPrefix(self, number, places):
 
     prefixCount = places - len(str(number))
 
-    for index in range(1, prefixCount):
+    for index in range(0, prefixCount):
 
         result += '0'
 
@@ -458,10 +458,10 @@ class IronSeedTime(object):
 
     def __init__(self):
 
-        #  Set stardate from global value.
-        self.starDateYear = g.starDate[0]
-        self.starDateMonth = g.starDate[1]
-        self.starDateDay = g.starDate[2]
+        #  Set stardate from global value. M,D,Y,H,M
+        self.starDateYear = g.starDate[2]
+        self.starDateMonth = g.starDate[0]
+        self.starDateDay = g.starDate[1]
         self.starDateHour = g.starDate[3]
         self.starDateMinute = g.starDate[4]
         self.internalTimer = StopWatch()
@@ -486,7 +486,7 @@ class IronSeedTime(object):
     #  Note:  For some reason time was in blue on black...
     def __str__(self):
 
-        return zeroPrefix(self.starDateDay, 2)+'/'+zeroPrefix(self.starDateMonth, 2)+'/'+str(self.starDateYear)+'  '+zeroPrefix(self.starDateHour, 2)+':'+zeroPrefix(self.starDateMinute, 2)
+        return str(zeroPrefix(self.starDateDay, 2)+'/'+zeroPrefix(self.starDateMonth, 2)+'/'+zeroPrefix(self.starDateYear, 5)+'  '+zeroPrefix(self.starDateHour, 2)+':'+zeroPrefix(self.starDateMinute, 2))
 
     #  Update the time, this uses the default of 1 real-world
     #  second = 5 minutes.
@@ -881,9 +881,7 @@ def drawSprayFrame(texture, centre, increment=0, buffer=object,
                    haveBuffer=False, priorXY=(0, 0)):
 
     # The surface which will be returned.
-    sprayResult = pygame.Surface(texture.get_size(), 0)
-    sprayResult.set_colorkey(g.BLACK)
-    sprayResult.fill(g.BLACK)
+    sprayResult = object
 
     currentX = priorXY[0]
     currentY = priorXY[1]
@@ -891,21 +889,22 @@ def drawSprayFrame(texture, centre, increment=0, buffer=object,
     # Use a preexisting buffer?
     if haveBuffer and increment == 0:
 
+        sprayResult = pygame.Surface(texture.get_size(), 0)
+        sprayResult.set_colorkey(g.BLACK)
+        sprayResult.fill(g.BLACK)
+        sprayResult.set_at((currentX, currentY), texture.get_at((currentX, currentY)))
         buffer = sprayResult.copy()
 
     else:
 
+        buffer.set_at((currentX, currentY), texture.get_at((currentX, currentY)))
         sprayResult = buffer.copy()
 
     #print("Current X: ", currentX, "Current Y: ", currentY)
-    #print("Texture-Width: ", buffer.get_width(), "Texture-Height: ", buffer.get_height())
+    #print("Texture-Width: ", buffer.get_width(),
+    #      "Texture-Height: ", buffer.get_height())
 
-    textureHeight = texture.get_height() - 1
-
-    sprayResult.set_at((currentX, currentY), texture.get_at((currentX, currentY)))
-    buffer.set_at((currentX, currentY), texture.get_at((currentX, currentY)))
-
-    if (currentY < textureHeight):
+    if (currentY < (texture.get_height() - 1)):
 
         currentY += 1
 
