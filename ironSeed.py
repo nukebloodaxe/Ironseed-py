@@ -53,6 +53,8 @@ class IronSeed(object):
         #  Fonts:  this is a temporary google font, get it from them.
         g.font = pygame.font.Font(os.path.join('Fonts', 'Inconsolata-ExtraBold.ttf'), 14)
         g.offset = 15
+        # Note: temporary doubling, for the command deck.
+        g.font2 = pygame.font.Font(os.path.join('Fonts', 'Inconsolata-ExtraBold.ttf'), 28)
 
         # Set Window version and Display surface
         print("Initialize Screen.")
@@ -202,6 +204,9 @@ class IronSeed(object):
             pygame.display.update()  # update displayed frames.
             break  # skip for now.
 
+        # create and initialise the game engine clock.
+        #runningSpeed = pygame.time.Clock()
+
         # Enter main state and logic loop.
         while 1:
 
@@ -221,3 +226,4 @@ class IronSeed(object):
             self.state = self.states[self.state](self.displaySurface)
             # self.state(self.displaySurface)
             pygame.display.update()
+            #runningSpeed.tick(60)  # Run at 60fps.

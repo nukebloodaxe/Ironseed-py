@@ -33,6 +33,7 @@ TECH5 = (250, 250, 0)
 
 # Font global placeholders, initialized in ironseed.py
 font = object
+font2 = object
 offset = object  # for this font.
 
 #  Totals for items

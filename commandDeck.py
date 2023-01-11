@@ -21,8 +21,6 @@ import global_constants as g
 import helper_functions as h
 
 #  The side of a cube, including buttons.
-
-
 class CubeSide(object):
 
     def __init__(self):
@@ -32,21 +30,30 @@ class CubeSide(object):
         self.left = None
         self.right = None
         self.buttons = []
+        self.sideName = "BAD FACET"
 
     #  Add a button to this facet, and also convert for current resolution.
-    def addButton(self, height, width, x, y, returnValue):
+    def addButton(self, height, width, x, y, returnValue, description):
 
-        self.buttons.append((returnValue, buttons.Button(int((g.height/200)*height),
+        self.buttons.append((returnValue,
+                             buttons.Button(int((g.height/200)*height),
                                                          int((g.width/320)
                                                              * width),
                                                          (int((g.width/320)*x),
-                                                          int((g.height/200)*y)))))
+                                                          int((g.height/200)*y))),
+                             description))
+
+    #  Update facet name.
+    def updateSideName(self, name):
+
+        self.sideName = name
 
     #  Return tuple of False and 0 when nothing matched.
     def checkButtonPress(self, position):
 
         match = False
         buttonType = 0
+        buttonDescription = ""
 
         for button in self.buttons:
 
@@ -54,13 +61,27 @@ class CubeSide(object):
 
                 match = True
                 buttonType = button[0]
+                buttonDescription = button[2]
                 break
 
-        return (match, buttonType)
+        return (match, buttonType, buttonDescription)
+
+    #  Return a facit description name.
+    def getSideDescription(self):
+
+        return self.sideName
+
+    #  Return a button description string according to the facit type.
+    def buttonDescription(self, buttonType):
+
+        for button in self.buttons:
+
+            if button[0] == buttonType:
+
+                return button[2]
+
 
 #  A cube in memory, stores and interacts with the cube used on the command deck.
-
-
 class Cube(object):
 
     def __init__(self):
@@ -110,6 +131,25 @@ class Cube(object):
         temp = (cubeFacetFile.readline().split(
             '\n')[0]).split('\t')  # Data Line
 
+        #  Add description text to facets.
+        while temp[0] != "ENDDESC":
+            
+            # print(temp)
+
+            try:
+
+                self.sides[int(temp[0])].updateSideName(temp[1])
+
+            except:
+
+                print("Absolutely fatal Error loading cube description data!")
+
+            temp = (cubeFacetFile.readline().split(
+                '\n')[0]).split('\t')  # Data Line
+
+        temp = (cubeFacetFile.readline().split(
+            '\n')[0]).split('\t')  # Data Line
+
         #  Add buttons to facets.
         while temp[0] != "ENDF":
 
@@ -119,7 +159,7 @@ class Cube(object):
 
                 self.sides[int(temp[0])].addButton(int(temp[1]), int(temp[2]),
                                                    int(temp[3]), int(temp[4]),
-                                                   int(temp[5]))
+                                                   int(temp[5]), str(temp[6]))
             except:
 
                 print("Absolutely fatal Error loading cube data!")
@@ -183,6 +223,7 @@ class CommandDeck(object):
         self.cubeFirstDrawXY = (0, 0)
         self.subFunctions = []  # sub-functions in operation.
         self.buttons = []  # Command deck buttons, not on cube.
+        self.cubeFocusText = ""  # Title of what we are mousing over on cube.
 
         #  Load Graphics Layers
 
@@ -292,6 +333,11 @@ class CommandDeck(object):
 
         # Position where the date and time should be printed
         self.timePosition = (int((g.width/320)*45), int((g.height/200)*194))
+        
+        # Position where the description text for command buttons should be
+        # printed.
+        self.descriptionPosition = (int((g.width/320)*192),
+                                    int((g.height/200)*125))
 
         # Planet prerender ; placeholder
         self.planetPrerender = object
@@ -648,9 +694,10 @@ class CommandDeck(object):
         if cubeCheck[0]:
 
             self.systemState = self.theCube[self.cube.currentSide](cubeCheck[1])
+            self.cubeFocusText = cubeCheck[2]
 
         # Debug.
-        print("Cube Check: ", cubeCheck[0], " State: ", cubeCheck[1])
+        print("Cube Check: ", cubeCheck[0], " State: ", cubeCheck[1], "NAME: ", cubeCheck[2])
 
         # self.systemState = self.theCube[self.cubeFacet](currentPosition)
 
@@ -662,6 +709,11 @@ class CommandDeck(object):
             if changeFacet:
 
                 self.cube.changeFacet(button[0])
+                self.cubeFocusText = self.cube.sides[self.cube.currentSide].getSideDescription()
+
+                # Debug
+                print("Focus Text: ", self.cubeFocusText)
+
                 break
 
         return self.systemState
@@ -746,6 +798,12 @@ class CommandDeck(object):
         h.renderText([str(g.gameDate)], g.font, displaySurface, g.BLUE,
                      0, self.timePosition[0], self.timePosition[1])
 
+        # Draw the current description of what has been clicked/focussed
+        # to the text field above the command cube.
+        h.renderText([self.cubeFocusText], g.font2, displaySurface, g.BLUE,
+                     0, self.descriptionPosition[0],
+                     self.descriptionPosition[1])
+
 
     #  Check stage and run routines for initialization, ongoing ops or exit.
     def runCommandDeck(self, displaySurface):
@@ -766,6 +824,8 @@ class CommandDeck(object):
             #  Construct the cube.
             self.cube.constructCube(os.path.join('Data_Generators', 'Other', 'IronPy_CubeFacets.tab'))
             self.cubeFunctionLoading()
+            #  We default to side 0 for the description at the start.
+            self.cubeFocusText = self.cube.sides[0].getSideDescription()
 
         elif self.commandStage == 1:
 
