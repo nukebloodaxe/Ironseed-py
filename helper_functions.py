@@ -174,6 +174,8 @@ def targettingReticule(surface, x, y, colour, quantity, spacing, thickness):
 #             numbers...
 def sphereMap(x, y, xWidth, yHeight):
 
+    return x * cmath.sqrt(1 - y * y / 2).real, y * cmath.sqrt(1 - x * x / 2).real
+
     #  x * math.sqrt(1 - y * y / 2), y * math.sqrt(1 - x * x / 2)
     #  Determine in which quadrant circle unit value will appear.
     #  And convert x and y to temporary unit circle values

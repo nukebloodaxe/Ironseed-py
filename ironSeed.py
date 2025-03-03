@@ -79,6 +79,9 @@ class IronSeed(object):
         planets.populatePlanetarySystems(self.loadAndSetup)
         crew.loadCrewData(self.loadAndSetup)
 
+        # Populate graphics precalculation tables.
+        planets.precalculatePlanetSphereMapping()
+
         # Section title.
 
         self.loadAndSetup.setProcessStep(6)  # Title.

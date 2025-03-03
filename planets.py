@@ -38,6 +38,8 @@ ScanData = [] #  Holds the scan data definitions from scandata.tab.
 #  ---> Planet state this way, planet grade down.
 SystemData = []
 
+PlanetSpherePreCalculation = {} # precalculation for rendering sphere.
+
 class Planet(object):
     
     def __init__(self):
@@ -1419,7 +1421,9 @@ class Planet(object):
                 
                 try:
                     
-                    xLocus, yLocus = h.cSphereMap(x, y, g.planetHeight, g.planetHeight)
+                    #xLocus, yLocus = h.cSphereMap(x, y, g.planetHeight, g.planetHeight)
+                    xLocus, yLocus = PlanetSpherePreCalculation[(x, y)]
+                    #print("XLocus: ", xLocus, "YLocus: ", yLocus)
                     tempPlanet4[xLocus][yLocus] = tempPlanet2[x][y]
                     #count += 1
                     
@@ -1850,6 +1854,29 @@ def populatePlanetarySystems(loadAndSetup):
 
             break
 
+# Precalculate the sphere mappings used for rendering planets.
+# Called at initialization, and should be every time resolution is changed.
+def precalculatePlanetSphereMapping():
+
+    exceptions = 0
+    
+    for x in range(0, g.planetHeight):
+
+        for y in range(0, g.planetHeight):
+
+            try:
+
+                PlanetSpherePreCalculation[(x,
+                                           y)] = h.cSphereMap(x,
+                                                              y,
+                                                              g.planetHeight,
+                                                              g.planetHeight)
+
+            except:
+
+                exceptions += 1
+
+    #print("Exceptions in Data Points: ", exceptions)
 
 # Load in scanData, used during planet scans.
 def loadScanData(loadAndSetup,
