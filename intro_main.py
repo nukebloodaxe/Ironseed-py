@@ -243,7 +243,7 @@ class IronseedIntro(object):
         readyPlanet = pygame.Surface((g.planetWidth, g.planetHeight), 0)
         readyPlanet.set_colorkey(g.BLACK)
         terrainStart = step % (g.planetWidth+1)
-        actualPlanet = planets.Planets[planet].planetBitmapToSphere(readyPlanet, terrainStart, eclipse = True)
+        actualPlanet = planets.Planets[planet].planetBitmapToSphere2(readyPlanet, terrainStart, eclipse = True)
         surface.blit(readyPlanet,(int(g.width/16),int(g.height/8)))
         #surface.blit(actualPlanet,(200,200))
         #finished = True #  W00T!
@@ -719,7 +719,7 @@ class IronseedIntro(object):
         readyPlanet = pygame.Surface((g.planetWidth, g.planetHeight), 0)
         readyPlanet.set_colorkey(g.BLACK)
         terrainStart = self.crashLandingStep % (g.planetWidth+1)
-        planets.Planets["Icarus"].planetBitmapToSphere(readyPlanet, terrainStart, eclipse = True)
+        planets.Planets["Icarus"].planetBitmapToSphere2(readyPlanet, terrainStart, eclipse = True)
         displaySurface.blit(readyPlanet,(int(g.width/16),int(g.height/8)))
         
         #  Render text and bars.

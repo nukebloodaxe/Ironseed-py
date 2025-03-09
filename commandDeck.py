@@ -763,7 +763,7 @@ class CommandDeck(object):
 
                 self.timePixelIncrement = 0
 
-            self.planetPrerender = currentPlanet.planetBitmapToSphere(readyPlanet, terrainStart, eclipse=True)
+            self.planetPrerender = currentPlanet.planetBitmapToSphere2(readyPlanet, terrainStart, eclipse=True)
 
         displaySurface.blit(self.planetPrerender, (int(g.width/16), int(g.height/8)))
 

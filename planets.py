@@ -43,42 +43,46 @@ PlanetSpherePreCalculation = {} # precalculation for rendering sphere.
 class Planet(object):
     
     def __init__(self):
-        
+
         self.name = "UNKNOWN"
-        self.systemName = "" #  Quicker for reverse lookups.
-        self.index = 0 #  Normally our planet number.
+        self.systemName = ""  # Quicker for reverse lookups.
+        self.index = 0  # Normally our planet number.
         self.state = 0
-        self.grade = 0 #  Appears to be "mode" in original code.
+        self.grade = 0  # Appears to be "mode" in original code.
         self.size = 1
         self.radius = 0
         self.water = 0
-        self.vegitationLevel = (0, 0)  #  New for this engine.
+        self.vegitationLevel = (0, 0)  # New for this engine.
         self.age = 0
-        self.bots = [0, 0, 0] #  Mining, Fabricator, Manufactory.
-        self.depleted = 0 #  Have bots completed mining/building/fabricating?
+        self.bots = [0, 0, 0]  # Mining, Fabricator, Manufactory.
+        self.depleted = 0  # Have bots completed mining/building/fabricating?
         self.notes = 0
-        self.seed = 0 #  Seed used for procedural generation.
-        self.cache = [] #  Item cache, limit of 7 items.
+        self.seed = 0  # Seed used for procedural generation.
+        self.cache = []  # Item cache, limit of 7 items.
         # Visitation date related info:
         self.dateMonth = 0
         self.dateYear = 0
         self.visits = 0
-        self.orbit = 0 #  set this during system generation.
-        self.outpost = 0 #  Extra feature, is this an outpost?
-        self.owned = 0 #  Extra feature, the owner of the planet.
-        self.anomalyGeneration = False #  Have anomalies been generated?
+        self.orbit = 0  # set this during system generation.
+        self.outpost = 0  # Extra feature, is this an outpost?
+        self.owned = 0  # Extra feature, the owner of the planet.
+        self.anomalyGeneration = False  # Have anomalies been generated?
         # Planet bitmap of terrain data.
         self.planetTerrain = [[0 for i in range(g.planetWidth)] for j in range(g.planetHeight)]
-        self.eclipsePhase = random.randint(0, 4)  #  Area covered by eclipse shadow.
-        #  Planet texture related data
+        self.eclipsePhase = random.randint(0, 4)  # Area covered by eclipse shadow.
+        # Planet texture related data
         self.planetTexture = pygame.Surface((g.planetWidth, g.planetHeight), 0)
         self.planetTexture.set_colorkey(g.BLACK)
-        self.planetTextureExists = False  #  Have we generated the planet?
-        
-        #  self.createPlanet()
-        #  Note: If you see a system with a star called 'UNKNOWN',
-        #        then you have a serious problem.
-        
+        self.planetTextureExists = False  # Have we generated the planet?
+        self.precalculatedSurfaceTexture = pygame.Surface((g.planetWidth, g.planetHeight), 0)
+        self.precalculatedSurfaceTextureDirty = True  # is our data invalid.
+        self.precalculatedEclipseBoundary = self.eclipse(self.eclipsePhase)
+        self.precalculatedEclipseBoundaryDirty = True  # In our data invalid.
+
+        # self.createPlanet()
+        # Note: If you see a system with a star called 'UNKNOWN',
+        #       then you have a serious problem.
+    
         # Probot scan related Data points.
         # 1 for each hemesphere.  When value is 2, scan is complete.
         self.lithosphere = 0
@@ -87,38 +91,38 @@ class Planet(object):
         self.biosphere = 0
         self.anomaly = 0
         self.fullyScanned = False
-        
+
         #  Per pixel data generated, this affects statistical measurements.
         self.biologicalLevel = 0
         self.biologicalLevelComputed = False
         self.waterCoverage = 0
         self.waterCoverageComputed = False
-        
+
         # tl2 as it is known in the original code, represents technology
         # after the decimal point.
         self.technology2 = 0
-        
+
     # New game initialisation, this occurs during the generation phase.
     # Results are ultimately saved to save game file for new game.
     def generate(self, index, sun = False):
-        
+
         self.index = index
         self.seed = random.randint(1, 64000)
         random.seed(self.seed)
         self.size = random.randint(1, 5)
         self.biologicalLevelComputed = False
         self.waterCoverageComputed = False
-        
+
         if self.size == 0 or self.size == 1:
-            
+
             self.radius = 900
-            
+
         elif self.size == 2 or self.size == 3:
-            
+
             self.radius = 1095
-            
+
         else:
-            
+
             self.radius = 3000
         
         if sun:
@@ -1231,6 +1235,272 @@ class Planet(object):
         self.planetTextureExists = True
         
 
+    # Calculate all the pixels for and pregenerate a planet texture in full.
+    # This also includes the correct colour ranges.
+    # Note that the eclipse mask still needs calculation later.
+    def precalculateColouredPlanetTexture(self):
+    
+        # we don't want to do this again if it has already been done.
+        if not self.precalculatedSurfaceTextureDirty:
+            
+            return
+
+        adjustedPixel = 0  # to avoid using modulus later.
+        
+        #  We'll prepare our fresh texture for writing.
+        self.precalculatedSurfaceTexture.set_colorkey(g.BLACK)
+        tempPlanet = pygame.PixelArray(self.precalculatedSurfaceTexture)
+        
+        for x in range(0, g.planetWidth):
+            
+            for y in range(0, g.planetHeight):
+                                
+                if self.water > self.planetTerrain[y][x]:
+                    
+                    if self.waterCoverageComputed == False:
+                        
+                        self.waterCoverage += 1
+                    
+                    #print("water")
+                    #  Water depth support...
+                    #  TODO : preliminary support
+                    #  Current blue is based on difference between water level and terrain
+                        
+                    #  Brighten
+                    adjustedPixel = (self.water-self.planetTerrain[y][x]) + 60
+                    
+                    if adjustedPixel >= 255:
+                        
+                        adjustedPixel = 254
+                    
+                    tempPlanet[x][y] = (0,
+                                        0,
+                                        adjustedPixel)
+                    #print("What should be here: ", str((0, 0, self.water-self.planetTerrain[y][bitmapSafeX])))
+                    #print("What is here: ", tempPlanet2[y][safeX])
+                #  Check for technology, if pixel = technology, then put bright
+                #  yellow pixel.  This is based on tech level.
+                
+                elif self.planetTerrain[y][x] == 255:
+                    
+                    #print("technology")
+                    Technology = self.getTechLevel()
+                
+                    if Technology <= 1:
+                        
+                        if Technology > 0:
+                            
+                            tempPlanet[x][y] = g.TECH1
+                            
+                    elif Technology <= 2:
+                        
+                        tempPlanet[x][y] = g.TECH2
+                            
+                    elif Technology <= 3:
+                        
+                        tempPlanet[x][y] = g.TECH3
+                            
+                    elif Technology <= 4:
+                        
+                        tempPlanet[x][y] = g.TECH4
+                            
+                    elif Technology <= 5:
+                        
+                        tempPlanet[x][y] = g.TECH5
+                            
+                    else:
+                        
+                        tempPlanet[x][y] = g.YELLOW
+                            
+                #  TODO : Green pixels based on life present.
+                elif self.planetTerrain[y][x] < self.vegitationLevel[1]:
+                    
+                    #  We also compute the biological matter present here,
+                    #  it's more efficient.
+                    if self.biologicalLevelComputed == False:
+                        
+                        self.biologicalLevel += 1
+                    
+                    #  Brighten
+                    adjustedPixel = self.planetTerrain[y][x] + 40
+                    
+                    if adjustedPixel >= 255:
+                        
+                        adjustedPixel = 254
+                    
+                    tempPlanet[x][y] = (0,
+                                        adjustedPixel,
+                                        0)
+                
+                
+                else:
+                    
+                    # TODO:  Add the correct colours.
+                    #print("default")
+
+                    #  Brighten
+                    adjustedPixel = self.planetTerrain[y][x] + 40
+                    
+                    if adjustedPixel >= 255:
+                        
+                        adjustedPixel = 254
+                    
+                    tempPlanet[x][y] = (adjustedPixel,
+                                        adjustedPixel,
+                                        adjustedPixel)
+                    #tempPlanet2[x][y] = (0,self.planetTerrain[y][x],0)
+                    
+        
+        #print("Total Data Points: ", g.planetWidth*g.planetHeight)
+        #count = 0
+        exceptions = 0
+        
+        # print("Data Points Succeeded: ", count, " Exceptions: ", exceptions)
+        tempPlanet.close()
+        
+        self.biologicalLevelComputed = True  # This has now been calculated.
+        self.waterCoverageComputed = True # This has now been calculated.
+        self.precalculatedSurfaceTextureDirty = False
+        
+        return tempPlanet
+        #  That's it!
+        # Alternative approach finish.   
+        
+    def planetBitmapToSphere2(self, sphereSurface, terrainStart = 0, eclipse = True):
+        
+        glowIndex = 4  #  It's glowing brightly.
+        day, month, year, second = 0, 0, 0, 0  #  For rotation calculations.
+        #  starDate = [2, 3, 3784, 8, 75] #  M,D,Y,H,M.
+        adjustedPixel = 0  # to avoid using modulus later.
+        #  math.radians(degrees)
+        #  width of terrain: len(self.planetTerrain[0][0])
+        #  Height of surface sphereSurface.get_height()
+        tempPlanet = pygame.Surface((g.planetHeight, g.planetHeight), 0)
+        tempPlanet.set_colorkey(g.BLACK)
+        tempPlanet2 = pygame.PixelArray(tempPlanet)
+        #  360 degrees in a circle.
+        
+        if self.precalculatedSurfaceTextureDirty:
+            
+            self.precalculateColouredPlanetTexture()
+
+        precalculatedPlanetSurface = pygame.PixelArray(self.precalculatedSurfaceTexture)
+
+        for x in range(0, g.planetHeight):
+            
+            bitmapSafeX = h.safeWrap(g.planetWidth, x, terrainStart)
+            safeX = h.safeWrap(g.planetHeight, x, 0)
+            
+            for y in range(0, g.planetHeight):
+                
+                tempPlanet2[safeX][y] = self.precalculatedSurfaceTexture.get_at((bitmapSafeX, y))
+                
+        precalculatedPlanetSurface.close()
+
+        # We'll now set up the eclipse on the tempplanet texture.
+        if eclipse:
+
+            if self.precalculatedEclipseBoundaryDirty:
+
+                # Now we will apply an eclipse mask to tempPlanet.
+                self.precalculatedEclipseBoundary = self.eclipse(self.eclipsePhase)
+                self.precalculatedEclipseBoundaryDirty = False
+
+            # Creating the shadow mask
+            shadowMask = pygame.Surface((self.precalculatedEclipseBoundary, g.planetHeight), pygame.SRCALPHA)
+            shadowMask.fill((0, 0, 0, 102))  # 40% opaque black (255 * 0.4 = 102)
+
+            # We need to close this for a blit to be possible, and open again afterwards.
+            tempPlanet2.close()
+            
+            # Blit this onto tempPlanet and pray...
+            tempPlanet.blit(shadowMask, (0, 0), special_flags=pygame.BLEND_ALPHA_SDL2)
+            
+            tempPlanet2 = pygame.PixelArray(tempPlanet)
+
+        #  https://www.xarg.org/2017/07/how-to-map-a-square-to-a-circle/
+        #  Thank you Robert, this is exactly what I was looking for!
+        #  function sphereMap(x, y):
+        #    return [ x * math.sqrt(1-y*y/2), y * math.sqrt(1-x*x/2)]
+        #  Alternative approach start
+        
+        tempPlanet3 = pygame.Surface((g.planetHeight, g.planetHeight), 0)
+        tempPlanet3.set_colorkey(g.BLACK)
+        tempPlanet3.fill(g.BLACK)
+        tempPlanet4 = pygame.PixelArray(tempPlanet3)
+        
+        #print("Total Data Points: ", g.planetHeight*g.planetHeight)
+        #count = 0
+        exceptions = 0
+
+        for x in range(0, g.planetHeight):
+
+            safeX = h.safeWrap(g.planetHeight, x, 0)
+            #print("count:", count)
+            for y in range(0, g.planetHeight):
+
+                try:
+
+                    #xLocus, yLocus = h.cSphereMap(x, y, g.planetHeight, g.planetHeight)
+                    xLocus, yLocus = PlanetSpherePreCalculation[(x, y)]
+                    #print("XLocus: ", xLocus, "YLocus: ", yLocus)
+                    tempPlanet4[xLocus][yLocus] = tempPlanet2[safeX][y]
+                    #count += 1
+                
+                    #print("xLocus:", xLocus, "yLocus:", yLocus)
+                    
+                    # You may laugh, but the precalculated sphere map
+                    # produces negative numbers, which work fine.
+                    # Except when using get_at...
+                    # This eclipse calc is also the bottleneck.
+                    
+                    #if xLocus < 0:
+                        
+                    #    xLocus = g.planetHeight + xLocus
+                    
+                    #if yLocus < 0:
+                        
+                    #    yLocus = g.planetHeight + yLocus
+                    
+                
+                    #if tempPlanet3.get_at((xLocus, yLocus)) != g.BLACK:
+                        
+                    #    if x <= self.eclipse(self.eclipsePhase):
+                            
+                            # We need to get the current rgb colour.
+                    #        R, G, B, a = tempPlanet3.get_at((xLocus, yLocus))
+
+                            # We'll now darken the pixels by 40%
+                    #        R = max(0, int(R * 0.6))
+                    #        G = max(0, int(G * 0.6))
+                    #        B = max(0, int(B * 0.6))
+
+                    #        tempPlanet4[xLocus][yLocus] = (R, G, B)
+
+                except:
+
+                    exceptions += 1
+
+        #print("Data Points Succeeded: ", count, " Exceptions: ", exceptions)
+        tempPlanet2.close()
+        tempPlanet4.close()
+
+        #  Test texture surface, have a look at it when it is flat.
+        #  Note: scale will be incorrect as target is smaller.  This is okay.
+        #self.planetTexture = tempPlanet
+        #self.planetTextureExists = False  #  Flat planet texture clobbered.
+        #self.planetTexture.blit(tempPlanet,(0,0))
+        #  I know, but this is something that needs investigating further.
+        #sphereSurface.blit(pygame.transform.rotate(tempPlanet3, 90), (0,0))
+        sphereSurface.blit(tempPlanet3, (0, 0))
+        
+        self.biologicalLevelComputed = True  # This has now been calculated.
+        self.waterCoverageComputed = True # This has now been calculated.
+        
+        return tempPlanet3
+        #  That's it!
+        # Alternative approach finish.       
+
     #  Wrap a flat surface to a pseudo sphere.
     #  The idea is that we can take a defined area of a planet, a flat surface,
     #  and convert it into a "sphere" which we can rotate every so often.
@@ -1238,6 +1508,7 @@ class Planet(object):
     #  and end pixels by one.
     #  sphereSurface must be square and terrain start must be
     #  within or equil to the width of the planet surface.
+    #  TODO: Reconstruct to generate complete precalculated texture.
     def planetBitmapToSphere(self, sphereSurface, terrainStart = 0, eclipse = True):
         
         glowIndex = 4  #  It's glowing brightly.
@@ -1251,6 +1522,10 @@ class Planet(object):
         tempPlanet.set_colorkey(g.BLACK)
         tempPlanet2 = pygame.PixelArray(tempPlanet)
         #  360 degrees in a circle.
+        
+        if self.precalculatedSurfaceTextureDirty:
+            
+            self.precalculateColouredPlanetTexture()
         
         for x in range(0, g.planetHeight):
             
@@ -1659,6 +1934,9 @@ def initialisePlanets(loadAndSetup, planetNamesFile = os.path.join('Data_Generat
     Planets["mars"].age = 1000000
     Planets["mars"].orbit = 4
     Planets["mars"].createPlanet()
+    Planets["mars"].eclipsePhase = 3
+    Planets["mars"].precalculatedEclipseBoundary = Planets["mars"].eclipse(Planets["mars"].eclipsePhase)
+    Planets["mars"].precalculatedEclipseBoundaryDirty = False
 
     # Oban planet orbit 2.
     Planets["Icarus"] = Planet()  # For intro.
@@ -1671,6 +1949,9 @@ def initialisePlanets(loadAndSetup, planetNamesFile = os.path.join('Data_Generat
     Planets["Icarus"].age = 2000
     Planets["Icarus"].orbit = 2
     Planets["Icarus"].createPlanet()
+    Planets["Icarus"].eclipsePhase = 1
+    Planets["Icarus"].precalculatedEclipseBoundary = Planets["Icarus"].eclipse(Planets["Icarus"].eclipsePhase)
+    Planets["Icarus"].precalculatedEclipseBoundaryDirty = False
 
     progress = 0  # Our progress in %
 
