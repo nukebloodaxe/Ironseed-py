@@ -439,8 +439,8 @@ class IronseedIntro(object):
         """
         if self.encodeStep >= 1:
             
-            primeStatic = h.makeFuzz(int((g.width/16)*4), int((g.height/10)*4))
-            surface.blit(primeStatic, (int((g.width/16)*6), int((g.height/10)*2)))
+            primeStatic = h.makeFuzz(int((g.width/320)*68), int((g.height/200)*68))
+            surface.blit(primeStatic, ((g.width/320)*127, (g.height/200)*41))
 
         surface.blit(self.charComScaled, (0, 0))
         
