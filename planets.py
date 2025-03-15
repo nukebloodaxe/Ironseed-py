@@ -1115,19 +1115,19 @@ class Planet(object):
         
         if selectEclipsePhase == 0:
             
-            eclipseCoverage = random.randint(0, (g.planetHeight/5)/2) + (g.planetHeight/5)/2
+            eclipseCoverage = random.randint(0, int((g.planetHeight/5)/2)) + int(g.planetHeight/5)/2
         
         elif selectEclipsePhase == 1:
             
-            eclipseCoverage = (g.planetHeight/5)*2 - random.randint(0, (g.planetHeight/5)/2)
+            eclipseCoverage = (g.planetHeight/5)*2 - random.randint(0, int((g.planetHeight/5)/2))
             
         elif selectEclipsePhase == 2:
             
-            eclipseCoverage = (g.planetHeight/5)*4 + random.randint(0, (g.planetHeight/5)/2)
+            eclipseCoverage = (g.planetHeight/5)*4 + random.randint(0, int((g.planetHeight/5)/2))
             
         else:
             
-            eclipseCoverage = g.planetHeight - random.randint(0, (g.planetHeight/5)/2)
+            eclipseCoverage = g.planetHeight - random.randint(0, int((g.planetHeight/5)/2))
             
         return eclipseCoverage
 
@@ -1964,6 +1964,12 @@ def initialisePlanets(loadAndSetup, planetNamesFile = os.path.join('Data_Generat
         progress = int(newPlanet/10)
         loadAndSetup.update(progress)
 
+# During the course of a game session, due to the amount of time passing
+# in-game, it is possible a planet will evolve in terms of its state.
+# This function performs a check, to see if such a change is warranted, and
+# then applies the result.
+# Logically, this should be performed once, each time the IronSeed arrives in
+# a system, so that texture regeneration can be initiated if necessary.
 def transformCheckPlanet(planet):
 
     name, state, grade, life = Planets[planet]
