@@ -65,6 +65,9 @@ class crewComm(object):
         self.EGOTank6 = buttons.Button(int((g.height/200)*20),
                                        int((g.width/320)*76),
                                        (int((g.width/320)*235), int((g.height/200)*90)))
+
+        # Red Gradient bar as a list of tuples.
+        self.redBar = h.colourGradient(int(g.width/320)*36, g.RED, 3)
         
         # The exit button.
         self.Exit = buttons.Button(int((g.height/200)*19),
@@ -132,11 +135,56 @@ class crewComm(object):
         tokenisedText = text.split()
         pass
 
+    # Calculate the length of a sanity bar for a given crew member.
+    # This is according to our resolution.
+    def sanityBar(self, crewMember):
+
+        return int((g.width/320)*((self.crewMembers.crew[crewMember].sanity/99)*36))
+
     # Draw the interface for the crew communicator.
     def drawInterface(self, displaySurface):
 
         displaySurface.fill(g.BLACK)
         displaySurface.blit(self.charComScaled,(0,0))  # Set background.
+
+        # Each crewmember has a bar on their EGO Tank, set to the sanity stat.
+        #  Bar 1
+        displaySurface.blit(h.createBar(self.redBar, self.sanityBar(0), int((g.height/200)*2)+1), (int((g.width/320)*13), int((g.height/200)*48)))
+
+        #  Bar 2
+        displaySurface.blit(h.createBar(self.redBar, self.sanityBar(1), int((g.height/200)*2)+1), (int((g.width/320)*13), int((g.height/200)*78)))
+
+        #  Bar 3
+        displaySurface.blit(h.createBar(self.redBar, self.sanityBar(2), int((g.height/200)*2)+1), (int((g.width/320)*13), int((g.height/200)*108)))
+
+        #  Bar 4
+        displaySurface.blit(h.createBar(self.redBar, self.sanityBar(3), int((g.height/200)*2)+1), (int((g.width/320)*271), int((g.height/200)*48)))
+
+        #  Bar 5
+        displaySurface.blit(h.createBar(self.redBar, self.sanityBar(4), int((g.height/200)*2)+1), (int((g.width/320)*271), int((g.height/200)*78)))
+
+        #  Bar 6
+        displaySurface.blit(h.createBar(self.redBar, self.sanityBar(5), int((g.height/200)*2)+1), (int((g.width/320)*271), int((g.height/200)*108)))
+
+        # Each Ego tank has the name of the Crew Member displayed.
+
+        # Tank 1
+        h.renderText([self.crewMembers.crew[0].name], g.font, displaySurface, g.WHITE, 0, int((g.width/320)*18), int((g.height/200)*37))
+
+        # Tank 2
+        h.renderText([self.crewMembers.crew[1].name], g.font, displaySurface, g.WHITE, 0, int((g.width/320)*18), int((g.height/200)*67))
+
+        # Tank 3
+        h.renderText([self.crewMembers.crew[2].name], g.font, displaySurface, g.WHITE, 0, int((g.width/320)*18), int((g.height/200)*97))
+
+        # Tank 4
+        h.renderText([self.crewMembers.crew[3].name], g.font, displaySurface, g.WHITE, 0, int((g.width/320)*245), int((g.height/200)*37))
+
+        # Tank 5
+        h.renderText([self.crewMembers.crew[4].name], g.font, displaySurface, g.WHITE, 0, int((g.width/320)*245), int((g.height/200)*67))
+
+        # Tank 6
+        h.renderText([self.crewMembers.crew[5].name], g.font, displaySurface, g.WHITE, 0, int((g.width/320)*245), int((g.height/200)*97))
 
         if self.selectedCrew < 6:
 
@@ -171,7 +219,7 @@ class crewComm(object):
             
             self.drawInterface(displaySurface)
 
-#            self.crewPointer = self.crew.crew[self.currentCrewMember]  # For Sanity.
+#            self.crewPointer = self.crewMembers.crew[self.currentCrewMember]  # For Sanity.
 
             # rewind and start music playing again if track end reached.
             if not pygame.mixer.music.get_busy():
